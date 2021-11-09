@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Git Pull
-      - uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+        uses: rstudio/shiny-workflows/.github/internal/checkout@v1
 
       # Needs the repo to already be checked out
       - name: Git Pull (PR)
