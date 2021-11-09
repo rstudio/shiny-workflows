@@ -44,7 +44,6 @@ jobs:
         with:
           name: before-build-site
 
-
       # Verifies that `pkgdown` can build the website and that the index reference without any warnings.
       # If warnings are present, it implies the reference index contents are missing entries
       - name: Verify reference (PR)

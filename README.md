@@ -2,13 +2,13 @@
 
 :triangular_flag_on_post::triangular_flag_on_post::triangular_flag_on_post: This repo is intended for internal use only. Sweeping change may (and will) be made without notice. :triangular_flag_on_post::triangular_flag_on_post::triangular_flag_on_post:
 
+A reusable workflow is a workflow that is defined in a single location but can be executed from another location as if it was locally defined. Link: https://docs.github.com/en/actions/learn-github-actions/reusing-workflows
+
 ## Usage:
 
-The workflow below should be copied into your repo.
+This workflow below should be copied into your repo at **./github/workflows/R-CMD-check.yaml**
 
-
-**./github/workflows/R-CMD-check.yaml**
-```
+```yaml
 # Workflow derived from https://github.com/rstudio/shiny-workflows
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 #
@@ -34,17 +34,15 @@ jobs:
     uses: rstudio/shiny-workflows/.github/workflows/R-CMD-check.yaml@v1
 ```
 
-Adjust the `8` in the schedule to match the number of letters in the package name to insert some time variance. Otherwise, the PAT rate limit will be hit with all repos being tested at the same time.
-
+> Note: Adjust the `8` in the schedule to match the number of letters in the package name to insert some time variance. This helps mitigate PAT rate limits when testing many packages on a schedule.
 
 ## Workflows
 
-A reusable workflow is a workflow that is defined in a single location but can be executed from another location as if it was locally defined. Link: https://docs.github.com/en/actions/learn-github-actions/reusing-workflows
 
 There are three main reusable workflows to be used by packages in the shiny-verse
 
-* `pkgdown.yaml`
-  * This is a wrapper for building a pkgdown website and deploying it to the `gh-pages` branch of the repo.
+* `website.yaml`
+  * This is a wrapper for building a `{pkgdown}` website and deploying it to the `gh-pages` branch of the repo.
   * Packages included in the `./DESCRIPTION` field `Config/Needs/website` will also be installed
   * Parameters:
     * `extra-packages`: Installs extra packages not listed in the `./DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v1/setup-r-dependencies
@@ -54,39 +52,37 @@ There are three main reusable workflows to be used by packages in the shiny-vers
 * `routine.yaml`
   * Performs many common tasks for packages in the shiny-verse
     * Check for url redirects in `rc-v**` branches
-    * Making sure the documentation is up to date
-    * Make sure the `README.md` is the latest version
-    * Set the `./package.json` `version` field to match the `./DESCRIPTION` `Version` field
-    * Calls `yarn build` and commits any changes in `./inst` and `./srcts`
-    * Runs `before-routine-push.R` (see below)
+    * `devtools::document()`
+    * `devtools::build_readme()` (if `./README.Rmd` exists)
+    * Calls `yarn build` and commits any changes in `./inst`, `./srcts`, and `./srcjs`.
     * Pushes any new git commits to the repo
-    * Runs `after-routine-push.R` (see below)
-    * Checks code coverage with `covr`
-    * Checks for broken lints
+    * Checks code coverage with `covr` if `./codecov.yml` exists
+    * Checks for broken lints if `./.lintr` exists
     * Calls `yarn test`
   * Packages included in the `./DESCRIPTION` field `Config/Needs/routine` will also be installed
   * Parameters:
-    * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `pkgdown.yaml`
+    * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
     * `node-version`: Version of `node.js` to install
 * `R-CMD-check.yaml`
   * Performs `R CMD check .` on your package
   * Parameters:
-    * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `pkgdown.yaml`
+    * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
+    * `check-args`: Passed to `args` https://github.com/r-lib/actions/blob/v1/check-r-package/
     * `macOS`: `macOS` runtime to use
     * `windows`: `windows` runtime to use
-    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first ubuntu value will be tested using the `"devel"` R version.
-    * `release-only`: Logical that determines if only the `"release"` R versions should be tested
-    * `run-dont-test`: Runs `R CMD check .` with the extra `--run-donttest` argument
+    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version.
 
-## Customization
+## Customization {#custom}
 
 There are a set of known files that can be run. The file just needs to exist to be run. No extra configuration necessary.
 
 The files must exist in the `./.github/shiny-workflow/` folder. Such as `./.github/shiny-workflow/before-routine-push.R`.
 
 Files:
+* `before-install.R` / `before-install.sh`
+  * Run in `./setup-r-package` after R is installed, but before the local package dependencies are installed.
 * `before-build-site.R` / `before-build-site.sh`
-  * Run in `pkgdown.yaml` before the site is built
+  * Run in `website.yaml` before the site is built
 * `before-routine-push.R` / `before-routine-push.sh`
   * Run in `routine.yaml`. Runs before the local commits are pushed back to the repo
 * `after-routine-push.R` / `after-routine-push.sh`
@@ -97,8 +93,6 @@ Files:
   * Run in `R-CMD-check.yaml` after all `R CMD check .` have not failed
 * `after-check-failure.R` / `after-check-failure.sh`
   * Run in `R-CMD-check.yaml` on any failure
-* `before-install.R` / `before-install.sh`
-  * Run in `./setup-r-package` after R is installed, but before the local package dependencies are installed.
 
 These scripts should be done for their side effects, such as copying files or installing dependencies.
 
@@ -107,20 +101,44 @@ For example, a common use case for using a shell script over an R script would b
 Example usage of `before-install.sh`:
 ``` bash
 if [ "$RUNNER_OS" == "macOS" ]; then
-  brew install cairo
+  brew install harfbuzz fribidi
 fi
 ```
+
+## Initialization
+
+For my repo, I'd like to...
+
+#### Setup pkgdown to build to `gh-pages`
+
+```r
+# Inits `gh-pages` as an orphan branch
+# Sets `gh-pages` as the default location to host the repo website
+# Ignores `./docs` and pkgdown config
+# Inits `_pkgdown.yml` config
+#   - When prompted to edit the pkgdown config, please add `url: https://rstudio.github.io/REPO`
+# Adds url to DESCRIPTION field
+usethis::use_pkgdown_github_pages()
+
+# Remove pkgdown workflow file; (Using reusable workflow definition instead)
+unlink(".github/workflows/pkgdown.yaml")
+
+## Commit changes
+```
+
 
 
 ## Where to find help
 
-If your build fails and you are unsure of why, please visit https://github.com/r-lib/actions#where-to-find-help
+If your build fails and you are unsure of why, please visit https://github.com/r-lib/actions#where-to-find-help for more debugging tips. If you feel it is an error done by `shiny-workflows`, please submit an issue: https://github.com/rstudio/shiny-workflows/issues/new
 
 
 ## Common questions
 
 1. *Why are my builds failing on macOS?*\
   Please double check that their are no required dependencies stated in the log during installation. If there is an unmet dependency, please make an issue so that other repos may utilize this knowledge: https://github.com/rstudio/shiny-workflows/issues/new
+2. *What if my website is custom?*\
+  It is ok to comment the `website` job in your workflow file. When the time comes that you can use the standardised `{pkgdown}` workflow, feel free to uncomment the `website` job.
 
 
 
@@ -136,9 +154,9 @@ If your build fails and you are unsure of why, please visit https://github.com/r
 <!-- End - Copy from https://github.com/r-lib/actions/blob/2a200e6b02be657ea5fc0b65ce8720918757039a/README.md -->
 
 
-## Development
+## `shiny-workflow` development
 
-Once updates are made to the workflows, the `v1` tag must be (forcefully) moved forward to the latest value within the `rstudio/shiny-workflows`. To do this, run:
+If updates are made to the workflows, the `v1` tag must be (forcefully) moved forward to the latest value within the `rstudio/shiny-workflows`. To do this, run:
 
 ``` bash
 git tag -f v1

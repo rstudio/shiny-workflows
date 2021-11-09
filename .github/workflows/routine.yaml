@@ -3,7 +3,7 @@
 # Remove re-upping staticimports. Instead use warning on file if an update exists. Then back out of changes. Move to end
 # Move description version to package.json logic from here to within shiny's `yarn build`
 # √ When building js, also add the `srcjs` folder
-# Make description to put in the workflow template
+# √ Make description to put in the workflow template
 # √ Move callable workflows to a new repo
 # √ Convert R-CMD-check `config` generation to use R/python, something easier to reason about
 # √ How should --donttest be handled? Use `args` in an extra R-CMD-check job
@@ -117,16 +117,16 @@ jobs:
             if ("build" %in% names(pkg_scripts)) cat("::set-output name=build::true")
             if ("test" %in% names(pkg_scripts)) cat("::set-output name=test::true")
           }
-      - name: Sync DESCRIPTION and package.json versions
-        if: steps.package-json.outputs.exists
-        run: |
-          Rscript -e 'if (!require("jsonlite")) pak::pkg_install("jsonlite")'
-          Rscript -e 'pkg <- jsonlite::read_json("package.json", simplifyVector = TRUE)' \
-          -e 'version <- as.list(read.dcf("DESCRIPTION")[1,])$Version' \
-          -e 'pkg$version <- gsub("^(\\d+).(\\d+).(\\d+).(.+)$", "\\1.\\2.\\3-alpha.\\4", version)' \
-          -e 'pkg$files <- as.list(pkg$files)' \
-          -e 'jsonlite::write_json(pkg, path = "package.json", pretty = TRUE, auto_unbox = TRUE)'
-          git add package.json && git commit -m 'sync package version (GitHub Actions)' || echo "No pkg version to commit"
+      # - name: Sync DESCRIPTION and package.json versions
+      #   if: steps.package-json.outputs.exists
+      #   run: |
+      #     Rscript -e 'if (!require("jsonlite")) pak::pkg_install("jsonlite")'
+      #     Rscript -e 'pkg <- jsonlite::read_json("package.json", simplifyVector = TRUE)' \
+      #     -e 'version <- as.list(read.dcf("DESCRIPTION")[1,])$Version' \
+      #     -e 'pkg$version <- gsub("^(\\d+).(\\d+).(\\d+).(.+)$", "\\1.\\2.\\3-alpha.\\4", version)' \
+      #     -e 'pkg$files <- as.list(pkg$files)' \
+      #     -e 'jsonlite::write_json(pkg, path = "package.json", pretty = TRUE, auto_unbox = TRUE)'
+      #     git add package.json && git commit -m 'sync package version (GitHub Actions)' || echo "No pkg version to commit"
       - name: Install node.js
         if: steps.package-json.outputs.exists
         uses: actions/setup-node@v1
