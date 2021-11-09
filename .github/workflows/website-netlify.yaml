@@ -50,7 +50,15 @@ jobs:
 
       - name: Verify reference (PR)
         if: github.event_name != 'push'
-        uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
+        shell: Rscript {0}
+        run: |
+          if ("${{inputs.check-title}}" == "false") options(rmarkdown.html_vignette.check_title = FALSE)
+          pkgdown::build_site(new_process = FALSE)
+          if (!require("testthat")) pak::pkg_install("testthat")
+          testthat::expect_warning(
+            pkgdown::build_reference_index(),
+            NA
+          )
 
 
       - name: Build pkgdown site (push)

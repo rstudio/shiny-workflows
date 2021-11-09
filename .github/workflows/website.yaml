@@ -36,6 +36,7 @@ jobs:
           needs: website
           extra-packages: |
             pkgdown
+            testthat
             ${{ inputs.extra-packages }}
 
       - name: Run local before-build-site step
@@ -44,8 +45,18 @@ jobs:
           name: before-build-site
 
       - name: Verify reference (PR)
+      # Verifies that `pkgdown` can build the website and that the index reference without any warnings.
+      # If warnings are present, it implies the reference index contents are missing entries
+      - name: Verify reference
         if: github.event_name != 'push'
-        uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
+        shell: Rscript {0}
+        run: |
+          if ("${{inputs.check-title}}" == "false") options(rmarkdown.html_vignette.check_title = FALSE)
+          pkgdown::build_site(new_process = FALSE)
+          testthat::expect_warning(
+            pkgdown::build_reference_index(),
+            NA
+          )
 
       - name: Setup git (push)
         if: github.event_name == 'push'
