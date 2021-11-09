@@ -78,16 +78,6 @@ jobs:
           Rscript -e 'if (!require("urlchecker")) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
           git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
-      # - name: Find static imports
-      #   id: static-imports
-      #   shell: Rscript {0}
-      #   run: |
-      #     if (file.exists("R/staticimports.R")) cat("::set-output name=exists::true")
-      # - name: Update static imports
-      #   if: steps.static-imports.outputs.exists
-      #   run: |
-      #     Rscript -e 'if (!require("staticimports")) pak::pkg_install("wch/staticimports"); staticimports::import()'
-      #     git commit R/staticimports.R -m 'staticimports (GitHub Actions)' || echo "No staticimports changes to commit"
 
       - name: Document
         run: |
@@ -195,6 +185,17 @@ jobs:
         run: |
           yarn test
 
+
+      # - name: Find static imports
+      #   id: static-imports
+      #   shell: Rscript {0}
+      #   run: |
+      #     if (file.exists("R/staticimports.R")) cat("::set-output name=exists::true")
+      # - name: Update static imports
+      #   if: steps.static-imports.outputs.exists
+      #   run: |
+      #     Rscript -e 'if (!require("staticimports")) pak::pkg_install("wch/staticimports"); staticimports::import()'
+      #     git commit R/staticimports.R -m 'staticimports (GitHub Actions)' || echo "No staticimports changes to commit"
 
       # - name: Sync DESCRIPTION and package.json versions
       #   if: steps.package-json.outputs.exists
