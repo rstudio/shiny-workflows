@@ -18,10 +18,6 @@ on:
         # default: '"--run-donttest", "--no-manual", "--as-cran"'
         default: '"--no-manual", "--as-cran"'
         required: false
-      install-macOS-deps:
-        type: boolean
-        default: false
-        required: false
       macOS:
         type: string
         default: "macOS-latest"
