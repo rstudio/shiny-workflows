@@ -1,4 +1,4 @@
-# Rename commits to represent the command it is doing
+# √ Rename commits to represent the command it is doing
 # √ devtools::document() instead of roxygenize
 # Remove re-upping staticimports. Instead use warning on file if an update exists. Then back out of changes. Move to end
 # Move description version to package.json logic from here to within shiny's `yarn build`
@@ -75,7 +75,7 @@ jobs:
         if: ${{ github.event_name == 'push' && contains(github.ref, '/rc-v') }}
         run: |
           Rscript -e 'if (!require("urlchecker")) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
-          git add -u && git commit -m 'Update links (GitHub Actions)' || echo "No link changes to commit"
+          git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
       # - name: Find static imports
       #   id: static-imports
@@ -91,7 +91,7 @@ jobs:
       - name: Document
         run: |
           Rscript -e 'devtools::document()'
-          git add DESCRIPTION man/\* NAMESPACE && git commit -m 'Document (GitHub Actions)' || echo "No documentation changes to commit"
+          git add DESCRIPTION man/\* NAMESPACE && git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
 
       - name: Find `./README.Rmd`
         id: readme
@@ -102,7 +102,7 @@ jobs:
         if: steps.readme.outputs.exists
         run: |
           Rscript -e 'devtools::build_readme(quiet = FALSE)'
-          git commit README.md -m 'Re-build README.Rmd (GitHub Actions)' || echo "No readme changes to commit"
+          git commit README.md -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
 
 
       - name: Find `./package.json`
@@ -138,7 +138,7 @@ jobs:
             rm -r srcts/types
           fi
           yarn install --immutable && yarn build
-          git add ./inst ./srcts ./srcjs && git commit -m 'yarn build (GitHub Actions)' || echo "No yarn build changes to commit"
+          git add ./inst ./srcts ./srcjs && git commit -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
 
       - name: Run local before-routine-push step
         uses: rstudio/shiny-workflows/.github/internal/run-local-step@v1
