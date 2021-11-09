@@ -1,0 +1,10 @@
+name: 'Setup Git user name and email'
+description: 'Sets up Git user and email from the local run'
+author: 'Barret Schloerke'
+runs:
+  using: "composite"
+  steps:
+  - shell: bash
+    run: |
+      git config --local user.name "$GITHUB_ACTOR"
+      git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"

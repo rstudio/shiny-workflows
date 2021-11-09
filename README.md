@@ -4,7 +4,6 @@
 
 The workflow below should be copied into your repo.
 
-Adjust the `8` in the schedule to match the number of letters in the package name to insert some time variance. Otherwise, the PAT rate limit will be hit with all repos being tested at the same time.
 
 **./github/workflows/R-CMD-check.yaml**
 ```
@@ -26,6 +25,9 @@ jobs:
   R-CMD-check:
     uses: rstudio/shiny-workflows/.github/workflows/R-CMD-check.yaml@v1
 ```
+
+Adjust the `8` in the schedule to match the number of letters in the package name to insert some time variance. Otherwise, the PAT rate limit will be hit with all repos being tested at the same time.
+
 
 ## Workflows
 
@@ -72,7 +74,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
 
 There are a set of known files that can be run. The file just needs to exist to be run. No extra configuration necessary.
 
-The files must exist in the `./.github/shinycoreci-step/` folder. Such as `./.github/shinycoreci-step/before-routine-push.R`.
+The files must exist in the `./.github/shiny-workflow/` folder. Such as `./.github/shiny-workflow/before-routine-push.R`.
 
 Files:
 * `before-build-site.R` / `before-build-site.sh`
@@ -88,11 +90,11 @@ Files:
 * `after-check-failure.R` / `after-check-failure.sh`
   * Run in `R-CMD-check.yaml` on any failure
 * `before-install.R` / `before-install.sh`
-  * Run in `./.github/actions/install-r-package` after R is installed, but before the local package dependencies are installed.
+  * Run in `./setup-r-package` after R is installed, but before the local package dependencies are installed.
 
 These scripts should be done for their side effects, such as copying files or installing dependencies.
 
-For example, a common use case for using a shell script over an R script would be to install system dependencies. Since installation is usually **O**perating**S**ystem specific, you'll likely want to make use of System environment variables, such as `$RUNNER_OS`. Link: https://docs.github.com/en/actions/learn-github-actions/environment-variables
+For example, a common use case for using a shell script over an R script would be to install custom system dependencies. Since installation is usually **O**perating**S**ystem specific, you'll likely want to make use of System environment variables, such as `$RUNNER_OS`. Link: https://docs.github.com/en/actions/learn-github-actions/environment-variables
 
 Example usage of `before-install.sh`:
 ``` bash

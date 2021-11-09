@@ -1,0 +1,29 @@
+name: 'Checkout a repo with auto LFS support'
+description: 'If `=lfs` exists with `.gitattributes`, then add LFS support on checkout. If customization is needed, just call `actions/checkout@v2` directly'
+author: 'Barret Schloerke'
+runs:
+  using: "composite"
+  steps:
+  # https://github.com/actions/checkout/issues/135
+  - name: Set git to use LF
+    shell: bash
+    run: |
+      if [[ "$RUNNER_OS" == "Windows" ]]; then
+        git config --system core.autocrlf false
+        git config --system core.eol lf
+      fi
+
+  - name: Find LFS usage
+    shell: bash
+    id: lfs
+    run: |
+      FILE=.gitattributes
+      if [ -f "$FILE" ]; then
+        if grep -q "=lfs" "$FILE"; then
+          echo "::set-output name=exists::true"
+        fi
+      fi
+  - uses: actions/checkout@v2
+    with:
+      # Checkout with LFS support
+      lfs: ${{ steps.lfs.output.exists == 'true' }}
