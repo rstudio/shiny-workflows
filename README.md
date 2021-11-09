@@ -1,4 +1,6 @@
-# `shinycoreci` reusable workflows
+# Reusable GHA workflows
+
+:triangular_flag_on_post::triangular_flag_on_post::triangular_flag_on_post: This repo is intended for internal use only. Sweeping change may (and will) be made without notice. :triangular_flag_on_post::triangular_flag_on_post::triangular_flag_on_post:
 
 ## Usage:
 
