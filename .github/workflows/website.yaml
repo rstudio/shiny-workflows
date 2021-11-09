@@ -58,10 +58,7 @@ jobs:
           )
 
       - name: Setup git (push)
-        if: github.event_name == 'push'
-        run: |
-          git config --local user.name "$GITHUB_ACTOR"
-          git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
 
       - name: Build and deploy pkgdown site (push)
         if: github.event_name == 'push'

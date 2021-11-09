@@ -4,7 +4,8 @@ author: 'Barret Schloerke'
 runs:
   using: "composite"
   steps:
-  - shell: bash
+  - name: Setup Git config
+    shell: bash
     run: |
       git config --local user.name "$GITHUB_ACTOR"
       git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
