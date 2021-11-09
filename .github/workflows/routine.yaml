@@ -6,7 +6,7 @@
 # Make description to put in the workflow template
 # √ Move callable workflows to a new repo
 # Convert rcmd check config generation to use R/python, something easier to reason about
-# How should --donttest be handled? Use `args`
+# √ How should --donttest be handled? Use `args` in an extra R-CMD-check job
 
 on:
   workflow_call:
