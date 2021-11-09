@@ -9,6 +9,12 @@ The workflow below should be copied into your repo.
 
 **./github/workflows/R-CMD-check.yaml**
 ```
+# Workflow derived from https://github.com/rstudio/shiny-workflows
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# NOTE: This Shiny team GHA workflow is overkill for most R packages.
+# check-standard.yaml is likely a better choice.
+# `usethis::use_github_action("check-standard")` will install it.
 on:
   push:
     branches: [main, rc-**]
