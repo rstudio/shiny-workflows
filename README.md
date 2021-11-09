@@ -106,11 +106,39 @@ fi
 ```
 
 
-## Updates
+## Where to find help
 
-Once updates are made to the workflows, the `v1` tag must be (forcefully) moved forward to the latest value. To do this, run:
+If your build fails and you are unsure of why, please visit https://github.com/r-lib/actions#where-to-find-help
+
+
+## Common questions
+
+1. *Why are my builds failing on macOS?*\
+  Please double check that their are no required dependencies stated in the log during installation. If there is an unmet dependency, please make an issue so that other repos may utilize this knowledge: https://github.com/rstudio/shiny-workflows/issues/new
+
+
+
+<!-- Copy from https://github.com/r-lib/actions/blob/2a200e6b02be657ea5fc0b65ce8720918757039a/README.md -->
+## Additional resources
+
+- [`r-lib/actions`](https://github.com/r-lib/actions).
+- [GitHub Actions for R](https://www.jimhester.com/talk/2020-rsc-github-actions/), Jim Hester's talk at rstudio::conf 2020. [Recording](https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester), [slidedeck](https://speakerdeck.com/jimhester/github-actions-for-r).
+- [GitHub Actions advent calendar](https://www.edwardthomson.com/blog/github_actions_advent_calendar.html) a series of blogposts by Edward Thomson, one of the GitHub Actions product managers
+  highlighting features of GitHub Actions.
+- [GitHub Actions with R](https://ropenscilabs.github.io/actions_sandbox/) - a short online book about using GitHub Actions with R, produced as part of the [rOpenSci OzUnconf](https://ozunconf19.ropensci.org/).
+- [Awesome Actions](https://github.com/sdras/awesome-actions#awesome-actions---) - a curated list of custom actions. **Note** many of these are from early in the GitHub Actions beta and may no longer work.
+<!-- End - Copy from https://github.com/r-lib/actions/blob/2a200e6b02be657ea5fc0b65ce8720918757039a/README.md -->
+
+
+## Development
+
+Once updates are made to the workflows, the `v1` tag must be (forcefully) moved forward to the latest value within the `rstudio/shiny-workflows`. To do this, run:
 
 ``` bash
 git tag -f v1
 git push origin --tags -f
 ```
+
+## License ![CC0 licensed](https://img.shields.io/github/license/r-lib/actions)
+
+All examples in this repository are published with the [CC0](./LICENSE) license.
