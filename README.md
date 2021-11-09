@@ -1,6 +1,6 @@
 # Reusable GHA workflows
 
-:triangular_flag_on_post::triangular_flag_on_post::triangular_flag_on_post: This repo is intended for internal use only. Sweeping change may (and will) be made without notice. :triangular_flag_on_post::triangular_flag_on_post::triangular_flag_on_post:
+:triangular_flag_on_post::triangular_flag_on_post::triangular_flag_on_post: This repo is intended for internal use only. Sweeping changes will be made without notice. :triangular_flag_on_post::triangular_flag_on_post::triangular_flag_on_post:
 
 A reusable workflow is a workflow that is defined in a single location but can be executed from another location as if it was locally defined. Link: https://docs.github.com/en/actions/learn-github-actions/reusing-workflows
 
