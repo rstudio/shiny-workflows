@@ -70,7 +70,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `windows`: `windows` runtime to use
     * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version.
 
-## Customization {#custom}
+## Customization
 
 There are a set of known files that can be run. The file just needs to exist to be run. No extra configuration necessary.
 
