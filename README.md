@@ -6,15 +6,13 @@ A reusable workflow is a workflow that is defined in a single location but can b
 
 ## Usage:
 
-This workflow below should be copied into your repo at **./github/workflows/R-CMD-check.yaml**
+This workflow below should be copied into your repo at **./.github/workflows/R-CMD-check.yaml**
 
 ```yaml
 # Workflow derived from https://github.com/rstudio/shiny-workflows
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 #
 # NOTE: This Shiny team GHA workflow is overkill for most R packages.
-# check-standard.yaml is likely a better choice.
-# `usethis::use_github_action("check-standard")` will install it.
+# It is probably better to use https://github.com/r-lib/actions
 on:
   push:
     branches: [main, rc-**]
