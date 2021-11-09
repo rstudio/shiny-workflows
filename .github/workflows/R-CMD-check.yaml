@@ -47,47 +47,45 @@ jobs:
     - { name: oldrel-2, id: oldrel-2, uses: r-lib/actions/setup-r@v1, with: { r-version: oldrel-2, install-r: false } }
     - { name: oldrel-3, id: oldrel-3, uses: r-lib/actions/setup-r@v1, with: { r-version: oldrel-3, install-r: false } }
     - { name: oldrel-4, id: oldrel-4, uses: r-lib/actions/setup-r@v1, with: { r-version: oldrel-4, install-r: false } }
+    # R is a pre-installed software
     - name: Config
-      id: config
-      shell: bash
+      id: config_r
+      shell: Rscript {0}
       run: |
-        CONFIG="[";
-        CONFIG="$CONFIG  {\"os\": \"${{ inputs.macOS }}\", \"r\": \"${{ steps.release.outputs.installed-r-version }}\"}";
-        CONFIG="$CONFIG, {\"os\": \"${{ inputs.windows }}\", \"r\": \"${{ steps.release.outputs.installed-r-version }}\"}";
-        CONFIG="$CONFIG, {\"os\": \"${{ inputs.windows }}\", \"r\": \"3.6\"}";
-
-        # Array variable
-        UBUNTU_FLAVORS=();
-        # Add each ubuntu flavor as a value
-        for FLAVOR in ${{ inputs.ubuntu }}
-        do
-          UBUNTU_FLAVORS+=("$FLAVOR");
-        done
-
-        # Get length of an array to a variable
-        arrlength=${#UBUNTU_FLAVORS[@]}
-
-        # for loop to read all values and indexes
-        for (( i=0; i<${arrlength}; i++ ));
-        do
-          UBUNTU_FLAVOR=${UBUNTU_FLAVORS[$i]}
-          # Only allow the first ubuntu flavor to have devel
-          if [ "$i" == "0" ]; then
-            CONFIG="$CONFIG, {\"os\": \"$UBUNTU_FLAVOR\", \"r\": \"${{ steps.devel.outputs.installed-r-version }}\", \"http-user-agent\": \"release\" }";
-          fi
-          CONFIG="$CONFIG, {\"os\": \"$UBUNTU_FLAVOR\", \"r\": \"${{ steps.release.outputs.installed-r-version }}\"}"
-
-          CONFIG="$CONFIG, {\"os\": \"$UBUNTU_FLAVOR\", \"r\": \"${{ steps.oldrel-1.outputs.installed-r-version }}\"}"
-          CONFIG="$CONFIG, {\"os\": \"$UBUNTU_FLAVOR\", \"r\": \"${{ steps.oldrel-2.outputs.installed-r-version }}\"}"
-          CONFIG="$CONFIG, {\"os\": \"$UBUNTU_FLAVOR\", \"r\": \"${{ steps.oldrel-3.outputs.installed-r-version }}\"}"
-          CONFIG="$CONFIG, {\"os\": \"$UBUNTU_FLAVOR\", \"r\": \"${{ steps.oldrel-4.outputs.installed-r-version }}\"}"
-        done
-        CONFIG="$CONFIG]"
-        echo "$CONFIG"
-        echo "'config':"
-        jq <<< "$CONFIG"
-        echo "::set-output name=config::$CONFIG"
-
+        install.packages("jsonlite")
+        mac <- "${{ inputs.macOS }}"
+        windows <- "${{ inputs.windows }}"
+        ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
+        rver <- list(
+          devel   = "${{ steps.devel.outputs.installed-r-version }}",
+          release = "${{ steps.release.outputs.installed-r-version }}",
+          oldrel1 = "${{ steps.oldrel-1.outputs.installed-r-version }}",
+          oldrel2 = "${{ steps.oldrel-2.outputs.installed-r-version }}",
+          oldrel3 = "${{ steps.oldrel-3.outputs.installed-r-version }}",
+          oldrel4 = "${{ steps.oldrel-4.outputs.installed-r-version }}"
+        )
+        job <- function(os, r, ...) {
+          list(os = os, r = r, ...)
+        }
+        config <- c(
+          list(
+            job(mac, rver$release),
+            job(windows, rver$release),
+            job(windows, "3.6"),
+            job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
+          ),
+          unlist(recursive = FALSE, lapply(ubuntu, function(ubuntu_) {
+            list(
+              job(ubuntu_, rver$release),
+              job(ubuntu_, rver$oldrel1),
+              job(ubuntu_, rver$oldrel2),
+              job(ubuntu_, rver$oldrel3),
+              job(ubuntu_, rver$oldrel4)
+            )
+          }))
+        )
+        config_json <- jsonlite::toJSON(config, auto_unbox = TRUE)
+        cat("::set-output name=config::", config_json, sep = "")
 
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}

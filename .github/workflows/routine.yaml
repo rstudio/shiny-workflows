@@ -5,8 +5,9 @@
 # √ When building js, also add the `srcjs` folder
 # Make description to put in the workflow template
 # √ Move callable workflows to a new repo
-# Convert rcmd check config generation to use R/python, something easier to reason about
+# √ Convert R-CMD-check `config` generation to use R/python, something easier to reason about
 # √ How should --donttest be handled? Use `args` in an extra R-CMD-check job
+# √ Remove netlify workflow
 
 on:
   workflow_call:
