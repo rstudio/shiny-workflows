@@ -85,8 +85,8 @@ jobs:
           }))
         )
         config_json <- jsonlite::toJSON(config, auto_unbox = TRUE)
-        cat("Config:\n", config_json, "\n")
-        cat("::set-output name=config::", config_json, sep = "")
+        cat("Config:\n", config_json, "\n", sep = "")
+        cat("::set-output name=config::", config_json, "\n", sep = "")
 
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
