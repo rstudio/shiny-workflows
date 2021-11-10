@@ -44,7 +44,7 @@ runs:
         http-user-agent: ${{ inputs.http-user-agent }}
         use-public-rspm: true
 
-    - uses: rstudio/shiny-workflows/.github/actions/install-mac-deps@v1
+    - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
       with:
         extra-packages: ${{ inputs.extra-packages }}
 
@@ -72,10 +72,10 @@ runs:
         }
 
     - name: Install phantomJS
-      uses: rstudio/shiny-workflows/.github/actions/setup-phantomjs@v1
+      uses: rstudio/shiny-workflows/setup-phantomjs@v1
       with:
         cache-version: ${{ inputs.cache-version }}
     - name: Install tinytex
-      uses: rstudio/shiny-workflows/.github/actions/setup-tinytex@v1
+      uses: rstudio/shiny-workflows/setup-tinytex@v1
       with:
         cache-version: ${{ inputs.cache-version }}
