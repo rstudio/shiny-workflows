@@ -1,6 +1,6 @@
 # √ Rename commits to represent the command it is doing
 # √ devtools::document() instead of roxygenize
-# Remove re-upping staticimports. Instead use warning on file if an update exists. Then back out of changes. Move to end
+# √ Remove re-upping staticimports. Instead use warning on file if an update exists. Then back out of changes. Move to end
 # Move description version to package.json logic from here to within shiny's `yarn build`
 # √ When building js, also add the `srcjs` folder
 # √ Make description to put in the workflow template
@@ -29,6 +29,10 @@ on:
       node-version:
         type: string
         default: "16.x"
+        required: false
+      staticimports:
+        type: boolean
+        default: true
         required: false
     # secrets:
     #   token:
@@ -180,16 +184,31 @@ jobs:
           yarn test
 
 
-      # - name: Find static imports
-      #   id: static-imports
-      #   shell: Rscript {0}
-      #   run: |
-      #     if (file.exists("R/staticimports.R")) cat("::set-output name=exists::true")
-      # - name: Update static imports
-      #   if: steps.static-imports.outputs.exists
-      #   run: |
-      #     Rscript -e 'if (!require("staticimports")) pak::pkg_install("wch/staticimports"); staticimports::import()'
-      #     git commit R/staticimports.R -m 'staticimports (GitHub Actions)' || echo "No staticimports changes to commit"
+      - name: "Find `staticimports`"
+        if: inputs.staticimports
+        id: static-imports
+        shell: Rscript {0}
+        run: |
+          # If any file contains `# @staticimports` in the R folder...
+          if (system("grep -e '# @staticimports' -r R -q") == 0) {
+            cat("::set-output name=exists::true")
+          }
+      - name: Check for staticimports updates
+        if: steps.static-imports.outputs.exists
+        shell: bash
+        run: |
+          Rscript -e 'if (!require("staticimports")) pak::pkg_install("wch/staticimports"); staticimports::import()'
+
+          # Display the git diff here; Could turn off with `--quiet`
+          if git diff --exit-code -- R; then
+            FILE="R/staticimports.R"
+            if [ ! -f "R/staticimports.R" ]; then
+              # Find the first file instead
+              FILE=$(git ls-files -dm R | head -n 1);
+            fi
+            echo "::warning file=$FILE,title=staticimports::$FILE is out of date. To update, call `staticimports::import()`. To opt out of this check, set `staticimports: false` in the routine.yaml args"
+          fi
+
 
       # - name: Sync DESCRIPTION and package.json versions
       #   if: steps.package-json.outputs.exists

@@ -48,15 +48,15 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/master/setup-pandoc
     * `check-title`: If set, will disable `rmarkdown`'s check for having the vignette title and the document title match
 * `routine.yaml`
-  * Performs many common tasks for packages in the shiny-verse
+  * Performs many common tasks for packages in the shiny-verse and commits them back to the repo
     * Check for url redirects in `rc-v**` branches
     * `devtools::document()`
     * `devtools::build_readme()` (if `README.Rmd` exists)
     * Calls `yarn build` and commits any changes in `inst`, `srcts`, and `srcjs`.
-    * Pushes any new git commits to the repo
     * Checks code coverage with `covr` if `codecov.yml` exists
     * Checks for broken lints if `.lintr` exists
     * Calls `yarn test`
+    * Checks for outdated `staticimports`
   * Packages included in the `DESCRIPTION` field `Config/Needs/routine` will also be installed
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
@@ -69,6 +69,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `macOS`: `macOS` runtime to use
     * `windows`: `windows` runtime to use
     * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version.
+    * staticimports: Determines if `staticimports` should display a warning message if the staticimports are out of date.
 
 ## Customization
 
