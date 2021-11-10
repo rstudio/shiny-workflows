@@ -12,7 +12,7 @@ This workflow below should be copied into your repo at **.github/workflows/R-CMD
 # Workflow derived from https://github.com/rstudio/shiny-workflows
 #
 # NOTE: This Shiny team GHA workflow is overkill for most R packages.
-# It is probably better to use https://github.com/r-lib/actions
+# For most R packages it is better to use https://github.com/r-lib/actions
 on:
   push:
     branches: [main, rc-**]
