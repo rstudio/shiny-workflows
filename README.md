@@ -74,29 +74,26 @@ There are three main reusable workflows to be used by packages in the shiny-vers
 
 There are a set of known files that can be run. The file just needs to exist to be run. No extra configuration necessary.
 
-The files must exist in the `./.github/shiny-workflow/` folder. Such as `./.github/shiny-workflow/before-routine-push.R`.
+The files must exist in the `./.github/shiny-workflow/` folder. Such as `./.github/shiny-workflow/package-install.R`.
 
 Files:
-* `before-install.R` / `before-install.sh`
-  * Run in `./setup-r-package` after R is installed, but before the local package dependencies are installed.
-* `before-build-site.R` / `before-build-site.sh`
+* `package-install.R` / `package-install.sh`
+  * This step is run in **all** workflows after R is installed, but before the local package dependencies are installed.
+  * This script could be useful for installing custom dependencies
+* `website-build.R` / `website-build.sh`
   * Run in `website.yaml` before the site is built
-* `before-routine-push.R` / `before-routine-push.sh`
-  * Run in `routine.yaml`. Runs before the local commits are pushed back to the repo
-* `after-routine-push.R` / `after-routine-push.sh`
-  * Run in `routine.yaml`. Runs after the local commits are pushed back to the repo. Useful to execute code that does not produce files that should be commited back to the repo
-* `before-check.R` / `before-check.sh`
-  * Run in `R-CMD-check.yaml` before any `R CMD check .` are called
-* `after-check-success.R` / `after-check-success.sh`
-  * Run in `R-CMD-check.yaml` after all `R CMD check .` have not failed
-* `after-check-failure.R` / `after-check-failure.sh`
-  * Run in `R-CMD-check.yaml` on any failure
+  * This script could be useful for copying assets to a directory
+* `routine.R` / `routine.sh`
+  * Run in `routine.yaml`. Runs before the local commits are pushed back to GitHub
+  * This script could be useful for running some logic on a single OS and **push the results back** to GitHub
+  * This script could be useful for running a test that needs to be performed **once** and not on every job of `R-CMD-check.yaml`
+
 
 These scripts should be done for their side effects, such as copying files or installing dependencies.
 
 For example, a common use case for using a shell script over an R script would be to install custom system dependencies. Since installation is usually **O**perating**S**ystem specific, you'll likely want to make use of System environment variables, such as `$RUNNER_OS`. Link: https://docs.github.com/en/actions/learn-github-actions/environment-variables
 
-Example usage of `before-install.sh`:
+Example usage of `package-install.sh`:
 ``` bash
 if [ "$RUNNER_OS" == "macOS" ]; then
   brew install harfbuzz fribidi
@@ -154,12 +151,26 @@ If your build fails and you are unsure of why, please visit https://github.com/r
 
 ## `shiny-workflow` development
 
+#### Adopting a feature
+
+Reasons to consider a feature:
+* If more than two repos needs custom work, it should be considered.
+* If all other repos could benefit from an installation step, even if they are currently not utilized. (Ex: phantomJS, tinytex)
+
+Reasons to NOT consider a feature:
+* Trying to appease a single repo. General response: The repo can run more compute cycles / jobs to meet their needs
+* The feature imposes behavior that no other repos are performing or willing to adopt. Ex: Auto setting the package version in `package.json`
+
+#### Updates to workflows or actions
+
 If updates are made to the workflows, the `v1` tag must be (forcefully) moved forward to the latest value within the `rstudio/shiny-workflows`. To do this, run:
 
 ``` bash
 git tag -f v1
 git push origin --tags -f
 ```
+
+
 
 ## License ![CC0 licensed](https://img.shields.io/github/license/r-lib/actions)
 

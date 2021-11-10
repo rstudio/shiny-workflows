@@ -115,11 +115,6 @@ jobs:
             rcmdcheck
             ${{ inputs.extra-packages }}
 
-      - name: Run local before-check step
-        uses: rstudio/shiny-workflows/.github/internal/run-local-step@v1
-        with:
-          name: before-check
-
       - uses: r-lib/actions/check-r-package@v1
         with:
           check-dir: '"check"' # matches directory below
@@ -135,14 +130,3 @@ jobs:
         with:
           name: ${{ matrix.config.os }}-r${{ matrix.config.r }}-results
           path: "check"
-
-      - name: Run local after-check-success step
-        if: success()
-        uses: rstudio/shiny-workflows/.github/internal/run-local-step@v1
-        with:
-          name: after-check-success
-      - name: Run local after-check-failure step
-        if: failure()
-        uses: rstudio/shiny-workflows/.github/internal/run-local-step@v1
-        with:
-          name: after-check-failure
