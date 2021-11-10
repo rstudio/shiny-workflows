@@ -13,10 +13,10 @@ on:
         type: string
         default: "2.7.3"
         required: false
-      check-args:
+      extra-check-args:
         type: string
         # default: '"--run-donttest", "--no-manual", "--as-cran"'
-        default: '"--no-manual", "--as-cran"'
+        default: 'NULL'
         required: false
       macOS:
         type: string
@@ -131,7 +131,7 @@ jobs:
         uses: r-lib/actions/check-r-package@v1
         with:
           check-dir: '"check"' # matches directory below
-          args: '${{ inputs.check-args }}'
+          args: '${{ inputs.extra-check-args }}, "--no-manual", "--as-cran"'
 
       - name: "Show `testthat` output"
         if: always()
