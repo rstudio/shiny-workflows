@@ -46,7 +46,7 @@ jobs:
         with:
           name: website-build
 
-      - name: Verify reference (PR)
+      - name: Verify index reference (PR)
         if: github.event_name != 'push'
         uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
         with:
