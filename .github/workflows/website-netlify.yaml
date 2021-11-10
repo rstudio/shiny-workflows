@@ -22,7 +22,8 @@ on:
         required: true
       NETLIFY_SITE_ID:
         required: true
-name: pkgdown
+
+name: "`pkgdown` - Netlify"
 
 jobs:
   pkgdown:
@@ -41,30 +42,26 @@ jobs:
           needs: website
           extra-packages: |
             pkgdown
+            testthat
             ${{ inputs.extra-packages }}
 
-      - name: Run local before-build-site step
-        uses: rstudio/shiny-workflows/.github/internal/run-local-step@v1
+      - name: Run 'website-build' script
+        uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
         with:
-          name: before-build-site
+          name: website-build
 
       - name: Verify reference (PR)
         if: github.event_name != 'push'
-        shell: Rscript {0}
-        run: |
-          if ("${{inputs.check-title}}" == "false") options(rmarkdown.html_vignette.check_title = FALSE)
-          pkgdown::build_site(new_process = FALSE)
-          if (!require("testthat")) pak::pkg_install("testthat")
-          testthat::expect_warning(
-            pkgdown::build_reference_index(),
-            NA
-          )
-
+        uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
+        with:
+          check-title: ${{ inputs.check-title }}
 
       - name: Build pkgdown site (push)
         if: github.event_name == 'push'
         shell: Rscript {0}
-        run: pkgdown::build_site(new_process = FALSE)
+        run: |
+          if ("${{inputs.check-title}}" == "false") options(rmarkdown.html_vignette.check_title = FALSE)
+          pkgdown::build_site(new_process = FALSE)
 
       - name: Deploy to Netlify (push)
         if: github.event_name == 'push'
