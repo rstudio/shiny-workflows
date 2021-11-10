@@ -49,10 +49,9 @@ jobs:
     - { name: oldrel-4, id: oldrel-4, uses: r-lib/actions/setup-r@v1, with: { r-version: oldrel-4, install-r: false } }
     # R is a pre-installed software
     - name: Config
-      id: config_r
+      id: config
       shell: Rscript {0}
       run: |
-        if (!require("jsonlite", quietly = TRUE)) install.packages("jsonlite")
         mac <- "${{ inputs.macOS }}"
         windows <- "${{ inputs.windows }}"
         ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
@@ -84,7 +83,17 @@ jobs:
             )
           }))
         )
-        config_json <- jsonlite::toJSON(config, auto_unbox = TRUE)
+        ## Convert to JSON manually to save 10s installing `jsonlite`
+        join_and_wrap <- function(x, start, end, sep = ",") {
+          paste0(start, paste0(x, collapse = sep), end)
+        }
+        entries_json <- vapply(config, character(1), FUN = function(entry) {
+          join_and_wrap(
+            paste0("\"", names(entry), "\":\"", unname(entry), "\""),
+            "{", "}"
+          )
+        })
+        config_json <- join_and_wrap(entries_json, "[", "]")
         cat("Config:\n", config_json, "\n", sep = "")
         cat("::set-output name=config::", config_json, "\n", sep = "")
 
