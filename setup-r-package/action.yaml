@@ -77,5 +77,3 @@ runs:
         cache-version: ${{ inputs.cache-version }}
     - name: Install tinytex
       uses: rstudio/shiny-workflows/setup-tinytex@v1
-      with:
-        cache-version: ${{ inputs.cache-version }}
