@@ -8,6 +8,8 @@
 # √ Convert R-CMD-check `config` generation to use R/python, something easier to reason about
 # √ How should --donttest be handled? Use `args` in an extra R-CMD-check job
 # √ Remove netlify workflow
+# √ More verbose step names; use the command
+# √ auto install tinytex if present in DESCRIPTION file
 
 on:
   workflow_call:
@@ -40,10 +42,10 @@ jobs:
     runs-on: ubuntu-20.04
 
     env:
-      GITHUB_PAT: ${{ github.token }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Git Pull
+      - name: Checkout GitHub repo
         uses: rstudio/shiny-workflows/.github/internal/checkout@v1
 
       # Needs the repo to already be checked out
@@ -56,7 +58,8 @@ jobs:
       - name: Git Config
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
 
-      - uses: rstudio/shiny-workflows/setup@v1
+      - name: Install R, system dependencies, and package dependencies
+        uses: rstudio/shiny-workflows/setup-r-package@v1
         with:
           pandoc-version: ${{ inputs.pandoc-version }}
           r-version: ${{ matrix.config.r }}
@@ -68,41 +71,40 @@ jobs:
             roxygen2
             rmarkdown
             lintr
-            decor
+            jsonlite
             ${{ inputs.extra-packages }}
 
-      - name: Url redirects
-        # only perform if in an RC branch (`rc-vX.Y.Z`)
+      - name: "`urlchecker::url_update()`; Update urls found in package; Only rc-v** branches"
+        # Only perform if in an RC branch (`rc-vX.Y.Z`)
         if: ${{ github.event_name == 'push' && contains(github.ref, '/rc-v') }}
         run: |
           Rscript -e 'if (!require("urlchecker")) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
           git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
 
-      - name: Document
+      - name: "`devtools::document()`; Document package"
         run: |
           Rscript -e 'devtools::document()'
-          git add DESCRIPTION man/\* NAMESPACE && git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
+          git commit DESCRIPTION man/\* NAMESPACE -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
 
-      - name: Find `./README.Rmd`
+      - name: Find `README.Rmd`
         id: readme
         shell: Rscript {0}
         run: |
           if (file.exists("README.Rmd")) cat("::set-output name=exists::true")
-      - name: Build Readme
+      - name: "`devtools::build_readme()`; Build README.md from README.Rmd"
         if: steps.readme.outputs.exists
         run: |
           Rscript -e 'devtools::build_readme(quiet = FALSE)'
           git commit README.md -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
 
 
-      - name: Find `./package.json`
+      - name: Find `package.json`
         id: package-json
         shell: Rscript {0}
         run: |
           if (file.exists("package.json")) {
             cat("::set-output name=exists::true")
-            if (!require("jsonlite")) pak::pkg_install("jsonlite")
             pkg_scripts <- jsonlite::read_json("package.json")$scripts
             if ("build" %in% names(pkg_scripts)) cat("::set-output name=build::true")
             if ("test" %in% names(pkg_scripts)) cat("::set-output name=test::true")
@@ -119,10 +121,10 @@ jobs:
             rm -r srcts/types
           fi
           yarn install --immutable && yarn build
-          git add ./inst ./srcts ./srcjs && git commit -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
+          git commit ./inst ./srcts ./srcjs -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
 
-      - name: Run 'routine' step
-        uses: rstudio/shiny-workflows/.github/internal/run-local-step@v1
+      - name: Run 'routine' script
+        uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
         with:
           name: routine
 
@@ -131,10 +133,6 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           repo-token: ${{ github.token }}
-      # - name: Git Push (main)
-      #   if: github.event_name == 'push'
-      #   run: |
-      #     git push https://${{github.actor}}:${{github.token}}@github.com/${{github.repository}}.git HEAD:${{ github.ref }} || echo "No changes to push"
       - name: Verify no un-pushed commits (main)
         if: github.event_name == 'push'
         run: |
@@ -142,19 +140,19 @@ jobs:
           if [ -n "`git cherry origin/HEAD`" ]; then
             echo "Un-pushed commits:"
             git cherry -v origin/HEAD
-            echo "::error:: Should not push to HEAD branch. Please make a PR to have changes be collected. Exiting"
+            echo "::error:: Some auto generated commits were found. GHA should not auto-push to the HEAD branch. Please make a PR to have the changes be collected. Exiting"
             exit 1
           fi
 
       # Execute these steps after pushing, as
       # no updated files will be commited back to GitHub
 
-      - name: Find `./codecov.yml`
+      - name: Find `codecov.yml`
         id: covr
         shell: Rscript {0}
         run: |
           if (file.exists("codecov.yml")) cat("::set-output name=exists::true")
-      - name: Code Coverage
+      - name: "`covr::codecov()`; Run tests and find code coverage"
         if: steps.covr.outputs.exists
         shell: Rscript {0}
         run: |
@@ -162,12 +160,12 @@ jobs:
           if (!require("covr")) pak::pkg_install("covr")
           covr::codecov()
 
-      - name: Find `./.lintr`
+      - name: Find `.lintr`
         id: lintr
         shell: Rscript {0}
         run: |
           if (file.exists(".lintr")) cat("::set-output name=exists::true")
-      - name: "`devtools::lint()`"
+      - name: "`devtools::lint()`; Lint package"
         if: steps.lintr.outputs.exists
         shell: Rscript {0}
         run: |
@@ -203,3 +201,5 @@ jobs:
       #     -e 'pkg$files <- as.list(pkg$files)' \
       #     -e 'jsonlite::write_json(pkg, path = "package.json", pretty = TRUE, auto_unbox = TRUE)'
       #     git add package.json && git commit -m 'sync package version (GitHub Actions)' || echo "No pkg version to commit"
+
+      # httpuv - decor

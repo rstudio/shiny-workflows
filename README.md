@@ -6,7 +6,7 @@ A reusable workflow is a workflow that is defined in a single location but can b
 
 ## Usage:
 
-This workflow below should be copied into your repo at **./.github/workflows/R-CMD-check.yaml**
+This workflow below should be copied into your repo at **.github/workflows/R-CMD-check.yaml**
 
 ```yaml
 # Workflow derived from https://github.com/rstudio/shiny-workflows
@@ -41,9 +41,9 @@ There are three main reusable workflows to be used by packages in the shiny-vers
 
 * `website.yaml`
   * This is a wrapper for building a `{pkgdown}` website and deploying it to the `gh-pages` branch of the repo.
-  * Packages included in the `./DESCRIPTION` field `Config/Needs/website` will also be installed
+  * Packages included in the `DESCRIPTION` field `Config/Needs/website` will also be installed
   * Parameters:
-    * `extra-packages`: Installs extra packages not listed in the `./DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v1/setup-r-dependencies
+    * `extra-packages`: Installs extra packages not listed in the `DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v1/setup-r-dependencies
     * `cache-version`: The cache key to be used. Link: https://github.com/r-lib/actions/tree/v1/setup-r-dependencies
     * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/master/setup-pandoc
     * `check-title`: If set, will disable `rmarkdown`'s check for having the vignette title and the document title match
@@ -51,13 +51,13 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * Performs many common tasks for packages in the shiny-verse
     * Check for url redirects in `rc-v**` branches
     * `devtools::document()`
-    * `devtools::build_readme()` (if `./README.Rmd` exists)
-    * Calls `yarn build` and commits any changes in `./inst`, `./srcts`, and `./srcjs`.
+    * `devtools::build_readme()` (if `README.Rmd` exists)
+    * Calls `yarn build` and commits any changes in `inst`, `srcts`, and `srcjs`.
     * Pushes any new git commits to the repo
-    * Checks code coverage with `covr` if `./codecov.yml` exists
-    * Checks for broken lints if `./.lintr` exists
+    * Checks code coverage with `covr` if `codecov.yml` exists
+    * Checks for broken lints if `.lintr` exists
     * Calls `yarn test`
-  * Packages included in the `./DESCRIPTION` field `Config/Needs/routine` will also be installed
+  * Packages included in the `DESCRIPTION` field `Config/Needs/routine` will also be installed
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
     * `node-version`: Version of `node.js` to install
@@ -74,7 +74,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
 
 There are a set of known files that can be run. The file just needs to exist to be run. No extra configuration necessary.
 
-The files must exist in the `./.github/shiny-workflow/` folder. Such as `./.github/shiny-workflow/package-install.R`.
+The files must exist in the `.github/shiny-workflow/` folder. Such as `.github/shiny-workflow/package-install.R`.
 
 Files:
 * `package-install.R` / `package-install.sh`
@@ -109,7 +109,7 @@ For my repo, I'd like to...
 ```r
 # Inits `gh-pages` as an orphan branch
 # Sets `gh-pages` as the default location to host the repo website
-# Ignores `./docs` and pkgdown config
+# Ignores `docs` and pkgdown config
 # Inits `_pkgdown.yml` config
 #   - When prompted to edit the pkgdown config, please add `url: https://rstudio.github.io/REPO`
 # Adds url to DESCRIPTION field

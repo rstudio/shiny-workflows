@@ -102,9 +102,11 @@ jobs:
       GITHUB_PAT: ${{ github.token }}
 
     steps:
-      - uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+      - name: Checkout GitHub repo
+        uses: rstudio/shiny-workflows/.github/internal/checkout@v1
 
-      - uses: rstudio/shiny-workflows/setup-r-package@v1
+      - name: Install R, system dependencies, and package dependencies
+        uses: rstudio/shiny-workflows/setup-r-package@v1
         with:
           pandoc-version: ${{ inputs.pandoc-version }}
           r-version: ${{ matrix.config.r }}
@@ -115,16 +117,17 @@ jobs:
             rcmdcheck
             ${{ inputs.extra-packages }}
 
-      - uses: r-lib/actions/check-r-package@v1
+      - name: Check package
+        uses: r-lib/actions/check-r-package@v1
         with:
           check-dir: '"check"' # matches directory below
           args: '${{ inputs.check-args }}'
 
-      - name: Show testthat output
+      - name: "Show `testthat` output"
         if: always()
         run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
-      - name: Upload check results
+      - name: "Upload 'Check package' results"
         if: failure()
         uses: actions/upload-artifact@main
         with:

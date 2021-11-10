@@ -1,5 +1,5 @@
 name: 'Install PhantomJS if shinytest is a direct dependency'
-description: 'Installs PhantomJS if shinytest (or webdriver) is found in the `./DESCRIPTION` file. If `shinytest` is not directly used, then PhantomJS is not installed'
+description: 'Installs PhantomJS if shinytest (or webdriver) is found in the `DESCRIPTION` file. If `shinytest` is not directly used, then PhantomJS is not installed'
 author: 'Barret Schloerke'
 inputs:
   cache-version:
@@ -16,7 +16,7 @@ runs:
     - name: Find PhantomJS path
       id: phantomjs
       shell: Rscript {0}
-      # `if` statements are not allowed in composite actions. So use a dummy location if shinytest (or webdriver) can not be directly found in the `./DESCRIPTION` file
+      # `if` statements are not allowed in composite actions. So use a dummy location if shinytest (or webdriver) can not be directly found in the `DESCRIPTION` file
       run: |
         found <- FALSE
         if (file.exists("DESCRIPTION")) {

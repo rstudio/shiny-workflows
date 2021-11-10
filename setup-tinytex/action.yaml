@@ -1,0 +1,19 @@
+name: 'Install tinytex'
+description: 'Installs tinytex if tinytex is found in the `DESCRIPTION` file'
+author: 'Barret Schloerke'
+runs:
+  using: "composite"
+  steps:
+    - name: Install tinytex
+      shell: Rscript {0}
+      run: |
+        if (file.exists("DESCRIPTION")) {
+          desc_lines <- paste0(readLines("DESCRIPTION"), collapse = "\n")
+          tinytex_in_desc <- grepl("\\btinytex\\b", desc_lines)
+          if (require("tinytex", quietly = TRUE)) {
+            if (tinytex::tinytex_root() != "") {
+              cat("::group::Install tinytex\n")
+              tinytex::install_tinytex()
+            }
+          }
+        }

@@ -1,10 +1,10 @@
-name: 'Run a locally defined R script'
-description: 'Runs a locally defined script if it exists. Ex: ./.github/shinycoreci-steps/NAME.R'
+name: 'Run a locally defined script'
+description: 'Runs a locally defined script if it exists. Ex: .github/shinycoreci-steps/NAME.R'
 author: 'Barret Schloerke'
 inputs:
   name:
-    description: Name of script to use
-    required: false
+    description: Name of script to use. This should not include the file extension.
+    required: true
 runs:
   using: "composite"
   steps:
