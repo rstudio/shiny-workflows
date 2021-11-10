@@ -20,7 +20,7 @@ on:
         required: false
       cache-version:
         type: string
-        default: "1"
+        default: "2"
         required: false
       pandoc-version:
         type: string
