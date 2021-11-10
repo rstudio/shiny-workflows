@@ -81,7 +81,7 @@ Files:
 * `package-install.R` / `package-install.sh`
   * This step is run in **all** workflows after R is installed, but before the local package dependencies are installed.
   * This script could be useful for installing custom dependencies
-* `website-build.R` / `website-build.sh`
+* `website.R` / `website.sh`
   * Run in `website.yaml` before the site is built
   * This script could be useful for copying assets to a directory
 * `routine.R` / `routine.sh`

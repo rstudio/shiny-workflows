@@ -10,6 +10,9 @@
 # √ Remove netlify workflow
 # √ More verbose step names; use the command
 # √ auto install tinytex if present in DESCRIPTION file
+# √ Rename script `website-build` to `website`
+# Move `check-args`` to `extra-check-args` and implement concat logic to avoid needing the regular args
+# update phrasing for top comment
 
 on:
   workflow_call:
