@@ -11,7 +11,7 @@ runs:
           desc_lines <- paste0(readLines("DESCRIPTION"), collapse = "\n")
           tinytex_in_desc <- grepl("\\btinytex\\b", desc_lines)
           if (require("tinytex", quietly = TRUE)) {
-            if (tinytex::tinytex_root() != "") {
+            if (tinytex::tinytex_root() == "") {
               cat("::group::Install tinytex\n")
               tinytex::install_tinytex()
             }

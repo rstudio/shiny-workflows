@@ -101,25 +101,20 @@ if [ "$RUNNER_OS" == "macOS" ]; then
 fi
 ```
 
-## Initialization
+## `pkgdown` setup
 
-For my repo, I'd like to...
-
-#### Setup pkgdown to build to `gh-pages`
+Typically when using `pkgdown` in a package, you run the command below to initalize all necessary configs.
 
 ```r
-# Inits `gh-pages` as an orphan branch
-# Sets `gh-pages` as the default location to host the repo website
-# Ignores `docs` and pkgdown config
-# Inits `_pkgdown.yml` config
-#   - When prompted to edit the pkgdown config, please add `url: https://rstudio.github.io/REPO`
-# Adds url to DESCRIPTION field
+# Init pkgdown webs
 usethis::use_pkgdown_github_pages()
+```
 
-# Remove pkgdown workflow file; (Using reusable workflow definition instead)
+However, we will need to remove the GHA workflow file created, as we will use the `website.yaml` reusable `shiny-workflow`.
+
+```r
+# Remove pkgdown workflow file; (Using reusable shiny-workflow)
 unlink(".github/workflows/pkgdown.yaml")
-
-## Commit changes
 ```
 
 
@@ -128,6 +123,16 @@ unlink(".github/workflows/pkgdown.yaml")
 
 If your build fails and you are unsure of why, please visit https://github.com/r-lib/actions#where-to-find-help for more debugging tips. If you feel it is an error done by `shiny-workflows`, please submit an issue: https://github.com/rstudio/shiny-workflows/issues/new
 
+<!-- Copy from https://github.com/r-lib/actions/blob/2a200e6b02be657ea5fc0b65ce8720918757039a/README.md -->
+### Additional resources
+
+- [`r-lib/actions`](https://github.com/r-lib/actions)
+- [GitHub Actions for R](https://www.jimhester.com/talk/2020-rsc-github-actions/), Jim Hester's talk at rstudio::conf 2020. [Recording](https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester), [slidedeck](https://speakerdeck.com/jimhester/github-actions-for-r).
+- [GitHub Actions advent calendar](https://www.edwardthomson.com/blog/github_actions_advent_calendar.html) a series of blogposts by Edward Thomson, one of the GitHub Actions product managers
+  highlighting features of GitHub Actions.
+- [GitHub Actions with R](https://ropenscilabs.github.io/actions_sandbox/) - a short online book about using GitHub Actions with R, produced as part of the [rOpenSci OzUnconf](https://ozunconf19.ropensci.org/).
+- [Awesome Actions](https://github.com/sdras/awesome-actions#awesome-actions---) - a curated list of custom actions. **Note** many of these are from early in the GitHub Actions beta and may no longer work.
+<!-- End - Copy from https://github.com/r-lib/actions/blob/2a200e6b02be657ea5fc0b65ce8720918757039a/README.md -->
 
 ## Common questions
 
@@ -137,22 +142,9 @@ If your build fails and you are unsure of why, please visit https://github.com/r
   It is ok to comment the `website` job in your workflow file. When the time comes that you can use the standardised `{pkgdown}` workflow, feel free to uncomment the `website` job.
 
 
-
-<!-- Copy from https://github.com/r-lib/actions/blob/2a200e6b02be657ea5fc0b65ce8720918757039a/README.md -->
-## Additional resources
-
-- [`r-lib/actions`](https://github.com/r-lib/actions).
-- [GitHub Actions for R](https://www.jimhester.com/talk/2020-rsc-github-actions/), Jim Hester's talk at rstudio::conf 2020. [Recording](https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester), [slidedeck](https://speakerdeck.com/jimhester/github-actions-for-r).
-- [GitHub Actions advent calendar](https://www.edwardthomson.com/blog/github_actions_advent_calendar.html) a series of blogposts by Edward Thomson, one of the GitHub Actions product managers
-  highlighting features of GitHub Actions.
-- [GitHub Actions with R](https://ropenscilabs.github.io/actions_sandbox/) - a short online book about using GitHub Actions with R, produced as part of the [rOpenSci OzUnconf](https://ozunconf19.ropensci.org/).
-- [Awesome Actions](https://github.com/sdras/awesome-actions#awesome-actions---) - a curated list of custom actions. **Note** many of these are from early in the GitHub Actions beta and may no longer work.
-<!-- End - Copy from https://github.com/r-lib/actions/blob/2a200e6b02be657ea5fc0b65ce8720918757039a/README.md -->
-
-
 ## `shiny-workflow` development
 
-#### Adopting a feature
+### Adopting a feature
 
 Reasons to consider a feature:
 * If more than two repos needs custom work, it should be considered.
@@ -160,9 +152,9 @@ Reasons to consider a feature:
 
 Reasons to NOT consider a feature:
 * Trying to appease a single repo. General response: The repo can run more compute cycles / jobs to meet their needs
-* The feature imposes behavior that no other repos are performing or willing to adopt. Ex: Auto setting the package version in `package.json`
+* The feature imposes behavior that no other repos are performing or willing to adopt. Ex: Automatically setting the package version in `package.json`
 
-#### Updates to workflows or actions
+### Updates to workflows or actions
 
 If updates are made to the workflows, the `v1` tag must be (forcefully) moved forward to the latest value within the `rstudio/shiny-workflows`. To do this, run:
 
