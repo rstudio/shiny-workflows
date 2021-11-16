@@ -46,6 +46,7 @@ runs:
 
     - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
       with:
+        needs: ${{ inputs.needs }}
         extra-packages: ${{ inputs.extra-packages }}
 
     - name: Run 'package-install' script

@@ -2,6 +2,10 @@ name: 'Install macOS brew dependencies'
 description: 'Install all brew dependencies given the family tree. This is a poor mans version of package manager until it gets mac support'
 author: 'Barret Schloerke'
 inputs:
+  needs:
+    default: ""
+    description: "Name of config to search in `DESCRIPTION` file. Ex: `website`"
+    required: false
   extra-packages:
     default: ""
     description: String of extra packages
@@ -20,12 +24,18 @@ runs:
             options(pak.no_extra_messages = TRUE)
             install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
           }
-          pkg_deps <- pak::local_dev_deps(dependencies = TRUE)$package
+          pkg_deps <- c(
+            # Local deps
+            pak::local_dev_deps(dependencies = TRUE)[["package"]],
+            # Needs deps
+            if (nzchar("${{ inputs.needs")) pak::local_dev_deps(dependencies = "Config/Needs/${{ inputs.needs }}")[["package"]],
+            # Extra package deps
+            if (nzchar("${{ inputs.extra-packages")) pak::pkg_deps(strsplit("${{ inputs.extra-packages }}", "[[:space:],]+")[[1]], dependencies = TRUE)[["package"]],
+          )
           desc_lines <- tryCatch(paste0(readLines("DESCRIPTION"), collapse = "\n"), error = function(e) "")
           has_dep <- function(pkgs) {
             if (any(pkgs %in% pkg_deps)) return(TRUE)
             for (pkg in pkgs) {
-              if (grepl(pkg, "${{ inputs.extra-packages }}", fixed = TRUE)) return(TRUE)
               if (grepl(pkg, desc_lines, fixed = TRUE)) return(TRUE)
             }
             FALSE
@@ -33,6 +43,7 @@ runs:
           run_cmds <- function(...) {
             # Make sure exit is success
             lapply(paste0(...), function(cmd) {
+              message(cmd)
               stopifnot(system(cmd) == 0)
               cmd
             })
