@@ -70,7 +70,7 @@ jobs:
         # Only perform if in an RC branch (`rc-vX.Y.Z`)
         if: ${{ github.event_name == 'push' && contains(github.ref, '/rc-v') }}
         run: |
-          Rscript -e 'if (!require("urlchecker")) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
+          Rscript -e 'if (!require("urlchecker", quietly = TRUE)) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
           git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
 
@@ -149,7 +149,7 @@ jobs:
         shell: Rscript {0}
         run: |
           # might need to move up above / install system deps
-          if (!require("covr")) pak::pkg_install("covr")
+          if (!require("covr", quietly = TRUE)) pak::pkg_install("covr")
           covr::codecov()
 
       - name: Find `.lintr`
@@ -185,7 +185,7 @@ jobs:
         if: steps.static-imports.outputs.exists
         shell: bash
         run: |
-          Rscript -e 'if (!require("staticimports")) pak::pkg_install("wch/staticimports"); staticimports::import()'
+          Rscript -e 'if (!require("staticimports", quietly = TRUE)) pak::pkg_install("wch/staticimports"); staticimports::import()'
 
           # Display the git diff here; Could turn off with `--quiet`
           if git diff --exit-code -- R; then
@@ -201,7 +201,7 @@ jobs:
       # - name: Sync DESCRIPTION and package.json versions
       #   if: steps.package-json.outputs.exists
       #   run: |
-      #     Rscript -e 'if (!require("jsonlite")) pak::pkg_install("jsonlite")'
+      #     Rscript -e 'if (!require("jsonlite", quietly = TRUE)) pak::pkg_install("jsonlite")'
       #     Rscript -e 'pkg <- jsonlite::read_json("package.json", simplifyVector = TRUE)' \
       #     -e 'version <- as.list(read.dcf("DESCRIPTION")[1,])$Version' \
       #     -e 'pkg$version <- gsub("^(\\d+).(\\d+).(\\d+).(.+)$", "\\1.\\2.\\3-alpha.\\4", version)' \

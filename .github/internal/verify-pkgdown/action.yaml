@@ -15,7 +15,7 @@ runs:
         run: |
           if ("${{inputs.check-title}}" == "false") options(rmarkdown.html_vignette.check_title = FALSE)
           pkgdown::build_site(new_process = FALSE)
-          if (!require("testthat")) pak::pkg_install("testthat")
+          if (!require("testthat", quietly = TRUE)) pak::pkg_install("testthat")
           testthat::expect_warning(
             pkgdown::build_reference_index(),
             NA

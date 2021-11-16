@@ -16,7 +16,7 @@ runs:
         if (identical(Sys.getenv("RUNNER_OS", "NOT MAC"), "macOS")) {
           cat("::group::Install macOS system dependencies\n")
           # TODO-future; Find a way to not use `pak`? Hopefully RSPM will handle this in the future
-          if (!require("pak")) {
+          if (!require("pak", quietly = TRUE)) {
             options(pak.no_extra_messages = TRUE)
             install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
           }
