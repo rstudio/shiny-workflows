@@ -13,7 +13,7 @@ Known dependencies:
 * `rgeos`:
   * `brew install geos`
 * `rgdal`
-  * `brew install gdal`
+  * `brew install pkg-config gdal`
 
 
 # Usage
