@@ -32,9 +32,10 @@ runs:
           }
           run_cmds <- function(...) {
             # Make sure exit is success
-            for (cmd in paste0(...)) {
+            lapply(paste0(...), function(cmd) {
               stopifnot(system(cmd) == 0)
-            }
+              cmd
+            })
           }
           infos <- list(
             Cairo = c("--cask xquartz", "cairo"),
