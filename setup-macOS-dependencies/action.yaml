@@ -43,7 +43,7 @@ runs:
           )
           cat("Packages found:\n"); print(pkg_deps)
           has_dep <- function(pkgs) {
-            any(pkgs %in% pkg_deps))
+            any(pkgs %in% pkg_deps)
           }
           run_cmds <- function(...) {
             # Make sure exit is success
