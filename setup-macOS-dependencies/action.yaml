@@ -65,12 +65,4 @@ runs:
               run_cmds("brew install ", brew_cmds)
             }
           })
-          ## Special instructions: https://github.com/r-spatial/sf/blame/5ec8751b366246ed84fee3ebad7899bc3eb8bd47/README.md#L72-L89
-          #if (has_dep("rgdal") && has_dep("sf")) {
-          #  # > If you are using `sf` and `rgdal` together, it is necessary to install `rgdal` from source using this configuration:
-          #  install.packages("rgdal", configure.args = c("--with-proj-lib=/usr/local/lib/", "--with-proj-include=/usr/local/include/"))
-          #}
-          #if (has_dep("sf")) {
-          #  install.packages("sf", configure.args = "--with-proj-lib=/usr/local/lib/")
-          #}
         }
