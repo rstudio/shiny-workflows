@@ -31,6 +31,7 @@ runs:
             if (nzchar("${{ inputs.needs }}")) pak::local_dev_deps(dependencies = "Config/Needs/${{ inputs.needs }}")[["package"]],
             # Extra package deps
             if (nzchar("${{ inputs.extra-packages }}")) pak::pkg_deps(strsplit("${{ inputs.extra-packages }}", "[[:space:],]+")[[1]], dependencies = TRUE)[["package"]],
+            NULL
           )
           desc_lines <- tryCatch(paste0(readLines("DESCRIPTION"), collapse = "\n"), error = function(e) "")
           has_dep <- function(pkgs) {
