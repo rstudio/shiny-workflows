@@ -24,23 +24,26 @@ runs:
             options(pak.no_extra_messages = TRUE)
             install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
           }
+          split_pkg_str <- function(txt) {
+            strsplit(txt, "[[:space:],]+")[[1]]
+          }
           pkg_deps <- c(
             # Local deps
             pak::local_dev_deps(dependencies = TRUE)[["package"]],
-            # Needs deps
-            if (nzchar("${{ inputs.needs }}")) pak::local_dev_deps(dependencies = "Config/Needs/${{ inputs.needs }}")[["package"]],
+            # Needs deps; Must find all dependencies of of the needs pkgs
+            if (nzchar("${{ inputs.needs }}") && file.exists("DESCRIPTION")) {
+              needs_pkgs <- as.list(read.dcf("DESCRIPTION")[1,])[["Config/Needs/${{ inputs.needs }}"]]
+              if (!is.null(needs_pkgs)) {
+                pak::pkg_deps(split_pkg_str(needs_pkgs), dependencies = TRUE)[["package"]]
+              }
+            },
             # Extra package deps
-            if (nzchar("${{ inputs.extra-packages }}")) pak::pkg_deps(strsplit("${{ inputs.extra-packages }}", "[[:space:],]+")[[1]], dependencies = TRUE)[["package"]],
+            if (nzchar("${{ inputs.extra-packages }}")) pak::pkg_deps(split_pkg_str("${{ inputs.extra-packages }}"), dependencies = TRUE)[["package"]],
             NULL
           )
           cat("Packages found:\n"); print(pkg_deps)
-          desc_lines <- tryCatch(paste0(readLines("DESCRIPTION"), collapse = "\n"), error = function(e) "")
           has_dep <- function(pkgs) {
-            if (any(pkgs %in% pkg_deps)) return(TRUE)
-            for (pkg in pkgs) {
-              if (grepl(pkg, desc_lines, fixed = TRUE)) return(TRUE)
-            }
-            FALSE
+            any(pkgs %in% pkg_deps))
           }
           run_cmds <- function(...) {
             # Make sure exit is success
