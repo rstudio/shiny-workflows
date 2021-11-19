@@ -68,20 +68,21 @@ jobs:
         }
         config <- c(
           list(
-            job(mac, rver$release),
-            job(windows, rver$release),
-            job(windows, "3.6"),
-            job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
+            if (!identical(mac, "false"))     job(mac, rver$release),
+            if (!identical(windows, "false")) job(windows, rver$release),
+            if (!identical(windows, "false")) job(windows, "3.6"),
+            if (!identical(ubuntu, "false"))  job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
           ),
-          unlist(recursive = FALSE, lapply(ubuntu, function(ubuntu_) {
-            list(
-              job(ubuntu_, rver$release),
-              job(ubuntu_, rver$oldrel1),
-              job(ubuntu_, rver$oldrel2),
-              job(ubuntu_, rver$oldrel3),
-              job(ubuntu_, rver$oldrel4)
-            )
-          }))
+          if (!identical(ubuntu, "false"))
+            unlist(recursive = FALSE, lapply(ubuntu, function(ubuntu_) {
+              list(
+                job(ubuntu_, rver$release),
+                job(ubuntu_, rver$oldrel1),
+                job(ubuntu_, rver$oldrel2),
+                job(ubuntu_, rver$oldrel3),
+                job(ubuntu_, rver$oldrel4)
+              )
+            }))
         )
         ## Convert to JSON manually to save 10s installing `jsonlite`
         join_and_wrap <- function(x, start, end, sep = ",") {

@@ -66,9 +66,9 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
     * `extra-check-args`: Arguments passed in addition to the default check `args` of https://github.com/r-lib/actions/blob/v1/check-r-package/
-    * `macOS`: `macOS` runtime to use
-    * `windows`: `windows` runtime to use
-    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version.
+    * `macOS`: `macOS` runtime to use. Set to `false` to disable testing on macOS.
+    * `windows`: `windows` runtime to use. Set to `false` to disable testing on Windows.
+    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu.
     * staticimports: Determines if `staticimports` should display a warning message if the staticimports are out of date.
 
 ## Customization
