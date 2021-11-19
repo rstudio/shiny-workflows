@@ -119,7 +119,7 @@ jobs:
             rm -r srcts/types
           fi
           yarn install --immutable && yarn build
-          git commit ./inst ./srcts ./srcjs -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
+          git commit ./inst ./src*s -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
 
       - name: Run 'routine' script
         uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
