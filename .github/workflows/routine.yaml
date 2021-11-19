@@ -98,8 +98,14 @@ jobs:
           if (file.exists("package.json")) {
             cat("::set-output name=exists::true")
             pkg_scripts <- jsonlite::read_json("package.json")$scripts
-            if ("build" %in% names(pkg_scripts)) cat("::set-output name=build::true")
-            if ("test" %in% names(pkg_scripts)) cat("::set-output name=test::true")
+            if ("build" %in% names(pkg_scripts)) {
+              message("Can call `yarn build`")
+              cat("::set-output name=build::true")
+            }
+            if ("test" %in% names(pkg_scripts)) {
+              message("Can call `yarn test`")
+              cat("::set-output name=test::true")
+            }
           }
       - name: Install node.js
         if: steps.package-json.outputs.exists
