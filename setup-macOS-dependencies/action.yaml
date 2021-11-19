@@ -57,7 +57,8 @@ runs:
             Cairo = c("--cask xquartz", "cairo"),
             textshaping = "harfbuzz fribidi",
             rgeos = "geos",
-            rgdal = "pkg-config proj gdal"
+            rgdal = "pkg-config proj gdal",
+            terra = "pkg-config proj geos gdal sqlite"
           )
           # If the package exists, run the brew install commands
           Map(names(infos), infos, f = function(pkg, brew_cmds) {

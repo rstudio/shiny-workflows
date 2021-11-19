@@ -12,8 +12,10 @@ Known dependencies:
   * `brew install harfbuzz fribidi`
 * `rgeos`:
   * `brew install geos`
-* `rgdal`
+* `rgdal`:
   * `brew install pkg-config gdal`
+* `terra`:
+  * `brew install pkg-config proj geos gdal sqlite`
 
 
 # Usage
