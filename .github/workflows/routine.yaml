@@ -96,21 +96,17 @@ jobs:
         shell: Rscript {0}
         run: |
           if (file.exists("package.json")) {
-            cat("::set-output name=exists::true")
+            cat("::set-output name=exists::true\n")
             pkg_scripts <- jsonlite::read_json("package.json")$scripts
             if ("build" %in% names(pkg_scripts)) {
               message("Can call `yarn build`")
-              cat("::set-output name=build::true")
+              cat("::set-output name=build::true\n")
             }
             if ("test" %in% names(pkg_scripts)) {
               message("Can call `yarn test`")
-              cat("::set-output name=test::true")
+              cat("::set-output name=test::true\n")
             }
           }
-      - name: Debug node.js
-        shell: bash
-        run: |
-          echo "${{ toJSON(steps.package-json.outputs) }}"
       - name: Install node.js
         if: steps.package-json.outputs.exists
         uses: actions/setup-node@v1
