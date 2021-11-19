@@ -107,6 +107,10 @@ jobs:
               cat("::set-output name=test::true")
             }
           }
+      - name: Debug node.js
+        shell: bash
+        run: |
+          echo "${{ toJSON(steps.package-json.outputs) }}"
       - name: Install node.js
         if: steps.package-json.outputs.exists
         uses: actions/setup-node@v1
