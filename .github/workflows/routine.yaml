@@ -200,7 +200,7 @@ jobs:
               # Find the first file instead
               FILE=$(git ls-files -dm R | head -n 1);
             fi
-            echo "::warning file=$FILE,title=staticimports::$FILE is out of date. To update, call `staticimports::import()`. To opt out of this check, set `staticimports: false` in the routine.yaml args"
+            echo "::warning file=$FILE,title=staticimports::$FILE is out of date. To update, call \`staticimports::import()\`. To opt out of this check, set \`staticimports: false\` in the routine.yaml args"
           fi
 
 
