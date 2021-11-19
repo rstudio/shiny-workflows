@@ -90,7 +90,7 @@ jobs:
             }))
         )
         ## Drop NULLs
-        config <- [!vapply(config, is.null, logical(1))]
+        config <- config[!vapply(config, is.null, logical(1))]
         ## Convert to JSON manually to save 10s installing `jsonlite`
         join_and_wrap <- function(x, start, end, sep = ",") {
           paste0(start, paste0(x, collapse = sep), end)
