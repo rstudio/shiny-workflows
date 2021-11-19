@@ -1,5 +1,5 @@
 name: 'Run a locally defined script'
-description: 'Runs a locally defined script if it exists. Ex: .github/shinycoreci-steps/NAME.R'
+description: 'Runs a locally defined script if it exists. Ex: .github/shiny-workflows/NAME.R'
 author: 'Barret Schloerke'
 inputs:
   name:
@@ -11,9 +11,9 @@ runs:
     - name: Run script
       shell: bash
       run: |
-        if [ -f ".github/shinycoreci-steps/${{ inputs.name }}.sh" ]; then
-          . ".github/shinycoreci-steps/${{ inputs.name }}.sh"
+        if [ -f ".github/shiny-workflows/${{ inputs.name }}.sh" ]; then
+          . ".github/shiny-workflows/${{ inputs.name }}.sh"
         fi
-        if [ -f ".github/shinycoreci-steps/${{ inputs.name }}.R" ]; then
-          Rscript -e "source('.github/shinycoreci-steps/${{ inputs.name }}.R', echo = TRUE)"
+        if [ -f ".github/shiny-workflows/${{ inputs.name }}.R" ]; then
+          Rscript -e "source('.github/shiny-workflows/${{ inputs.name }}.R', echo = TRUE)"
         fi
