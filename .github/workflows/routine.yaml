@@ -47,11 +47,6 @@ jobs:
         with:
           repo-token: ${{ github.token }}
 
-      - name: Disable extra header
-        if: github.event_name == 'pull_request'
-        run: |
-          git config --unset-all http.https://github.com/.extraheader
-
       - name: Git Config
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
 
