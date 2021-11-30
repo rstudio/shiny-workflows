@@ -47,6 +47,7 @@ jobs:
           # Adjustments taken from https://github.com/ad-m/github-push-action/tree/v0.6.0
           persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
           fetch-depth: 0             # otherwise, there would be errors pushing refs to the destination repository.
+          ref: ${{ github.head_ref }}
 
       - name: Git Config
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
