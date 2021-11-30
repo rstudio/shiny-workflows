@@ -37,15 +37,16 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Checkout GitHub repo
+      - name: Checkout GitHub repo (push)
+        if: github.event_name != 'pull_request'
         uses: rstudio/shiny-workflows/.github/internal/checkout@v1
-
-      # Needs the repo to already be checked out
-      - name: Git Pull (PR)
+      - name: Checkout GitHub repo (PR)
         if: github.event_name == 'pull_request'
-        uses: r-lib/actions/pr-fetch@v1
+        uses: rstudio/shiny-workflows/.github/internal/checkout@v1
         with:
-          repo-token: ${{ github.token }}
+          # Adjustments taken from https://github.com/ad-m/github-push-action/tree/v0.6.0
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+          fetch-depth: 0             # otherwise, there would be errors pushing refs to the destination repository.
 
       - name: Git Config
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
@@ -126,11 +127,11 @@ jobs:
         with:
           name: routine
 
-      - name: Git Push (PR)
-        uses: r-lib/actions/pr-push@v1
+      - name: Push changes (PR)
         if: github.event_name == 'pull_request'
+        uses: ad-m/github-push-action@v0.6.0
         with:
-          repo-token: ${{ github.token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify no un-pushed commits (main)
         if: github.event_name == 'push'
         run: |
