@@ -23,7 +23,7 @@ runs:
           echo "::set-output name=exists::true"
         fi
       fi
-  - uses: actions/checkout@v1
+  - uses: actions/checkout@v2
     with:
       # Checkout with LFS support
       lfs: ${{ steps.lfs.output.exists == 'true' }}
