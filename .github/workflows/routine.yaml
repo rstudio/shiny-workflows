@@ -126,26 +126,25 @@ jobs:
         with:
           name: routine
 
-      - name: Verify no un-pushed commits (main, fork)
-        if: |
-          (
-            github.event_name == 'push' &&
-            github.event.base_ref == format('refs/head/{0}', github.event.repository.default_branch)
-          ) ||
-          (
-            github.event_name == 'pull_request' &&
-            github.event.pull_request.head.repo.fork
-          )
-        # echo '${{ toJSON(github.event) }}'
+      - name: Verify no un-pushed commits (${{ github.event.repository.default_branch }})
+        if: github.event_name == 'push' && github.event.base_ref == format('refs/head/{0}', github.event.repository.default_branch)
         run: |
-          if [ -n "`git cherry origin/$(git name-rev --name-only HEAD)`" ]; then
+          if [ -n "`git cherry origin/${{ github.event.repository.default_branch }}`" ]; then
             echo "Un-pushed commits:"
-            git cherry -v origin/$(git name-rev --name-only HEAD)
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              STATEMENT="GHA is not allowed to push commits back to a forked repo. Please perform and commit these actions manually."
-            else
-              STATEMENT="GHA should not auto-push to the HEAD branch. Please make a PR to have the changes be collected."
-            fi
+            git cherry -v origin/${{ github.event.repository.default_branch }}
+            STATEMENT="GHA should not auto-push to the HEAD branch. Please make a PR to have the changes be collected."
+            echo "::error:: Some auto generated commits were found. $STATEMENT Exiting"
+            exit 1
+          fi
+      - name: Verify no un-pushed commits (fork)
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
+        shell: bash
+        run: |
+          git branch -avv
+          if [ -n "`git cherry pr/${{ github.event.pull_request.head.ref }}`" ]; then
+            echo "Un-pushed commits:"
+            git cherry -v pr/${{ github.event.pull_request.head.ref }}
+            STATEMENT="GHA is not allowed to push commits back to a forked repo. Please perform and commit these actions manually."
             echo "::error:: Some auto generated commits were found. $STATEMENT Exiting"
             exit 1
           fi
