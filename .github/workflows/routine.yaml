@@ -128,25 +128,18 @@ jobs:
 
       - name: Verify no un-pushed commits (push)
         if: github.event_name == 'push'
-        run: |
-          if [ -n "`git cherry origin/${{ github.ref_name }}`" ]; then
-            echo "Un-pushed commits:"
-            git cherry -v origin/${{ github.ref_name }}
-            STATEMENT="GHA should not auto-push to a branch within a 'push' event. Please make a PR to have the changes be collected."
-            echo "::error:: Some auto generated commits were found. $STATEMENT Exiting"
-            exit 1
-          fi
-      - name: Verify no un-pushed commits (fork)
+        uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits
+        with:
+          upstream: "origin/${{ github.ref_name }}"
+          statement: "GHA should not auto-push to a branch within a 'push' event."
+          action: "Please make a PR to have the changes be collected."
+      - name: Verify no new commits (fork)
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
-        shell: bash
-        run: |
-          if [ -n "`git cherry pr/${{ github.event.pull_request.head.ref }}`" ]; then
-            echo "Un-pushed commits:"
-            git cherry -v pr/${{ github.event.pull_request.head.ref }}
-            STATEMENT="GHA is not allowed to push commits back to a forked repo. Please perform and commit these actions manually."
-            echo "::error:: Some auto generated commits were found. $STATEMENT Exiting"
-            exit 1
-          fi
+        uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits
+        with:
+          upstream: "pr/${{ github.event.pull_request.head.ref }}"
+          statement: "GHA is not allowed to push commits back to a forked repo."
+          action: "Please perform and commit these actions manually."
 
       - name: Git Push (PR)
         uses: r-lib/actions/pr-push@v1

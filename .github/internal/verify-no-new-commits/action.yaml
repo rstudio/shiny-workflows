@@ -1,0 +1,26 @@
+name: 'Verify no new commits are found'
+description: 'Display a message if new commits are found and exit with status 1'
+author: 'Barret Schloerke'
+inputs:
+  upstream:
+    description: "Should contain the [upstream] location of `git cherry [upstream]`"
+    required: true
+  statement:
+    description: "Explains reasoning for error"
+    required: true
+  action:
+    description: "Explains how to address the error on a new line"
+    required: true
+runs:
+  using: "composite"
+  steps:
+  - name: Verify no new commits are found
+    shell: bash
+    run: |
+      if [ -n "`git cherry ${{ inputs.upstream }}`" ]; then
+        echo "New commits:"
+        git cherry -v ${{ inputs.upstream }}
+        echo "::error:: Some auto-generated commits were found. ${{ inputs.statement }}"
+        echo "::error:: ${{ inputs.action }}"
+        exit 1
+      fi
