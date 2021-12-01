@@ -45,7 +45,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: r-lib/actions/pr-fetch@v1
         with:
-          repo-token: ${{ github.token }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Git Config
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
@@ -145,7 +145,7 @@ jobs:
         uses: r-lib/actions/pr-push@v1
         if: github.event_name == 'pull_request'
         with:
-          repo-token: ${{ github.token }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Execute these steps after pushing, as
       # no updated files will be commited back to GitHub

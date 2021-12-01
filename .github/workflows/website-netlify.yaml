@@ -30,7 +30,7 @@ jobs:
 
     runs-on: ubuntu-20.04
     env:
-      GITHUB_PAT: ${{ github.token }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: rstudio/shiny-workflows/.github/internal/checkout@v1
