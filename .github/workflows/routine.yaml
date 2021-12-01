@@ -140,7 +140,6 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
         shell: bash
         run: |
-          git branch -avv
           if [ -n "`git cherry pr/${{ github.event.pull_request.head.ref }}`" ]; then
             echo "Un-pushed commits:"
             git cherry -v pr/${{ github.event.pull_request.head.ref }}
