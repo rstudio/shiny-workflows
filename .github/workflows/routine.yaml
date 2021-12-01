@@ -134,6 +134,8 @@ jobs:
           statement: "GHA should not auto-push to a branch within a 'push' event."
           action: "Please make a PR to have the changes be collected."
       - name: Verify no new commits (fork,PR)
+        # Forked repos only have `read` access given the default token. This makes pushing back to the forked repo not possible.
+        # See https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
         uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@v1
         with:
