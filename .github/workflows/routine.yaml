@@ -126,14 +126,14 @@ jobs:
         with:
           name: routine
 
-      - name: Verify no un-pushed commits (push)
+      - name: Verify no new commits (push)
         if: github.event_name == 'push'
         uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@v1
         with:
           upstream: "origin/${{ github.ref_name }}"
           statement: "GHA should not auto-push to a branch within a 'push' event."
           action: "Please make a PR to have the changes be collected."
-      - name: Verify no new commits (fork)
+      - name: Verify no new commits (fork,PR)
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
         uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@v1
         with:
