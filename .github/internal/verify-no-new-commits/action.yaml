@@ -20,9 +20,11 @@ runs:
       if [ -n "`git cherry ${{ inputs.upstream }}`" ]; then
         echo "Diff:"
         git diff ${{ inputs.upstream }}
-        echo "New commits:"
+        echo ""
+        echo ""
+        echo "::notice::New commits:"
         git cherry -v ${{ inputs.upstream }}
-        echo "::error::Some auto-generated commits were found. ${{ inputs.statement }}"
+        echo "Some auto-generated commits were found. ${{ inputs.statement }}"
         echo "::error::${{ inputs.action }}"
         exit 1
       fi
