@@ -59,11 +59,11 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           needs: routine
           extra-packages: |
-            devtools
-            roxygen2
-            rmarkdown
-            lintr
-            jsonlite
+            any::devtools
+            any::roxygen2
+            any::rmarkdown
+            any::lintr
+            any::jsonlite
             ${{ inputs.extra-packages }}
 
       - name: "`urlchecker::url_update()`; Update urls found in package; Only rc-v** branches"

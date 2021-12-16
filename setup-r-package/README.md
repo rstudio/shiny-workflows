@@ -15,7 +15,7 @@ steps:
 - uses: actions/checkout@v2
 - uses: rstudio/shiny-workflows/setup-r-package@v1
   with:
-    extra-packages: rcmdcheck
+    extra-packages: any::rcmdcheck
 - uses: r-lib/actions/check-r-package@v2
 ```
 

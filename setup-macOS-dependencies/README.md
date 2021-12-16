@@ -27,11 +27,11 @@ steps:
 - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
   with:
     needs: check
-    extra-packages: rcmdcheck
+    extra-packages: any::rcmdcheck
 - uses: r-lib/actions/setup-r-dependencies@v2
   with:
-- uses: r-lib/actions/check-r-package@v1
     extra-packages: any::rcmdcheck
+- uses: r-lib/actions/check-r-package@v2
 ```
 
 # License

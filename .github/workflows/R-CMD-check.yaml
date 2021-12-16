@@ -132,7 +132,7 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           needs: check
           extra-packages: |
-            rcmdcheck
+            any::rcmdcheck
             ${{ inputs.extra-packages }}
 
       - name: Check package

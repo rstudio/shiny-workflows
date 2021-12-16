@@ -14,7 +14,7 @@ steps:
 # `setup-r-package` calls `setup-tinytex`
 - uses: rstudio/shiny-workflows/setup-r-package@v1
   with:
-    extra-packages: rcmdcheck
+    extra-packages: any::rcmdcheck
 - uses: r-lib/actions/check-r-package@v2
 ```
 
