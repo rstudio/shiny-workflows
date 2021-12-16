@@ -23,15 +23,15 @@ Known dependencies:
 ```yaml
 steps:
 - uses: actions/checkout@v2
-- uses: r-lib/actions/setup-r@v1
+- uses: r-lib/actions/setup-r@v2
 - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
   with:
     needs: check
     extra-packages: rcmdcheck
-- uses: r-lib/actions/setup-r-dependencies@v1
+- uses: r-lib/actions/setup-r-dependencies@v2
   with:
-    extra-packages: rcmdcheck
 - uses: r-lib/actions/check-r-package@v1
+    extra-packages: any::rcmdcheck
 ```
 
 # License

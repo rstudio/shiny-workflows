@@ -15,7 +15,7 @@ steps:
 - uses: rstudio/shiny-workflows/setup-r-package@v1
   with:
     extra-packages: rcmdcheck
-- uses: r-lib/actions/check-r-package@v1
+- uses: r-lib/actions/check-r-package@v2
 ```
 
 # License
