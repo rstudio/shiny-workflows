@@ -145,7 +145,7 @@ jobs:
         uses: r-lib/actions/check-r-package@v2
         with:
           check-dir: '"check"' # matches directory below
-          args: '${{ inputs.extra-check-args }}, "--no-manual", "--as-cran"'
+          args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
 
       - name: "Show `testthat` output"
         if: always()
