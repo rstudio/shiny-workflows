@@ -33,9 +33,9 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+      - uses: rstudio/shiny-workflows/.github/internal/checkout@rlib_v2
 
-      - uses: rstudio/shiny-workflows/setup-r-package@v1
+      - uses: rstudio/shiny-workflows/setup-r-package@rlib_v2
         with:
           pandoc-version: ${{ inputs.pandoc-version }}
           cache-version: ${{ inputs.cache-version }}
@@ -46,13 +46,13 @@ jobs:
             ${{ inputs.extra-packages }}
 
       - name: Run 'website' script
-        uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
+        uses: rstudio/shiny-workflows/.github/internal/run-local-script@rlib_v2
         with:
           name: website
 
       - name: Verify index reference (PR)
         if: github.event_name != 'push'
-        uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
+        uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@rlib_v2
         with:
           check-title: ${{ inputs.check-title }}
 

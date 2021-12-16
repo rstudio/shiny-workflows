@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Checkout GitHub repo
-        uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+        uses: rstudio/shiny-workflows/.github/internal/checkout@rlib_v2
 
       # Needs the repo to already be checked out
       - name: Git Pull (PR)
@@ -48,10 +48,10 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Git Config
-        uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
+        uses: rstudio/shiny-workflows/.github/internal/setup-git@rlib_v2
 
       - name: Install R, system dependencies, and package dependencies
-        uses: rstudio/shiny-workflows/setup-r-package@v1
+        uses: rstudio/shiny-workflows/setup-r-package@rlib_v2
         with:
           pandoc-version: ${{ inputs.pandoc-version }}
           r-version: ${{ matrix.config.r }}
@@ -122,13 +122,13 @@ jobs:
           git commit ./inst ./src*s -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
 
       - name: Run 'routine' script
-        uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
+        uses: rstudio/shiny-workflows/.github/internal/run-local-script@rlib_v2
         with:
           name: routine
 
       - name: Verify no new commits (push)
         if: github.event_name == 'push'
-        uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@v1
+        uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@rlib_v2
         with:
           upstream: "origin/${{ github.ref_name }}"
           statement: "GHA should not auto-push to a branch within a 'push' event."
@@ -137,7 +137,7 @@ jobs:
         # Forked repos only have `read` access given the default token. This makes pushing back to the forked repo not possible.
         # See https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
-        uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@v1
+        uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@rlib_v2
         with:
           upstream: "pr/${{ github.event.pull_request.head.ref }}"
           statement: "GHA is not allowed to push commits back to a forked repo."
