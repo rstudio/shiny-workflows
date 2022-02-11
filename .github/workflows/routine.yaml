@@ -71,13 +71,15 @@ jobs:
         if: ${{ github.event_name == 'push' && contains(github.ref, '/rc-v') }}
         run: |
           Rscript -e 'if (!require("urlchecker", quietly = TRUE)) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
-          git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
+          git add -u
+          git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
 
       - name: "`devtools::document()`; Document package"
         run: |
           Rscript -e 'devtools::document()'
-          git commit DESCRIPTION man/ NAMESPACE -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
+          git add -A DESCRIPTION man/ NAMESPACE
+          git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
 
       - name: Find `README.Rmd`
         id: readme
@@ -88,7 +90,8 @@ jobs:
         if: steps.readme.outputs.exists
         run: |
           Rscript -e 'devtools::build_readme(quiet = FALSE)'
-          git commit README.md man/figures -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
+          git add -A README.md man/figures
+          git commit -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
 
 
       - name: Find `package.json`
@@ -119,7 +122,9 @@ jobs:
             rm -r srcts/types
           fi
           yarn install --immutable && yarn build
-          git commit ./inst ./src*s -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
+          git add -A ./inst
+          git add -A ./src*s
+          git commit -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
 
       - name: Run 'routine' script
         uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
