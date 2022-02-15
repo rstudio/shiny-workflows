@@ -151,7 +151,7 @@ jobs:
 
       - name: Git Push (PR)
         uses: r-lib/actions/pr-push@v1
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
