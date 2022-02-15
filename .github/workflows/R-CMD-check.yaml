@@ -31,6 +31,10 @@ on:
         required: false
         # To test more versions, they must be separated by a space. Ex: `"ubuntu-18.04 ubuntu-20.04`
         default: "ubuntu-18.04"
+      minimum-r-version:
+        type: string
+        required: false
+        default: ""
 
 name: R-CMD-check
 
@@ -55,6 +59,8 @@ jobs:
         mac <- "${{ inputs.macOS }}"
         windows <- "${{ inputs.windows }}"
         ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
+        min_r_ver <- "${{ inputs.minimum-r-version }}"
+
         rver <- list(
           devel   = "${{ steps.devel.outputs.installed-r-version }}",
           release = "${{ steps.release.outputs.installed-r-version }}",
@@ -66,26 +72,27 @@ jobs:
         job <- function(os, r, ...) {
           list(os = os, r = r, ...)
         }
-        is_valid_os <- function(x) {
-          if (identical(x, "false")) return(FALSE)
-          if (identical(x, "")) return(FALSE)
-          TRUE
+        is_valid_os <- function(os, r_ver = "") {
+          if (identical(os, "false")) return(FALSE)
+          if (identical(os, "")) return(FALSE)
+          if (any(nchar(c(r_ver, min_r_ver)) == 0)) return(TRUE)
+          r_ver >= min_r_ver
         }
         config <- c(
           list(
-            if (is_valid_os(mac))     job(mac, rver$release),
-            if (is_valid_os(windows)) job(windows, rver$release),
-            if (is_valid_os(windows)) job(windows, "3.6"),
-            if (is_valid_os(ubuntu))  job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
+            if (is_valid_os(mac,     rver$release)) job(mac, rver$release),
+            if (is_valid_os(windows, rver$release)) job(windows, rver$release),
+            if (is_valid_os(windows, "3.6"))        job(windows, "3.6"),
+            if (is_valid_os(ubuntu), rver$devel)    job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
           ),
           if (is_valid_os(ubuntu))
             unlist(recursive = FALSE, lapply(ubuntu, function(ubuntu_) {
               list(
-                job(ubuntu_, rver$release),
-                job(ubuntu_, rver$oldrel1),
-                job(ubuntu_, rver$oldrel2),
-                job(ubuntu_, rver$oldrel3),
-                job(ubuntu_, rver$oldrel4)
+                if (is_valid_os(ubuntu_, rver$release)) job(ubuntu_, rver$release),
+                if (is_valid_os(ubuntu_, rver$oldrel1)) job(ubuntu_, rver$oldrel1),
+                if (is_valid_os(ubuntu_, rver$oldrel2)) job(ubuntu_, rver$oldrel2),
+                if (is_valid_os(ubuntu_, rver$oldrel3)) job(ubuntu_, rver$oldrel3),
+                if (is_valid_os(ubuntu_, rver$oldrel4)) job(ubuntu_, rver$oldrel4)
               )
             }))
         )
