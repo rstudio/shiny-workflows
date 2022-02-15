@@ -122,8 +122,9 @@ jobs:
             rm -r srcts/types
           fi
           yarn install --immutable && yarn build
-          git add -A ./inst
-          git add -A ./src*s
+          [ -d ./inst ] && git add -A ./inst || echo "No updated ./inst changes to commit"
+          [ -d ./javascript ] && git add -A ./javascript || echo 'No updated ./javascript changes to commit'
+          [ -n "$(ls -d ./src*s)" ] && git add -A ./src*s || echo 'No updated ./src*s changes to commit'
           git commit -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
 
       - name: Run 'routine' script
