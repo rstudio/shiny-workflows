@@ -43,7 +43,7 @@ jobs:
       # Needs the repo to already be checked out
       - name: Git Pull (PR)
         if: github.event_name == 'pull_request'
-        uses: r-lib/actions/pr-fetch@v1
+        uses: r-lib/actions/pr-fetch@v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -59,11 +59,11 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           needs: routine
           extra-packages: |
-            devtools
-            roxygen2
-            rmarkdown
-            lintr
-            jsonlite
+            any::devtools
+            any::roxygen2
+            any::rmarkdown
+            any::lintr
+            any::jsonlite
             ${{ inputs.extra-packages }}
 
       - name: "`urlchecker::url_update()`; Update urls found in package; Only rc-v** branches"
@@ -149,7 +149,7 @@ jobs:
           action: "Please perform and commit these actions manually. It may help to merge in the latest changes from the base branch."
 
       - name: Git Push (PR)
-        uses: r-lib/actions/pr-push@v1
+        uses: r-lib/actions/pr-push@v2
         if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}

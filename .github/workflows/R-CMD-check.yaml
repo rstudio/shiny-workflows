@@ -45,12 +45,16 @@ jobs:
     outputs:
       config: ${{ steps.config.outputs.config }}
     steps:
-    - { name: devel,    id: devel,    uses: r-lib/actions/setup-r@v1, with: { r-version: devel,    install-r: false } }
-    - { name: release,  id: release,  uses: r-lib/actions/setup-r@v1, with: { r-version: release,  install-r: false } }
-    - { name: oldrel-1, id: oldrel-1, uses: r-lib/actions/setup-r@v1, with: { r-version: oldrel-1, install-r: false } }
-    - { name: oldrel-2, id: oldrel-2, uses: r-lib/actions/setup-r@v1, with: { r-version: oldrel-2, install-r: false } }
-    - { name: oldrel-3, id: oldrel-3, uses: r-lib/actions/setup-r@v1, with: { r-version: oldrel-3, install-r: false } }
-    - { name: oldrel-4, id: oldrel-4, uses: r-lib/actions/setup-r@v1, with: { r-version: oldrel-4, install-r: false } }
+    - { name: devel,    id: devel,    uses: r-lib/actions/setup-r@v2, with: { r-version: devel,    install-r: false } }
+    - { name: release,  id: release,  uses: r-lib/actions/setup-r@v2, with: { r-version: release,  install-r: false } }
+    - { name: oldrel-1, id: oldrel-1, uses: r-lib/actions/setup-r@v2, with: { r-version: oldrel-1, install-r: false } }
+    - { name: oldrel-2, id: oldrel-2, uses: r-lib/actions/setup-r@v2, with: { r-version: oldrel-2, install-r: false } }
+    - { name: oldrel-3, id: oldrel-3, uses: r-lib/actions/setup-r@v2, with: { r-version: oldrel-3, install-r: false } }
+    - { name: oldrel-4, id: oldrel-4, uses: r-lib/actions/setup-r@v2, with: { r-version: oldrel-4, install-r: false } }
+
+    - name: Checkout GitHub repo
+      uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+
     # R is a pre-installed software
     - name: Config
       id: config
@@ -59,6 +63,7 @@ jobs:
         mac <- "${{ inputs.macOS }}"
         windows <- "${{ inputs.windows }}"
         ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
+        has_src <- dir.exists("src")
         min_r_ver <- "${{ inputs.minimum-r-version }}"
 
         rver <- list(
@@ -80,10 +85,11 @@ jobs:
         }
         config <- c(
           list(
-            if (is_valid_os(mac,     rver$release)) job(mac, rver$release),
-            if (is_valid_os(windows, rver$release)) job(windows, rver$release),
-            if (is_valid_os(windows, "3.6"))        job(windows, "3.6"),
-            if (is_valid_os(ubuntu,  rver$devel))   job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
+            if (is_valid_os(mac,     rver$release))     job(mac, rver$release),
+            if (has_src && is_valid_os(windows, rver$release)) job(windows, "devel"),
+            if (is_valid_os(windows, rver$release))     job(windows, rver$release),
+            if (has_src && is_valid_os(windows, "3.6")) job(windows, "3.6"),
+            if (is_valid_os(ubuntu,  rver$devel))       job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
           ),
           if (is_valid_os(ubuntu))
             unlist(recursive = FALSE, lapply(ubuntu, function(ubuntu_) {
@@ -139,14 +145,14 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           needs: check
           extra-packages: |
-            rcmdcheck
+            any::rcmdcheck
             ${{ inputs.extra-packages }}
 
       - name: Check package
-        uses: r-lib/actions/check-r-package@v1
+        uses: r-lib/actions/check-r-package@v2
         with:
           check-dir: '"check"' # matches directory below
-          args: '${{ inputs.extra-check-args }}, "--no-manual", "--as-cran"'
+          args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
 
       - name: "Show `testthat` output"
         if: always()

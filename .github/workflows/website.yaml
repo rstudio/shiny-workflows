@@ -38,7 +38,7 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           needs: website
           extra-packages: |
-            pkgdown
+            any::pkgdown
             ${{ inputs.extra-packages }}
 
       - name: Run 'website' script

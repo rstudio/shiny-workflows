@@ -43,8 +43,8 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * This is a wrapper for building a `{pkgdown}` website and deploying it to the `gh-pages` branch of the repo.
   * Packages included in the `DESCRIPTION` field `Config/Needs/website` will also be installed
   * Parameters:
-    * `extra-packages`: Installs extra packages not listed in the `DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v1/setup-r-dependencies
-    * `cache-version`: The cache key to be used. Link: https://github.com/r-lib/actions/tree/v1/setup-r-dependencies
+    * `extra-packages`: Installs extra packages not listed in the `DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
+    * `cache-version`: The cache key to be used. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
     * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/master/setup-pandoc
     * `check-title`: If set, will disable `rmarkdown`'s check for having the vignette title and the document title match
 * `routine.yaml`
@@ -65,7 +65,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * Performs `R CMD check .` on your package
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
-    * `extra-check-args`: Arguments passed in addition to the default check `args` of https://github.com/r-lib/actions/blob/v1/check-r-package/
+    * `extra-check-args`: Arguments passed in addition to the default check `args` of https://github.com/r-lib/actions/blob/v2/check-r-package/
     * `macOS`: `macOS` runtime to use. Set to `false` to disable testing on macOS.
     * `windows`: `windows` runtime to use. Set to `false` to disable testing on Windows.
     * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu.
