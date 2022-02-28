@@ -71,14 +71,15 @@ jobs:
         if: ${{ github.event_name == 'push' && contains(github.ref, '/rc-v') }}
         run: |
           Rscript -e 'if (!require("urlchecker", quietly = TRUE)) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
-          git add -u
-          git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
+          git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
 
       - name: "`devtools::document()`; Document package"
         run: |
           Rscript -e 'devtools::document()'
-          git add -A DESCRIPTION man/ NAMESPACE
+          git add -A DESCRIPTION || echo "No changes found in DESCRIPTION"
+          git add -A NAMESPACE || echo "No changes found in NAMESPACE"
+          git add -A man/ || echo "No changes found in man/"
           git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
 
       - name: Find `README.Rmd`
@@ -90,7 +91,8 @@ jobs:
         if: steps.readme.outputs.exists
         run: |
           Rscript -e 'devtools::build_readme(quiet = FALSE)'
-          git add -A README.md man/figures
+          git add -A README.md || echo "No changes found in README.md"
+          git add -A man/figures || echo "No changes found in man/figures"
           git commit -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
 
 
