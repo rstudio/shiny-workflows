@@ -27,13 +27,13 @@ runs:
             # Only install if there is a direct dependency to shinytest
             pkg_name <- as.list(read.dcf("DESCRIPTION")[1,])$Package
             if (identical(pkg_name, "shinytest") || identical(pkg_name, "webdriver")) {
-              # Install the package to install phantom
+              # Install the package to install phantom or run tests in background session
               # The dependencies should have already been installed by now. This should be _fast_
               pak::local_install(".")
             } else if (shinytest_in_desc) {
-              # Install the package to be able to run shinytests in background R session
+              # Install the {shinytest} to be able to run shinytest tests in background R session
               # The dependencies should have already been installed by now. This should be _fast_
-              pak::local_install(".")
+              pak::pkg_install("any::shinytest")
             }
             phantom_path <-
               if (require("shinytest", quietly = TRUE)) {
