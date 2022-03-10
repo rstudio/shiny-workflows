@@ -76,7 +76,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
 
 There are a set of known files that can be run. The file just needs to exist to be run. No extra configuration necessary.
 
-The files must exist in the `.github/shiny-workflow/` folder. Such as `.github/shiny-workflow/package-install.R`.
+The files must exist in the `.github/shiny-workflows/` folder. Such as `.github/shiny-workflows/package-install.R`.
 
 Files:
 * `package-install.R` / `package-install.sh`
