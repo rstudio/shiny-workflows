@@ -182,6 +182,7 @@ jobs:
         shell: Rscript {0}
         run: |
           Sys.setlocale(locale = "C")
+          devtools::load_all() # helps with object usage linter
           package_lints <- devtools::lint(cache = FALSE)
           if (length(package_lints) > 0) str(package_lints, list.len = Inf)
           testthat::expect_length(package_lints, 0)
