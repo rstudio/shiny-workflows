@@ -35,6 +35,10 @@ on:
         type: string
         required: false
         default: ""
+      rtools-35:
+        type: boolean
+        default: true
+        required: false
 
 name: R-CMD-check
 
@@ -65,6 +69,7 @@ jobs:
         ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
         has_src <- dir.exists("src")
         min_r_ver <- "${{ inputs.minimum-r-version }}"
+        test_on_rtools35 <- identical("${{ inputs.rtools-35 }}", "true")
 
         rver <- list(
           devel   = "${{ steps.devel.outputs.installed-r-version }}",
@@ -88,7 +93,7 @@ jobs:
             if (is_valid_os(mac,     rver$release))     job(mac, rver$release),
             if (has_src && is_valid_os(windows, rver$release)) job(windows, "devel"),
             if (is_valid_os(windows, rver$release))     job(windows, rver$release),
-            if (has_src && is_valid_os(windows, "3.6")) job(windows, "3.6"),
+            if (has_src && test_on_rtools35 && is_valid_os(windows, "3.6")) job(windows, "3.6"),
             if (is_valid_os(ubuntu,  rver$devel))       job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
           ),
           if (is_valid_os(ubuntu))
