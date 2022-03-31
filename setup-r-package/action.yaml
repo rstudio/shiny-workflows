@@ -26,6 +26,10 @@ inputs:
     default: "2.7.3"
     description: Pandoc version to be installed
     required: false
+  packages:
+    default: "local::."
+    description: Packages to install
+    required: false
 # outputs:
 #   NAME:
 #     description: 'desc here'
@@ -56,9 +60,12 @@ runs:
 
     - uses: r-lib/actions/setup-r-dependencies@v2
       with:
+        packages: ${{ inputs.packages }}
         cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
         needs: ${{ inputs.needs }}
-        extra-packages: ${{ inputs.extra-packages }}
+        extra-packages:
+          ${{ inputs.extra-packages }}
+          any::sessioninfo
 
     - name: Install phantomJS
       uses: rstudio/shiny-workflows/setup-phantomjs@v1
