@@ -30,6 +30,10 @@ inputs:
     default: "local::."
     description: Packages to install
     required: false
+  rtools-version:
+    default: ""
+    description: 'Exact version of Rtools to use. Default uses latest suitable rtools for the given version of R. Set it to "42" for Rtools42.'
+    required: false
 # outputs:
 #   NAME:
 #     description: 'desc here'
@@ -46,6 +50,7 @@ runs:
       with:
         r-version: ${{ inputs.r-version }}
         http-user-agent: ${{ inputs.http-user-agent }}
+        rtools-version: ${{ inputs.rtools-version }}
         use-public-rspm: true
 
     - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1

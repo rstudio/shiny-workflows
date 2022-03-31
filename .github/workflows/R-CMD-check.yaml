@@ -91,7 +91,7 @@ jobs:
         config <- c(
           list(
             if (is_valid_os(mac,     rver$release))     job(mac, rver$release),
-            if (has_src && is_valid_os(windows, rver$release)) job(windows, "devel"),
+            if (has_src && is_valid_os(windows, rver$release)) job(windows, "devel", "rtools-version" = "42"),
             if (is_valid_os(windows, rver$release))     job(windows, rver$release),
             if (has_src && test_on_rtools35 && is_valid_os(windows, "3.6")) job(windows, "3.6"),
             if (is_valid_os(ubuntu,  rver$devel))       job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
@@ -144,6 +144,7 @@ jobs:
       - name: Install R, system dependencies, and package dependencies
         uses: rstudio/shiny-workflows/setup-r-package@v1
         with:
+          rtools-version: ${{ matrix.config.rtools-version }}
           pandoc-version: ${{ inputs.pandoc-version }}
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
