@@ -64,8 +64,8 @@ runs:
         cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
         needs: ${{ inputs.needs }}
         extra-packages:
-          ${{ inputs.extra-packages }}
           any::sessioninfo
+          ${{ inputs.extra-packages }}
 
     - name: Install phantomJS
       uses: rstudio/shiny-workflows/setup-phantomjs@v1
