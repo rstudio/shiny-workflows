@@ -22,7 +22,7 @@ runs:
           # TODO-future; Find a way to not use `pak`? Hopefully RSPM will handle this in the future
           if (!require("pak", quietly = TRUE)) {
             options(pak.no_extra_messages = TRUE)
-            install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
+            install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
           }
           split_pkg_str <- function(txt) {
             strsplit(txt, "[[:space:],]+")[[1]]
