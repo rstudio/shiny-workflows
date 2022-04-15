@@ -90,7 +90,9 @@ jobs:
       - name: "`devtools::build_readme()`; Build README.md from README.Rmd"
         if: steps.readme.outputs.exists
         run: |
-          Rscript -e 'devtools::build_readme(quiet = FALSE)'
+          # {devtools} does not know how to handle `any::PKGNAME`. Using {rmarkdown} equivalent directly
+          # Rscript -e 'devtools::build_readme(quiet = FALSE)'
+          Rscript -e 'rmarkdown::render(input = normalizePath("README.Rmd"), output_options = list(html_preview = FALSE), quiet = FALSE)'
           git add -A README.md || echo "No changes found in README.md"
           git add -A man/figures || echo "No changes found in man/figures"
           git commit -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
