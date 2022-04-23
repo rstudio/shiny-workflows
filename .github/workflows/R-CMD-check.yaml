@@ -39,10 +39,6 @@ on:
         type: boolean
         default: true
         required: false
-      test-timeout-minutes:
-        type: number
-        default: 30
-        required: false
 
 name: R-CMD-check
 
@@ -160,7 +156,7 @@ jobs:
 
       - name: Check package
         uses: r-lib/actions/check-r-package@v2
-        timeout-minutes: ${{ inputs.test-timeout-minutes }}
+        timeout-minutes: 30
         with:
           check-dir: '"check"' # matches directory below
           args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
