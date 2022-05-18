@@ -16,6 +16,8 @@ Known dependencies:
   * `brew install pkg-config gdal`
 * `terra`:
   * `brew install pkg-config proj geos gdal sqlite`
+* `units`:
+  * `brew install udunits`
 
 
 # Usage

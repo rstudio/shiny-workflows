@@ -58,7 +58,8 @@ runs:
             textshaping = "harfbuzz fribidi",
             rgeos = "geos",
             rgdal = "pkg-config proj gdal",
-            terra = "pkg-config proj geos gdal sqlite"
+            terra = "pkg-config proj geos gdal sqlite",
+            units = "udunits"
           )
           # If the package exists, run the brew install commands
           Map(names(infos), infos, f = function(pkg, brew_cmds) {
