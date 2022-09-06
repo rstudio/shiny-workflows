@@ -68,11 +68,29 @@ jobs:
 
       - name: "`urlchecker::url_update()`; Update urls found in package; Only rc-v** branches"
         # Only perform if in an RC branch (`rc-vX.Y.Z`)
-        if: ${{ github.event_name == 'push' && contains(github.ref, '/rc-v') }}
+        if: contains(github.ref, '/rc-v')
         run: |
           Rscript -e 'if (!require("urlchecker", quietly = TRUE)) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
           git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
+      - name: "`usethis::use_version()`; Match package version to rc-vX.Y.Z branch version"
+        # Only perform if in an RC branch (`rc-vX.Y.Z`)
+        if: contains(github.ref, '/rc-v')
+        run: |
+          Rscript \
+            -e 'git_branch <- system("git rev-parse --abbrev-ref HEAD", intern = TRUE)' \
+            -e 'stopifnot(grepl("^rc-v", git_branch))' \
+            -e 'rc_version <- gsub("^rc-v", "", git_branch)' \
+            -e '## Taken from guts of `usethis::use_version()`' \
+            -e 'pak::pkg_install("usethis")' \
+            -e '# Set DESCRIPTION version' \
+            -e 'usethis:::use_description_field("Version", rc_version, overwrite = TRUE)' \
+            -e '# Set NEWS version' \
+            -e 'usethis:::use_news_heading(rc_version)' \
+            -e '# Set C version' \
+            -e 'usethis:::use_c_version(rc_version)'
+
+          git add -u && git commit -m '`usethis::use_version()` (GitHub Actions)' || echo "No version changes to commit"
 
       - name: "`devtools::document()`; Document package"
         run: |
