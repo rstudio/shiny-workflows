@@ -73,6 +73,10 @@ jobs:
           Rscript -e 'if (!require("urlchecker", quietly = TRUE)) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
           git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
+      - name: Dump GitHub context
+        id: github_context_step
+        run: echo '${{ toJSON(github) }}'
+
       - name: "`usethis::use_version()`; Match package version to rc-vX.Y.Z branch version; Only rc-v** branches"
         # Only perform if in an RC branch (`rc-vX.Y.Z`)
         if: contains(github.ref_name, '/rc-v')
