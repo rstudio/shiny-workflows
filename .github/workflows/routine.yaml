@@ -143,12 +143,12 @@ jobs:
         run: |
           [ -d "srcts/types" ] && rm -r srcts/types
           yarn install --immutable
-          if [ $? -eq 0 ]; then
+          if [ $? != 0 ]; then
             echo '::error::Error calling `yarn install --immutable`'
             exit 1
           fi
           yarn build
-          if [ $? -eq 0 ]; then
+          if [ $? != 0 ]; then
             echo '::error::Error calling `yarn build`'
             exit 1
           fi
