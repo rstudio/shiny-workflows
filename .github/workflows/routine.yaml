@@ -139,9 +139,19 @@ jobs:
           node-version: "${{ inputs.node-version }}"
       - name: "`yarn build`"
         if: steps.package-json.outputs.build
+        shell: bash
         run: |
           [ -d "srcts/types" ] && rm -r srcts/types
-          yarn install --immutable && yarn build
+          yarn install --immutable
+          if [ $? ]; then
+            echo '::error::Error calling `yarn install --immutable`'
+            exit 1
+          fi
+          yarn build
+          if [ $? ]; then
+            echo '::error::Error calling `yarn build`'
+            exit 1
+          fi
           for FOLDER in ./inst ./javascript ./srcjs ./srcts
           do
             [ -d $FOLDER ] && git add -A $FOLDER || echo "No updated $FOLDER changes to commit"
