@@ -247,3 +247,15 @@ jobs:
             fi
             echo "::warning file=$FILE,title=staticimports::$FILE is out of date. To update, call \`staticimports::import()\`. To opt out of this check, set \`staticimports: false\` in the routine.yaml args"
           fi
+
+      # Helpful for covr output
+      # https://github.com/r-lib/actions/blob/1c40e8ed442ad559d5656c01e94bf64d4c20091d/check-r-package/action.yaml
+      - name: Show testthat output
+        if: always()
+        run: |
+          ## --------------------------------------------------------------------
+          echo ::group::Show testthat output
+          find check -name 'testthat.Rout*' -exec cat '{}' \; || true
+          echo ::endgroup::
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
