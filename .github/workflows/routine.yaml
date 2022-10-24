@@ -200,7 +200,7 @@ jobs:
         run: |
           # might need to move up above / install system deps
           if (!require("covr", quietly = TRUE)) pak::pkg_install("covr")
-          covr::codecov()
+          covr::codecov(quiet = FALSE)
 
       - name: Find `.lintr`
         id: lintr
