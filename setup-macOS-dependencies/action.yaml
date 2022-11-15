@@ -24,6 +24,14 @@ runs:
             options(pak.no_extra_messages = TRUE)
             install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
           }
+          if (any(
+            grepl("url::", "${{ inputs.extra-packages }}", fixed = TRUE),
+            file.exists("DESCRIPTION") &&
+              any(grepl("url::", readLines("DESCRIPTION"), fixed = TRUE))
+          )) {
+            # Need for url remotes. See https://github.com/r-lib/actions/issues/562#issuecomment-1129088041
+            install.packages("digest", repos = "http://cran.us.r-project.org")
+          }
           split_pkg_str <- function(txt) {
             strsplit(txt, "[[:space:],]+")[[1]]
           }
