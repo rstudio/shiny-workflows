@@ -104,7 +104,7 @@ jobs:
         id: readme
         shell: Rscript {0}
         run: |
-          if (file.exists("README.Rmd")) cat("::set-output name=exists::true")
+          if (file.exists("README.Rmd")) system('echo "exists=true" >> $GITHUB_OUTPUT')
       - name: "`devtools::build_readme()`; Build README.md from README.Rmd"
         if: steps.readme.outputs.exists
         run: |
@@ -121,15 +121,15 @@ jobs:
         shell: Rscript {0}
         run: |
           if (file.exists("package.json")) {
-            cat("::set-output name=exists::true\n")
+            system('echo "exists=true" >> $GITHUB_OUTPUT')
             pkg_scripts <- jsonlite::read_json("package.json")$scripts
             if ("build" %in% names(pkg_scripts)) {
               message("Can call `yarn build`")
-              cat("::set-output name=build::true\n")
+              system('echo "build=true" >> $GITHUB_OUTPUT')
             }
             if ("test" %in% names(pkg_scripts)) {
               message("Can call `yarn test`")
-              cat("::set-output name=test::true\n")
+              system('echo "test=true" >> $GITHUB_OUTPUT')
             }
           }
       - name: Install node.js
@@ -193,7 +193,7 @@ jobs:
         id: covr
         shell: Rscript {0}
         run: |
-          if (file.exists("codecov.yml")) cat("::set-output name=exists::true")
+          if (file.exists("codecov.yml")) system('echo "exists=true" >> $GITHUB_OUTPUT')
       - name: "`covr::codecov()`; Run tests and find code coverage"
         if: steps.covr.outputs.exists
         shell: Rscript {0}
@@ -206,7 +206,7 @@ jobs:
         id: lintr
         shell: Rscript {0}
         run: |
-          if (file.exists(".lintr")) cat("::set-output name=exists::true")
+          if (file.exists(".lintr")) system('echo "exists=true" >> $GITHUB_OUTPUT')
       - name: "`devtools::lint()`; Lint package"
         if: steps.lintr.outputs.exists
         shell: Rscript {0}
@@ -230,7 +230,7 @@ jobs:
         run: |
           # If any file contains `# @staticimports` in the R folder...
           if (system("grep -e '# @staticimports' -r R -q") == 0) {
-            cat("::set-output name=exists::true")
+            system('echo "exists=true" >> $GITHUB_OUTPUT')
           }
       - name: Check for staticimports updates
         if: steps.static-imports.outputs.exists

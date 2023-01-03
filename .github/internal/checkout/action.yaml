@@ -20,7 +20,7 @@ runs:
       FILE=.gitattributes
       if [ -f "$FILE" ]; then
         if grep -q "=lfs" "$FILE"; then
-          echo "::set-output name=exists::true"
+          echo "exists=true" >> $GITHUB_OUTPUT
         fi
       fi
   - uses: actions/checkout@v2
