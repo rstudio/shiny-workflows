@@ -50,7 +50,7 @@ runs:
           }
         }
         if (!found) {
-          system("echo 'path=/tmp/phantomjs-no-found' >> $GITHUB_OUTPUT')
+          system("echo 'path=/tmp/phantomjs-no-found' >> $GITHUB_OUTPUT'")
         }
     - name: Cache PhantomJS
       uses: actions/cache@v2
