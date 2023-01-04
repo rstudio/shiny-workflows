@@ -63,6 +63,7 @@ runs:
           }
           infos <- list(
             Cairo = c("--cask xquartz", "cairo"),
+            FreeType = "freetype",
             textshaping = "harfbuzz fribidi",
             rgeos = "geos",
             rgdal = "pkg-config proj gdal",

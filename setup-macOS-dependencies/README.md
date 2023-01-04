@@ -8,6 +8,8 @@ Known dependencies:
 * `Cairo`:
   * `brew install --cask xquartz`
   * `brew install cairo`
+* `FreeType`:
+  * `brew install freetype`
 * `textshaping`:
   * `brew install harfbuzz fribidi`
 * `rgeos`:
