@@ -44,7 +44,7 @@ runs:
                 NULL
               }
             if (!is.null(phantom_path)) {
-              system(paste0("echo 'path=", phantom_path, "' >> $GITHUB_OUTPUT')
+              system(paste0("echo 'path=", phantom_path, "' >> $GITHUB_OUTPUT'")
               found <- TRUE
             }
           }
