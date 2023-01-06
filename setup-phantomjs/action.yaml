@@ -44,13 +44,13 @@ runs:
                 NULL
               }
             if (!is.null(phantom_path)) {
-              system(paste0("echo 'path=", phantom_path, "' >> $GITHUB_OUTPUT"))
+              cat(file = Sys.getenv("GITHUB_OUTPUT"), paste0("path=", phantom_path, "\n"))
               found <- TRUE
             }
           }
         }
         if (!found) {
-          system("echo 'path=/tmp/phantomjs-no-found' >> $GITHUB_OUTPUT")
+          cat(file = Sys.getenv("GITHUB_OUTPUT"), "path=/tmp/phantomjs-no-found\n")
         }
     - name: Cache PhantomJS
       uses: actions/cache@v2
