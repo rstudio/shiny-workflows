@@ -53,7 +53,7 @@ runs:
           cat(file = Sys.getenv("GITHUB_OUTPUT"), "path=/tmp/phantomjs-no-found\n")
         }
     - name: Cache PhantomJS
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.phantomjs.outputs.path }}
         key: ${{ runner.os }}-phantomjs-${{ inputs.cache-version }}
