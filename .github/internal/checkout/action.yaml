@@ -20,7 +20,7 @@ runs:
       FILE=.gitattributes
       if [ -f "$FILE" ]; then
         if grep -q "=lfs" "$FILE"; then
-          echo "exists=true" >> $GITHUB_OUTPUT
+          Rscript -e 'cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)'
         fi
       fi
   - uses: actions/checkout@v2

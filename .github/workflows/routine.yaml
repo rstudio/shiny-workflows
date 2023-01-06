@@ -104,7 +104,8 @@ jobs:
         id: readme
         shell: Rscript {0}
         run: |
-          if (file.exists("README.Rmd")) system('echo "exists=true" >> $GITHUB_OUTPUT')
+          if (file.exists("README.Rmd"))
+            cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
       - name: "`devtools::build_readme()`; Build README.md from README.Rmd"
         if: steps.readme.outputs.exists
         run: |
@@ -121,15 +122,15 @@ jobs:
         shell: Rscript {0}
         run: |
           if (file.exists("package.json")) {
-            system('echo "exists=true" >> $GITHUB_OUTPUT')
+            cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
             pkg_scripts <- jsonlite::read_json("package.json")$scripts
             if ("build" %in% names(pkg_scripts)) {
               message("Can call `yarn build`")
-              system('echo "build=true" >> $GITHUB_OUTPUT')
+              cat("build=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
             }
             if ("test" %in% names(pkg_scripts)) {
               message("Can call `yarn test`")
-              system('echo "test=true" >> $GITHUB_OUTPUT')
+              cat("test=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
             }
           }
       - name: Install node.js
@@ -193,7 +194,8 @@ jobs:
         id: covr
         shell: Rscript {0}
         run: |
-          if (file.exists("codecov.yml")) system('echo "exists=true" >> $GITHUB_OUTPUT')
+          if (file.exists("codecov.yml"))
+            cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
       - name: "`covr::codecov()`; Run tests and find code coverage"
         if: steps.covr.outputs.exists
         shell: Rscript {0}
@@ -206,7 +208,8 @@ jobs:
         id: lintr
         shell: Rscript {0}
         run: |
-          if (file.exists(".lintr")) system('echo "exists=true" >> $GITHUB_OUTPUT')
+          if (file.exists(".lintr"))
+            cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
       - name: "`devtools::lint()`; Lint package"
         if: steps.lintr.outputs.exists
         shell: Rscript {0}
@@ -230,7 +233,7 @@ jobs:
         run: |
           # If any file contains `# @staticimports` in the R folder...
           if (system("grep -e '# @staticimports' -r R -q") == 0) {
-            system('echo "exists=true" >> $GITHUB_OUTPUT')
+            cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
           }
       - name: Check for staticimports updates
         if: steps.static-imports.outputs.exists

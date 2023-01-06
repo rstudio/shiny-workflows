@@ -127,7 +127,7 @@ jobs:
         })
         config_json <- join_and_wrap(entries_json, "[", "]")
         cat("Config:\n", config_json, "\n", sep = "")
-        system(paste0("echo 'config=", config_json, "' >> $GITHUB_OUTPUT"))
+        cat("config=", config_json, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
 
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
