@@ -1,6 +1,11 @@
 on:
   workflow_call:
     inputs:
+      # Used by rstudio/shinyloadtest
+      runs-on:
+        type: string
+        default: "ubuntu-20.04"
+        required: false
       extra-packages:
         type: string
         default: ""
@@ -27,7 +32,7 @@ name: "`pkgdown` - `gh-pages`"
 jobs:
   pkgdown:
 
-    runs-on: ubuntu-20.04
+    runs-on: ${{ inputs.runs-on }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
