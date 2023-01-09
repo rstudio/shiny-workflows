@@ -35,20 +35,28 @@ runs:
           split_pkg_str <- function(txt) {
             strsplit(txt, "[[:space:],]+")[[1]]
           }
-          pkg_deps <- c(
+          pkg_deps <- NULL
+          if (file.exists("DESCRIPTION")) {
             # Local deps
-            pak::local_dev_deps(dependencies = TRUE)[["package"]],
-            # Needs deps; Must find all dependencies of of the needs pkgs
-            if (nzchar("${{ inputs.needs }}") && file.exists("DESCRIPTION")) {
-              needs_pkgs <- as.list(read.dcf("DESCRIPTION")[1,])[["Config/Needs/${{ inputs.needs }}"]]
-              if (!is.null(needs_pkgs)) {
+            pkg_deps <- c(pkg_deps, pak::local_dev_deps(dependencies = TRUE)[["package"]])
+          }
+          # Needs deps; Must find all dependencies of of the needs pkgs
+          if (nzchar("${{ inputs.needs }}") && file.exists("DESCRIPTION")) {
+            needs_pkgs <- as.list(read.dcf("DESCRIPTION")[1,])[["Config/Needs/${{ inputs.needs }}"]]
+            if (!is.null(needs_pkgs)) {
+              pkg_deps <- c(
+                pkg_deps,
                 pak::pkg_deps(split_pkg_str(needs_pkgs), dependencies = TRUE)[["package"]]
-              }
-            },
-            # Extra package deps
-            if (nzchar("${{ inputs.extra-packages }}")) pak::pkg_deps(split_pkg_str("${{ inputs.extra-packages }}"), dependencies = TRUE)[["package"]],
-            NULL
-          )
+              )
+            }
+          }
+          # Extra package deps
+          if (nzchar("${{ inputs.extra-packages }}")) {
+            pkg_deps <- c(
+              pkg_deps,
+              pak::pkg_deps(split_pkg_str("${{ inputs.extra-packages }}"), dependencies = TRUE)[["package"]]
+            )
+          }
           cat("Packages found:\n"); print(pkg_deps)
           has_dep <- function(pkgs) {
             any(pkgs %in% pkg_deps)
