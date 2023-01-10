@@ -35,6 +35,10 @@ on:
         type: string
         required: false
         default: ""
+      force-windows-src:
+        type: boolean
+        required: false
+        default: false
       rtools-35:
         type: boolean
         default: true
@@ -75,6 +79,8 @@ jobs:
         min_r_ver <- "${{ inputs.minimum-r-version }}"
         test_on_rtools35 <- identical("${{ inputs.rtools-35 }}", "true")
         test_on_rtools40 <- identical("${{ inputs.rtools-40 }}", "true")
+        force_windows_src <- identical("${{ inputs.force-windows-src }}", "true")
+        if (force_windows_src) has_src <- TRUE
 
         rver <- list(
           devel   = "${{ steps.devel.outputs.installed-r-version }}",
