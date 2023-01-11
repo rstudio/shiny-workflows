@@ -1,5 +1,5 @@
 name: 'Checkout a repo with auto LFS support'
-description: 'If `=lfs` exists with `.gitattributes`, then add LFS support on checkout. If customization is needed, just call `actions/checkout@v2` directly'
+description: 'If `=lfs` exists with `.gitattributes`, then add LFS support on checkout. If customization is needed, just call `actions/checkout@v3` directly'
 author: 'Barret Schloerke'
 runs:
   using: "composite"
@@ -23,7 +23,7 @@ runs:
           Rscript -e 'cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)'
         fi
       fi
-  - uses: actions/checkout@v2
+  - uses: actions/checkout@v3
     with:
       # Checkout with LFS support
       lfs: ${{ steps.lfs.output.exists == 'true' }}
