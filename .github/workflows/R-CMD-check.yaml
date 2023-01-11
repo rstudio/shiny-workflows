@@ -30,7 +30,7 @@ on:
         type: string
         required: false
         # To test more versions, they must be separated by a space. Ex: `"ubuntu-18.04 ubuntu-20.04`
-        default: "ubuntu-18.04"
+        default: "ubuntu-20.04"
       minimum-r-version:
         type: string
         required: false
