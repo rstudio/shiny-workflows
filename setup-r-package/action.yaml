@@ -27,7 +27,7 @@ inputs:
     description: Pandoc version to be installed
     required: false
   packages:
-    default: "local::., deps::, any::sessioninfo"
+    default: "local::., deps::., any::sessioninfo"
     description: Packages to install
     required: false
   rtools-version:
