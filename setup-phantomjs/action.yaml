@@ -18,7 +18,7 @@ runs:
       shell: Rscript {0}
       # `if` statements are not allowed in composite actions. So use a dummy location if shinytest (or webdriver) can not be directly found in the `DESCRIPTION` file
       run: |
-        found <- FALSE
+        phantom_path <- NULL
         if (file.exists("DESCRIPTION")) {
           desc_lines <- paste0(readLines("DESCRIPTION"), collapse = "\n")
           shinytest_in_desc <- grepl("\\bshinytest\\b", desc_lines)
@@ -43,16 +43,18 @@ runs:
               } else {
                 NULL
               }
-            if (!is.null(phantom_path)) {
-              cat("path=", phantom_path, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
-              found <- TRUE
-            }
           }
         }
-        if (!found) {
-          cat("path=/tmp/phantomjs-no-found\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+        if (!is.null(phantom_path)) {
+          cat("path=", phantom_path, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+          cat("should-install=true", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+        } else {
+          cat("path=/tmp/phantomjs-not-found\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+          cat("should-install=false", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
         }
     - name: Cache PhantomJS
+      if: ${{ steps.phantomjs.outputs.should-install }}
+      id: phantomjs-cache
       uses: actions/cache@v3
       with:
         path: ${{ steps.phantomjs.outputs.path }}
@@ -62,6 +64,7 @@ runs:
           ${{ runner.os }}-phantomjs-save-${{ inputs.cache-version }}
 
     - name: Install PhantomJS
+      if: ${{ steps.phantomjs.outputs.should-install }}
       shell: Rscript {0}
       run: |
         if (file.exists("DESCRIPTION")) {
@@ -83,6 +86,7 @@ runs:
         }
     # Save the currently found phantom to speed up install later
     - name: Cache PhantomJS
+      if: ${{ steps.phantomjs.outputs.should-install && ! steps.phantomjs-cache.outputs.cache-hit }}
       uses: actions/cache/save@v3
       with:
         path: ${{ steps.phantomjs.outputs.path }}
