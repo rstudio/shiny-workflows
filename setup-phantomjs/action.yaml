@@ -53,7 +53,7 @@ runs:
           cat("should-install=false", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
         }
     - name: Cache PhantomJS
-      if: ${{ steps.phantomjs.outputs.should-install }}
+      if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
       id: phantomjs-cache
       uses: actions/cache@v3
       with:
@@ -64,7 +64,7 @@ runs:
           ${{ runner.os }}-phantomjs-save-${{ inputs.cache-version }}
 
     - name: Install PhantomJS
-      if: ${{ steps.phantomjs.outputs.should-install }}
+      if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
       shell: Rscript {0}
       run: |
         if (file.exists("DESCRIPTION")) {
@@ -86,7 +86,7 @@ runs:
         }
     # Save the currently found phantom to speed up install later
     - name: Cache PhantomJS
-      if: ${{ steps.phantomjs.outputs.should-install && ! steps.phantomjs-cache.outputs.cache-hit }}
+      if: ${{ steps.phantomjs.outputs.should-install == 'true' && steps.phantomjs-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache/save@v3
       with:
         path: ${{ steps.phantomjs.outputs.path }}
