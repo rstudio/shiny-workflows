@@ -49,7 +49,6 @@ jobs:
           extra-packages: |
             any::pkgdown
             any::testthat
-            local::.
             ${{ inputs.extra-packages }}
 
       - name: Run 'website' script
