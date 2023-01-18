@@ -65,7 +65,7 @@ runs:
 
     # - uses: r-lib/actions/setup-r-dependencies@v2
     # TODO-fix to v1!
-    - uses: rstudio/shiny-workflows/.github/internal/setup-r-dependencies@main
+    - uses: schloerke/actions/setup-r-dependencies@always_cache_r_lib
       with:
         packages: ${{ inputs.packages }}
         cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
