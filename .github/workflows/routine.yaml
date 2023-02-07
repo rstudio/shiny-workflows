@@ -237,20 +237,25 @@ jobs:
           }
       - name: Check for staticimports updates
         if: steps.static-imports.outputs.exists
-        shell: bash
+        shell: Rscript{0}
         run: |
-          Rscript -e 'if (!require("staticimports", quietly = TRUE)) pak::pkg_install("wch/staticimports"); staticimports::import()'
+          if (!require("staticimports", quietly = TRUE)) {
+            pak::pkg_install("wch/staticimports")
+          }
+          staticimports::import()
 
           # Display the git diff here; Could turn off with `--quiet`
-          git diff --exit-code -- R 2> /dev/null
-          if [ "$?" -gt 0 ]; then
-            FILE="R/staticimports.R"
-            if [ ! -f "R/staticimports.R" ]; then
+          exit_code <- system("git diff --exit-code -- R")
+          # If a diff was found...
+          if (exit_code > 0) {
+            file_for_warning <- "R/staticimports.R"
+            if (!file.exists(file_for_warning)) {
               # Find the first file instead
-              FILE=$(git ls-files -dm R | head -n 1);
-            fi
-            echo "::warning file=$FILE,title=staticimports::$FILE is out of date. To update, call \`staticimports::import()\`. To opt out of this check, set \`staticimports: false\` in the routine.yaml args"
-          fi
+              file_for_warning <- system("git ls-files -dm R | head -n 1", intern = TRUE)
+            }
+
+            cat("::warning file=", file_for_warning, ",title=`staticimports` is out of date. To update, call `staticimports::import()`. To opt out of this check, set `staticimports: false` in the routine.yaml args\n", sep = "")
+          }
 
       # Helpful for covr output
       # https://github.com/r-lib/actions/blob/1c40e8ed442ad559d5656c01e94bf64d4c20091d/check-r-package/action.yaml
