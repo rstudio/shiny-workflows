@@ -237,7 +237,7 @@ jobs:
           }
       - name: Check for staticimports updates
         if: steps.static-imports.outputs.exists
-        shell: Rscript{0}
+        shell: Rscript {0}
         run: |
           if (!require("staticimports", quietly = TRUE)) {
             pak::pkg_install("wch/staticimports")
