@@ -254,7 +254,7 @@ jobs:
               file_for_warning <- system("git ls-files -dm R | head -n 1", intern = TRUE)
             }
 
-            cat("::warning file=", file_for_warning, ",title=`staticimports` is out of date. To update, call `staticimports::import()`. To opt out of this check, set `staticimports: false` in the routine.yaml args\n", sep = "")
+            cat("::warning file=", file_for_warning, ",title=`{staticimports}` is out of date.::To update, call `staticimports::import()`. To opt out of this check, set `staticimports: false` in the routine.yaml args\n", sep = "")
           }
 
       # Helpful for covr output
