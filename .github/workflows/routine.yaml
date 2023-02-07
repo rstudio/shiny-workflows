@@ -242,7 +242,8 @@ jobs:
           Rscript -e 'if (!require("staticimports", quietly = TRUE)) pak::pkg_install("wch/staticimports"); staticimports::import()'
 
           # Display the git diff here; Could turn off with `--quiet`
-          if git diff --exit-code -- R; then
+          git diff --exit-code -- R
+          if [ $? -eq 1 ]; then
             FILE="R/staticimports.R"
             if [ ! -f "R/staticimports.R" ]; then
               # Find the first file instead
