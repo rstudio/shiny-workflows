@@ -154,7 +154,7 @@ jobs:
         uses: rstudio/shiny-workflows/.github/internal/checkout@v1
 
       - name: Install R, system dependencies, and package dependencies
-        uses: rstudio/shiny-workflows/setup-r-package@main
+        uses: rstudio/shiny-workflows/setup-r-package@v1
         with:
           rtools-version: ${{ matrix.config.rtools-version }}
           pandoc-version: ${{ inputs.pandoc-version }}
