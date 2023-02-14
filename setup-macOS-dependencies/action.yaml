@@ -70,31 +70,26 @@ runs:
           }
           pkg_deps <- unique(pkg_deps)
           cat("Packages found:\n"); print(pkg_deps)
-          has_dep <- function(pkgs) {
-            any(pkgs %in% pkg_deps)
-          }
-          run_cmds <- function(...) {
+          brew_list <- list(
+            Cairo = c("--cask xquartz", "cairo"),
+            grDevices = c("--cask xquartz", "cairo"),
+            FreeType = "freetype",
+            textshaping = c("harfbuzz", "fribidi"),
+            rgeos = "geos",
+            rgdal = c("pkg-config", "proj", "gdal"),
+            terra = c("pkg-config", "proj", "geos", "gdal", "sqlite"),
+            units = "udunits"
+          )
+          cmds <- unique(unname(unlist(
+            brew_list[names(brew_list) %in% pkg_deps]
+          )))
+          # If the package exists, run the brew install commands
+          if (length(cmds) > 0) {
             # Make sure exit is success
-            lapply(paste0(...), function(cmd) {
+            lapply(paste0("brew install", cmds), function(cmd) {
               message(cmd)
               stopifnot(system(cmd) == 0)
               cmd
             })
           }
-          infos <- list(
-            Cairo = c("--cask xquartz", "cairo"),
-            grDevices = c("--cask xquartz", "cairo"),
-            FreeType = "freetype",
-            textshaping = "harfbuzz fribidi",
-            rgeos = "geos",
-            rgdal = "pkg-config proj gdal",
-            terra = "pkg-config proj geos gdal sqlite",
-            units = "udunits"
-          )
-          # If the package exists, run the brew install commands
-          Map(names(infos), infos, f = function(pkg, brew_cmds) {
-            if (has_dep(pkg)) {
-              run_cmds("brew install ", brew_cmds)
-            }
-          })
         }
