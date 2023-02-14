@@ -86,7 +86,7 @@ runs:
           # If the package exists, run the brew install commands
           if (length(cmds) > 0) {
             # Make sure exit is success
-            lapply(paste0("brew install", cmds), function(cmd) {
+            lapply(paste0("brew install ", cmds), function(cmd) {
               message(cmd)
               stopifnot(system(cmd) == 0)
               cmd
