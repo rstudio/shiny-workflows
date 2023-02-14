@@ -5,7 +5,7 @@
 This action installs all macOS dependencies using brew.
 
 Known dependencies:
-* `Cairo`:
+* `Cairo`, `grDevices`:
   * `brew install --cask xquartz`
   * `brew install cairo`
 * `FreeType`:
