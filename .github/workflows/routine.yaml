@@ -62,7 +62,7 @@ jobs:
             any::devtools
             any::roxygen2
             any::rmarkdown
-            cran::lintr
+            any::lintr
             any::jsonlite
             ${{ inputs.extra-packages }}
 
