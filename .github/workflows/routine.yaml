@@ -61,6 +61,7 @@ jobs:
           extra-packages: |
             any::devtools
             any::roxygen2
+            any:decor
             any::rmarkdown
             any::lintr
             any::jsonlite
