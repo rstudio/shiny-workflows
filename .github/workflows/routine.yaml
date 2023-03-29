@@ -22,9 +22,11 @@ on:
         type: boolean
         default: true
         required: false
-      minimize-man-figures:
-        type: boolean
-        default: true
+      optimize-pngs:
+        type: string
+        default: |
+          man/figures/**.png
+          vignettes/**.png
         required: false
     # secrets:
     #   token:
@@ -105,19 +107,20 @@ jobs:
           git add -A man/ || echo "No changes found in man/"
           git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
 
-      - name: Find `man/figures`
-        id: man-figures
-        shell: Rscript {0}
-        run: |
-          if (length(dir("man/figures", pattern = "\\.png$")) > 0)
-            cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+      - name: Find figures
+        if: inputs.optimize-pngs != "false"
+        uses: tj-actions/glob@v16
+        id: figures
+        with:
+          files: ${{ inputs.optimize-pngs }}
       - name: Minimize `man/figures` images
-        if: steps.man-figures.outputs.exists && inputs.minimize-man-figures
+        if: inputs.optimize-pngs != "false" && steps.figures.outputs.paths != ''
         run: |
           sudo apt-get install oxipng
-          oxipng -o 4 --strip safe man/figures/*.png
-          git add -A man/figures/*.png || echo 'No changes found in man/figures/*.png'
-          git commit -m "Shrink images in man/figures (Github Actions)" || echo "No changes in man/figures/*.png to commit"
+          echo "Minimizing figures: ${{ steps.figures.outputs.paths }}"
+          oxipng -o 4 --strip safe ${{ steps.figures.outputs.paths }}
+          git add -A ${{ steps.figures.outputs.paths }} || echo 'No figures were minimized'
+          git commit -m "Shrink images in man/figures (Github Actions)" || echo "No minimized figures to commit"
 
       - name: Find `README.Rmd`
         id: readme
