@@ -114,8 +114,8 @@ jobs:
       - name: Minimize `man/figures` images
         if: steps.man-figures.outputs.exists && inputs.minimize-man-figures
         run: |
-          sudo apt-get install optipng
-          optipng man/figures/*.png
+          sudo apt-get install oxipng
+          oxipng -o 4 --strip safe man/figures/*.png
           git add -A man/figures/*.png || echo 'No changes found in man/figures/*.png'
           git commit -m "Shrink images in man/figures (Github Actions)" || echo "No changes in man/figures/*.png to commit"
 
