@@ -22,6 +22,10 @@ on:
         type: boolean
         default: true
         required: false
+      minimize-man-figures:
+        type: boolean
+        default: true
+        required: false
     # secrets:
     #   token:
     #     required: true
@@ -100,6 +104,20 @@ jobs:
           git add -A NAMESPACE || echo "No changes found in NAMESPACE"
           git add -A man/ || echo "No changes found in man/"
           git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
+
+      - name: Find `man/figures`
+        id: man-figures
+        shell: Rscript {0}
+        run: |
+          if (length(dir("man/figures", pattern = "\\.png$")) > 0)
+            cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+      - name: Minimize `man/figures` images
+        if: steps.man-figures.outputs.exists && inputs.minimize-man-figures
+        run: |
+          sudo apt-get install optipng
+          optipng man/figures/*.png
+          git add -A man/figures/*.png || echo 'No changes found in man/figures/*.png'
+          git commit -m "Shrink images in man/figures (Github Action)" || echo "No changes in man/figures/*.png to commit"
 
       - name: Find `README.Rmd`
         id: readme

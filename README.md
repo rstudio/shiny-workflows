@@ -61,6 +61,8 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
     * `node-version`: Version of `node.js` to install
+    * `staticimports`: Determines if `staticimports` should display a warning message if the staticimports are out of date.
+    * `minimize-man-figures`: If any PNG images are found in `man/figures`, then the images are attempted to be minimized using `optipng`. This is useful for reducing the size of the package tarball without losing quality. Set to `false` to disable image minimization.
 * `R-CMD-check.yaml`
   * Performs `R CMD check .` on your package
   * Parameters:
@@ -69,9 +71,8 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `macOS`: `macOS` runtime to use. Set to `false` to disable testing on macOS.
     * `windows`: `windows` runtime to use. Set to `false` to disable testing on Windows.
     * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu.
-    * staticimports: Determines if `staticimports` should display a warning message if the staticimports are out of date.
-    * minimum-r-version: If provided, only R versions >= to `minimum-r-version` will be created in the matrix. Great for dependencies that will not install on earlier R versions.
-    * rtools-35: If `false`, packages with a `src` folder will not test on Windows R 3.6 using `rtools35`.
+    * `minimum-r-version`: If provided, only R versions >= to `minimum-r-version` will be created in the matrix. Great for dependencies that will not install on earlier R versions.
+    * `rtools-35`: If `false`, packages with a `src` folder will not test on Windows R 3.6 using `rtools35`.
 
 ## Customization
 
