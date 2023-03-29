@@ -117,7 +117,7 @@ jobs:
           sudo apt-get install optipng
           optipng man/figures/*.png
           git add -A man/figures/*.png || echo 'No changes found in man/figures/*.png'
-          git commit -m "Shrink images in man/figures (Github Action)" || echo "No changes in man/figures/*.png to commit"
+          git commit -m "Shrink images in man/figures (Github Actions)" || echo "No changes in man/figures/*.png to commit"
 
       - name: Find `README.Rmd`
         id: readme
