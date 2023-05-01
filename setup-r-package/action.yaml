@@ -67,6 +67,7 @@ runs:
     # TODO-fix to v1!
     - uses: schloerke/actions/setup-r-dependencies@always_cache_r_lib
       with:
+        cache: "always"
         packages: ${{ inputs.packages }}
         cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
         needs: ${{ inputs.needs }}
