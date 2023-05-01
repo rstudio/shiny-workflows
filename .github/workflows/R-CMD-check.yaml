@@ -16,7 +16,7 @@ on:
       extra-check-args:
         type: string
         # default: '"--run-donttest", "--no-manual", "--as-cran"'
-        default: 'NULL'
+        default: "NULL"
         required: false
       macOS:
         type: string
@@ -57,83 +57,122 @@ jobs:
     outputs:
       config: ${{ steps.config.outputs.config }}
     steps:
-    - { name: devel,    id: devel,    uses: r-lib/actions/setup-r@v2, with: { r-version: devel,    install-r: false } }
-    - { name: release,  id: release,  uses: r-lib/actions/setup-r@v2, with: { r-version: release,  install-r: false } }
-    - { name: oldrel-1, id: oldrel-1, uses: r-lib/actions/setup-r@v2, with: { r-version: oldrel-1, install-r: false } }
-    - { name: oldrel-2, id: oldrel-2, uses: r-lib/actions/setup-r@v2, with: { r-version: oldrel-2, install-r: false } }
-    - { name: oldrel-3, id: oldrel-3, uses: r-lib/actions/setup-r@v2, with: { r-version: oldrel-3, install-r: false } }
-    - { name: oldrel-4, id: oldrel-4, uses: r-lib/actions/setup-r@v2, with: { r-version: oldrel-4, install-r: false } }
+      # - name: devel
+      #   id: devel
+      #   uses: r-lib/actions/setup-r@v2
+      #   with:
+      #     r-version: devel
+      #     install-r: false
 
-    - name: Checkout GitHub repo
-      uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+      - name: release
+        id: release
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          install-r: false
 
-    # R is a pre-installed software
-    - name: Config
-      id: config
-      shell: Rscript {0}
-      run: |
-        mac <- "${{ inputs.macOS }}"
-        windows <- "${{ inputs.windows }}"
-        ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
-        has_src <- dir.exists("src")
-        min_r_ver <- "${{ inputs.minimum-r-version }}"
-        test_on_rtools35 <- identical("${{ inputs.rtools-35 }}", "true")
-        test_on_rtools40 <- identical("${{ inputs.rtools-40 }}", "true")
-        force_windows_src <- identical("${{ inputs.force-windows-src }}", "true")
-        if (force_windows_src) has_src <- TRUE
+      - name: oldrel-1
+        id: oldrel-1
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: oldrel-1
+          install-r: false
 
-        rver <- list(
-          devel   = "${{ steps.devel.outputs.installed-r-version }}",
-          release = "${{ steps.release.outputs.installed-r-version }}",
-          oldrel1 = "${{ steps.oldrel-1.outputs.installed-r-version }}",
-          oldrel2 = "${{ steps.oldrel-2.outputs.installed-r-version }}",
-          oldrel3 = "${{ steps.oldrel-3.outputs.installed-r-version }}",
-          oldrel4 = "${{ steps.oldrel-4.outputs.installed-r-version }}"
-        )
-        job <- function(os, r, ...) {
-          list(os = os, r = r, ...)
-        }
-        is_valid_os <- function(os, r_ver = "") {
-          if (identical(os, "false")) return(FALSE)
-          if (identical(os, "")) return(FALSE)
-          if (any(nchar(c(r_ver, min_r_ver)) == 0)) return(TRUE)
-          r_ver >= min_r_ver
-        }
-        config <- c(
-          list(
-            if (is_valid_os(mac, rver$release))                             job(mac, rver$release),
-            if (has_src && is_valid_os(windows, rver$release))              job(windows, "devel", "rtools-version" = "42"),
-            if (is_valid_os(windows, rver$release))                         job(windows, rver$release, "rtools-version" = "42"),
-            if (has_src && test_on_rtools40 && is_valid_os(windows, "4.1")) job(windows, "4.1"),
-            if (has_src && test_on_rtools35 && is_valid_os(windows, "3.6")) job(windows, "3.6"),
-            if (is_valid_os(ubuntu, rver$devel))                            job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
-          ),
-          if (is_valid_os(ubuntu))
-            unlist(recursive = FALSE, lapply(ubuntu, function(ubuntu_) {
-              list(
-                if (is_valid_os(ubuntu_, rver$release)) job(ubuntu_, rver$release),
-                if (is_valid_os(ubuntu_, rver$oldrel1)) job(ubuntu_, rver$oldrel1),
-                if (is_valid_os(ubuntu_, rver$oldrel2)) job(ubuntu_, rver$oldrel2),
-                if (is_valid_os(ubuntu_, rver$oldrel3)) job(ubuntu_, rver$oldrel3),
-                if (is_valid_os(ubuntu_, rver$oldrel4)) job(ubuntu_, rver$oldrel4)
-              )
-            }))
-        )
-        ## Drop NULLs
-        config <- config[!vapply(config, is.null, logical(1))]
-        ## Convert to JSON manually to save 10s installing `jsonlite`
-        join_and_wrap <- function(x, start, end, sep = ",") {
-          paste0(start, paste0(x, collapse = sep), end)
-        }
-        entries_json <- vapply(config, character(1), FUN = function(entry) {
-          join_and_wrap(
-            paste0("\"", names(entry), "\":\"", unname(entry), "\""),
-            "{", "}"
+      - name: oldrel-2
+        id: oldrel-2
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: oldrel-2
+          install-r: false
+
+      - name: oldrel-3
+        id: oldrel-3
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: oldrel-3
+          install-r: false
+
+      - name: oldrel-4
+        id: oldrel-4
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: oldrel-4
+          install-r: false
+
+      - name: Checkout GitHub repo
+        uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+
+      # R is a pre-installed software
+      - name: Config
+        id: config
+        shell: Rscript {0}
+        run: |
+          mac <- "${{ inputs.macOS }}"
+          windows <- "${{ inputs.windows }}"
+          ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
+          has_src <- dir.exists("src")
+          min_r_ver <- "${{ inputs.minimum-r-version }}"
+          test_on_rtools35 <- identical("${{ inputs.rtools-35 }}", "true")
+          test_on_rtools40 <- identical("${{ inputs.rtools-40 }}", "true")
+          force_windows_src <- identical("${{ inputs.force-windows-src }}", "true")
+          if (force_windows_src) has_src <- TRUE
+
+          rver <- list(
+            # devel   = "${{ steps.devel.outputs.installed-r-version }}",
+            # When R 4.3 was released, R version 4.4.0 was not recognized.
+            # However, `"devel"` is recognized within `r-lib/actions/setup-r`.
+            devel   = "devel",
+            release = "${{ steps.release.outputs.installed-r-version }}",
+            oldrel1 = "${{ steps.oldrel-1.outputs.installed-r-version }}",
+            oldrel2 = "${{ steps.oldrel-2.outputs.installed-r-version }}",
+            oldrel3 = "${{ steps.oldrel-3.outputs.installed-r-version }}",
+            oldrel4 = "${{ steps.oldrel-4.outputs.installed-r-version }}"
           )
-        })
-        config_json <- join_and_wrap(entries_json, "[", "]")
-        cat("Config:\n", config_json, "\n", sep = "")
-        cat("config=", config_json, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+          job <- function(os, r, ...) {
+            list(os = os, r = r, ...)
+          }
+          is_valid_os <- function(os, r_ver = "") {
+            if (identical(os, "false")) return(FALSE)
+            if (identical(os, "")) return(FALSE)
+            if (any(nchar(c(r_ver, min_r_ver)) == 0)) return(TRUE)
+            if (identical(r_ver, "devel")) return(TRUE)
+            r_ver >= min_r_ver
+          }
+          config <- c(
+            list(
+              if (is_valid_os(mac, rver$release))                             job(mac, rver$release),
+              if (has_src && is_valid_os(windows, rver$release))              job(windows, "devel", "rtools-version" = "42"),
+              if (is_valid_os(windows, rver$release))                         job(windows, rver$release, "rtools-version" = "42"),
+              if (has_src && test_on_rtools40 && is_valid_os(windows, "4.1")) job(windows, "4.1"),
+              if (has_src && test_on_rtools35 && is_valid_os(windows, "3.6")) job(windows, "3.6"),
+              if (is_valid_os(ubuntu, rver$devel))                            job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
+            ),
+            if (is_valid_os(ubuntu))
+              unlist(recursive = FALSE, lapply(ubuntu, function(ubuntu_) {
+                list(
+                  if (is_valid_os(ubuntu_, rver$release)) job(ubuntu_, rver$release),
+                  if (is_valid_os(ubuntu_, rver$oldrel1)) job(ubuntu_, rver$oldrel1),
+                  if (is_valid_os(ubuntu_, rver$oldrel2)) job(ubuntu_, rver$oldrel2),
+                  if (is_valid_os(ubuntu_, rver$oldrel3)) job(ubuntu_, rver$oldrel3),
+                  if (is_valid_os(ubuntu_, rver$oldrel4)) job(ubuntu_, rver$oldrel4)
+                )
+              }))
+          )
+          ## Drop NULLs
+          config <- config[!vapply(config, is.null, logical(1))]
+          ## Convert to JSON manually to save 10s installing `jsonlite`
+          join_and_wrap <- function(x, start, end, sep = ",") {
+            paste0(start, paste0(x, collapse = sep), end)
+          }
+          entries_json <- vapply(config, character(1), FUN = function(entry) {
+            join_and_wrap(
+              paste0("\"", names(entry), "\":\"", unname(entry), "\""),
+              "{", "}"
+            )
+          })
+          config_json <- join_and_wrap(entries_json, "[", "]")
+          cat("Config:\n", config_json, "\n", sep = "")
+          cat("config=", config_json, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
 
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
