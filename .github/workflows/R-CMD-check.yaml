@@ -216,6 +216,10 @@ jobs:
         if: always()
         run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
+      - name: "Show install logs"
+        if: always()
+        run: find check -name '00install.out' -exec cat '{}' \; || true
+        shell: bash
       - name: "Upload 'Check package' results"
         if: failure()
         uses: actions/upload-artifact@main
