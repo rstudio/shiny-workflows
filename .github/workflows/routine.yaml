@@ -11,7 +11,7 @@ on:
         required: false
       pandoc-version:
         type: string
-        default: "3.1.2"
+        default: "3.x"
         required: false
       node-version:
         type: string

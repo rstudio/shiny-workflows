@@ -16,7 +16,7 @@ on:
         required: false
       pandoc-version:
         type: string
-        default: "3.1.2"
+        default: "3.x"
         required: false
       check-title:
         type: boolean
@@ -24,14 +24,13 @@ on:
         required: false
       clean:
         type: string
-        default: 'TRUE'
+        default: "TRUE"
         required: false
 
 name: "`pkgdown` - `gh-pages`"
 
 jobs:
   pkgdown:
-
     runs-on: ${{ inputs.runs-on }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
