@@ -49,13 +49,13 @@ runs:
       run: |
         # Get corresponding pandoc version
         pandoc_version <- "${{ inputs.pandoc-version }}"
-        switch(pandoc_version,
+        pandoc_version <- switch(pandoc_version,
           "default" =,
           "3.x" = "3.1.2",
           "2.x" = "2.19.2",
           pandoc_version
         )
-        cat("version=", pandoc_version, \n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+        cat("version=", pandoc_version, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
 
     - uses: r-lib/actions/setup-pandoc@v2
       with:
