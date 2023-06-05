@@ -11,7 +11,7 @@ on:
         required: false
       pandoc-version:
         type: string
-        default: "2.7.3"
+        default: "3.x"
         required: false
       check-title:
         type: boolean
@@ -27,7 +27,6 @@ name: "`pkgdown` - Netlify"
 
 jobs:
   pkgdown:
-
     runs-on: ubuntu-20.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -68,11 +67,10 @@ jobs:
         id: netlify-deploy
         uses: nwtgck/actions-netlify@v1.1
         with:
-          publish-dir: 'reference'
+          publish-dir: "reference"
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message:
-            'Deploy from GHA: ${{ github.event.head_commit.message }} (${{ github.sha }})'
+          deploy-message: "Deploy from GHA: ${{ github.event.head_commit.message }} (${{ github.sha }})"
           enable-pull-request-comment: false
           enable-commit-comment: false
           enable-commit-status: true

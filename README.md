@@ -45,7 +45,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * Parameters:
     * `extra-packages`: Installs extra packages not listed in the `DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
     * `cache-version`: The cache key to be used. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
-    * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/master/setup-pandoc
+    * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/HEAD/setup-pandoc . Defaults to `3.x` which installs a recent 3.x version of pandoc. (Similar behavior for `2.x`.)
     * `check-title`: If set, will disable `rmarkdown`'s check for having the vignette title and the document title match
 * `routine.yaml`
   * Performs many common tasks for packages in the shiny-verse and commits them back to the repo
