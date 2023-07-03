@@ -82,7 +82,7 @@ jobs:
             -e '## Taken from guts of `usethis::use_version()`' \
             -e 'pak::pkg_install("usethis")' \
             -e '# Set DESCRIPTION version' \
-            -e 'usethis:::use_description_field("Version", rc_version, overwrite = TRUE)' \
+            -e 'usethis:::proj_desc_field_update("Version", rc_version, overwrite = TRUE)' \
             -e '# Set NEWS version' \
             -e 'usethis:::use_news_heading(rc_version)' \
             -e '# Set C version' \
