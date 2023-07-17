@@ -27,12 +27,15 @@ jobs:
           issue-comment: >
             This issue has been automatically locked. If you believe you have
             found a related problem, please open a new issue (with
-            [a reprex](https://reprex.tidyverse.org/)) and link to this issue.
+            [a reproducible example](https://community.rstudio.com/t/shiny-debugging-and-reprex-guide/10001)
+            or [feature request](https://github.com/rstudio/shiny/wiki/Writing-Good-Feature-Requests))
+            and link to this issue.
 
           # Pull request-locking options
           pr-inactive-days: 60
           pull-comment: >
             This pull request has been automatically locked. If you believe
-            you have found a related problem, please open a new issue
-            (with [a reprex](https://reprex.tidyverse.org/)) and link to this
-            pull request.
+            you have found a related problem, please open a new issue (with
+            [a reproducible example](https://community.rstudio.com/t/shiny-debugging-and-reprex-guide/10001)
+            or [feature request](https://github.com/rstudio/shiny/wiki/Writing-Good-Feature-Requests))
+            and link to this pull request.
