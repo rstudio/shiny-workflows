@@ -3,6 +3,7 @@ name: 'Lock Closed Threads'
 on:
   schedule:
     - cron: '42 5 * * 1' # 5:42 AM UTC every Monday
+  repository_dispatch: { types: [lock_threads] }
   workflow_dispatch:
 
 permissions:

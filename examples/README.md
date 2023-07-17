@@ -23,7 +23,8 @@ jobs:
     uses: rstudio/shiny-workflows/.github/workflows/lock-threads.yaml@v1
     with:
       # Lock issues and pull requests that have been inactive for 30 days
-      days-inactive: 30
+      issue-inactive-days: 30
+      pr-inactive-days: 30
       # Lock both issues and pull requests
       process-only: ''
 ```
