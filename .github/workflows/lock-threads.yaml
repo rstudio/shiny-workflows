@@ -1,29 +1,38 @@
-name: 'Lock Threads'
-
 on:
-  schedule:
-    - cron: '42 5 * * *' # 5:42 AM UTC every day
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      process-only:
+        type: string
+        default: 'issues'
+        required: false
+        description: >
+          Process only issues or pull requests, or both if unset. Valid values
+          are 'issues', 'prs', or ''.
 
-permissions:
-  issues: write
-  # Enable the line below if you turn on pull request locking
-  # pull-requests: write
+      issue-inactive-days:
+        type: number
+        default: 60
+        required: false
+        description: Number of days of inactivity before a **closed** issue is locked.
 
-concurrency:
-  group: lock-threads
+      pr-inactive-days:
+        type: number
+        default: 60
+        required: false
+        description: Number of days of inactivity before a **closed** PR is locked.
+
+name: "Lock closed threads"
 
 jobs:
-  action:
+  lock-threads:
     runs-on: ubuntu-latest
     steps:
       - uses: dessant/lock-threads@v4
         with:
-          # Remove the line below to turn on pull request locking
-          process-only: 'issues'
+          process-only: ${{ inputs.process-only }}
 
           # Issue-locking options
-          issue-inactive-days: 60
+          issue-inactive-days: ${{ inputs.issue-inactive-days }}}
           issue-comment: >
             This issue has been automatically locked. If you believe you have
             found a related problem, please open a new issue (with
@@ -32,7 +41,7 @@ jobs:
             and link to this issue.
 
           # Pull request-locking options
-          pr-inactive-days: 60
+          pr-inactive-days: ${{ inputs.pr-inactive-days }}
           pull-comment: >
             This pull request has been automatically locked. If you believe
             you have found a related problem, please open a new issue (with
