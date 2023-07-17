@@ -32,7 +32,7 @@ jobs:
           process-only: ${{ inputs.process-only }}
 
           # Issue-locking options
-          issue-inactive-days: ${{ inputs.issue-inactive-days }}}
+          issue-inactive-days: ${{ inputs.issue-inactive-days }}
           issue-comment: >
             This issue has been automatically locked. If you believe you have
             found a related problem, please open a new issue (with
