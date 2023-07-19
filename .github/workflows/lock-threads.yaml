@@ -40,7 +40,7 @@ jobs:
             or [feature request](https://github.com/rstudio/shiny/wiki/Writing-Good-Feature-Requests))
             and link to this issue.
 
-            :raising_hand: Need help? [Connect with us on Discord or Posit Community.](https://shiny.posit.co/r/help.html).
+            :raising_hand: Need help? [Connect with us on Discord or Posit Community](https://shiny.posit.co/r/help.html).
 
           # Pull request-locking options
           pr-inactive-days: ${{ inputs.pr-inactive-days }}
@@ -51,4 +51,4 @@ jobs:
             or [feature request](https://github.com/rstudio/shiny/wiki/Writing-Good-Feature-Requests))
             and link to this pull request.
 
-            :raising_hand: Need help? [Connect with us on Discord or Posit Community.](https://shiny.posit.co/r/help.html).
+            :raising_hand: Need help? [Connect with us on Discord or Posit Community](https://shiny.posit.co/r/help.html).
