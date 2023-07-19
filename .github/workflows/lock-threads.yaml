@@ -42,7 +42,7 @@ jobs:
 
           # Pull request-locking options
           pr-inactive-days: ${{ inputs.pr-inactive-days }}
-          pull-comment: >
+          pr-comment: >
             This pull request has been automatically locked. If you believe
             you have found a related problem, please open a new issue (with
             [a reproducible example](https://community.rstudio.com/t/shiny-debugging-and-reprex-guide/10001)
