@@ -34,17 +34,21 @@ jobs:
           # Issue-locking options
           issue-inactive-days: ${{ inputs.issue-inactive-days }}
           issue-comment: >
-            This issue has been automatically locked. If you believe you have
+            This issue has been automatically locked. If you have
             found a related problem, please open a new issue (with
             [a reproducible example](https://community.rstudio.com/t/shiny-debugging-and-reprex-guide/10001)
             or [feature request](https://github.com/rstudio/shiny/wiki/Writing-Good-Feature-Requests))
             and link to this issue.
 
+            :raising_hand: Need help? [Connect with us on Discord or Posit Community](https://shiny.posit.co/r/help.html).
+
           # Pull request-locking options
           pr-inactive-days: ${{ inputs.pr-inactive-days }}
-          pull-comment: >
-            This pull request has been automatically locked. If you believe
-            you have found a related problem, please open a new issue (with
+          pr-comment: >
+            This pull request has been automatically locked. If you have
+            found a related problem, please open a new issue (with
             [a reproducible example](https://community.rstudio.com/t/shiny-debugging-and-reprex-guide/10001)
             or [feature request](https://github.com/rstudio/shiny/wiki/Writing-Good-Feature-Requests))
             and link to this pull request.
+
+            :raising_hand: Need help? [Connect with us on Discord or Posit Community](https://shiny.posit.co/r/help.html).
