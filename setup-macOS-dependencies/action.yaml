@@ -72,12 +72,13 @@ runs:
           cat("Packages found:\n"); print(pkg_deps)
           brew_list <- list(
             Cairo = c("libxt", "--cask xquartz", "cairo"),
-            grDevices = c("libxt", "--cask xquartz", "cairo"),
             FreeType = "freetype",
-            textshaping = c("harfbuzz", "fribidi"),
-            rgeos = "geos",
+            RMySQL = c("mariadb-connector-c"),
+            grDevices = c("libxt", "--cask xquartz", "cairo"),
             rgdal = c("pkg-config", "proj", "gdal"),
+            rgeos = "geos",
             terra = c("pkg-config", "proj", "geos", "gdal", "sqlite"),
+            textshaping = c("harfbuzz", "fribidi"),
             units = "udunits"
           )
           cmds <- unique(unname(unlist(

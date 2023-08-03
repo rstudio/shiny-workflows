@@ -11,6 +11,8 @@ Known dependencies:
   * `brew install cairo`
 * `FreeType`:
   * `brew install freetype`
+* `RMySQL`:
+  * `brew install mariadb-connector-c`
 * `textshaping`:
   * `brew install harfbuzz fribidi`
 * `rgeos`:
