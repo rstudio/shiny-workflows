@@ -154,6 +154,7 @@ jobs:
           do
             [ -d $FOLDER ] && git add -A $FOLDER || echo "No updated $FOLDER changes to commit"
           done
+          git add -A yarn.lock || echo "No changes found in yarn.lock"
           git commit -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
 
       - name: Run 'routine' script
