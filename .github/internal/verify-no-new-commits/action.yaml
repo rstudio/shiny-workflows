@@ -11,6 +11,12 @@ inputs:
   action:
     description: "Explains how to address the error on a new line"
     required: true
+  exit-code:
+    default: auto
+    description: >
+      Exit code to use if new commits are found. The default is `auto`, which
+      will exit cleanly ("0") in a PR or exit with error ("1") otherwise.
+    required: false
 runs:
   using: "composite"
   steps:
@@ -18,6 +24,16 @@ runs:
     shell: bash
     run: |
       if [ -n "`git cherry ${{ inputs.upstream }}`" ]; then
+        exitCode="${{ inputs.exit-code }}"
+        if [[ "$exitCode" == "auto" || -z "$exitCode" ]]; then
+          # If this is a PR, then set exit to 0, otherwise 1
+          if [[ -n "$GITHUB_HEAD_REF" ]]; then
+            exitCode=0
+          else
+            exitCode=1
+          fi
+        fi
+
         echo "Diff:"
         git diff ${{ inputs.upstream }}
         echo ""
@@ -26,5 +42,5 @@ runs:
         git cherry -v ${{ inputs.upstream }}
         echo "::error::Some auto-generated commits were found. ${{ inputs.statement }}"
         echo "::error::${{ inputs.action }}"
-        exit 1
+        exit $exitCode
       fi
