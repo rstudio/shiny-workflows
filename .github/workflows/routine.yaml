@@ -132,7 +132,7 @@ jobs:
           }
       - name: Install node.js
         if: steps.package-json.outputs.exists
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ inputs.node-version }}"
       - name: "`yarn build`"
