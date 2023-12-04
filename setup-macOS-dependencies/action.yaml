@@ -19,6 +19,11 @@ runs:
         # Install macOS system dependencies
         if (identical(Sys.getenv("RUNNER_OS", "NOT MAC"), "macOS")) {
           cat("::group::Install macOS system dependencies\n")
+          # Remove python's 2to3 link so that 'brew link' does not fail
+          if (file.exists("/usr/local/bin/2to3")) {
+            unlink("/usr/local/bin/2to3")
+          }
+
           # TODO-future; Find a way to not use `pak`? Hopefully RSPM will handle this in the future
           if (!require("pak", quietly = TRUE)) {
             options(pak.no_extra_messages = TRUE)
