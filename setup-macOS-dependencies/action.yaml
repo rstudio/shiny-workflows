@@ -82,9 +82,11 @@ runs:
           )))
           # If the package exists, run the brew install commands
           if (length(cmds) > 0) {
-            # Make sure exit is success
             # Make sure brew linking overwrites any links created. e.g. python's 2to3
-            lapply(paste0("brew install --overwrite ", cmds), function(cmd) {
+            cmds <- ifelse(grepl("--cask ", cmds), cmds, paste0("--overwrite ", cmds))
+
+            # Make sure exit is success
+            lapply(paste0("brew install ", cmds), function(cmd) {
               message(cmd)
               stopifnot(system(cmd) == 0)
               cmd
