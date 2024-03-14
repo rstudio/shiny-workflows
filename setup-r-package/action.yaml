@@ -38,6 +38,10 @@ inputs:
     default: true
     description: 'Use the public version of Posit package manager available at https://packagemanager.posit.co/ to serve binaries for Linux and Windows.'
     required: false
+  extra-repositories:
+    default: ""
+    description: 'One or more extra CRAN-like repositories to include in the repos global option'
+    required: false
 # outputs:
 #   NAME:
 #     description: 'desc here'
@@ -71,6 +75,7 @@ runs:
         http-user-agent: ${{ inputs.http-user-agent }}
         rtools-version: ${{ inputs.rtools-version }}
         use-public-rspm: ${{ inputs.use-public-rspm}}
+        extra-repositories: ${{ inputs.extra-repositories}}
 
     - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
       with:
