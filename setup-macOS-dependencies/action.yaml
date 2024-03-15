@@ -25,19 +25,26 @@ runs:
             options(pak.no_extra_messages = TRUE)
             install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
           }
+          message("pak installed")
           if (any(
             grepl("url::", "${{ inputs.extra-packages }}", fixed = TRUE),
             file.exists("DESCRIPTION") &&
               any(grepl("url::", readLines("DESCRIPTION"), fixed = TRUE))
           )) {
+            message("installing digest")
             # Need for url remotes. See https://github.com/r-lib/actions/issues/562#issuecomment-1129088041
             install.packages("digest", repos = "http://cran.us.r-project.org")
+            message("installed digest")
           }
+          message("here1")
           pkg_deps <- NULL
           if (file.exists("DESCRIPTION")) {
             # Get packages like `{grDevices}` which will not be returned by `{pak}`
+            message("looking in desc0")
             desc <- as.list(read.dcf("DESCRIPTION")[1,,drop=TRUE])
+            message("looking in desc1")
             desc_pkgs <- desc[c("Imports", "Depends", "Suggests", "Enhances", "LinkingTo")]
+            str(desc_pkgs)
             pkg_names <- lapply(desc_pkgs[!vapply(desc_pkgs, is.null, logical(1))], function(txt) {
               pkg_txt <- strsplit(txt, "\n")[[1]]
               pkg_parts <- strsplit(pkg_txt, "[ (,]")
@@ -47,12 +54,16 @@ runs:
             pkg_names <- setdiff(pkg_names, "R")
 
             # Local deps
+            message("pkg_names")
+            str(pkg_names)
             pkg_deps <- c(pkg_deps, pkg_names, pak::local_dev_deps(dependencies = TRUE)[["package"]])
           }
           get_pkg_deps <- function(txt) {
+            message("getting pkg deps: ", txt)
             pkgs <- strsplit(txt, "[[:space:],]+")[[1]]
             unlist(lapply(pkgs, function(x) pak::pkg_deps(x, dependencies = TRUE)[["package"]]))
           }
+          message("here-needs")
           # Needs deps; Must find all dependencies of of the needs pkgs
           if (nzchar("${{ inputs.needs }}") && file.exists("DESCRIPTION")) {
             needs_pkgs <- as.list(read.dcf("DESCRIPTION")[1,])[["Config/Needs/${{ inputs.needs }}"]]
@@ -60,6 +71,7 @@ runs:
               pkg_deps <- c(pkg_deps, get_pkg_deps(needs_pkgs))
             }
           }
+          message("here-extra")
           # Extra package deps
           if (nzchar("${{ inputs.extra-packages }}")) {
             pkg_deps <- c(pkg_deps, get_pkg_deps("${{ inputs.extra-packages }}"))
