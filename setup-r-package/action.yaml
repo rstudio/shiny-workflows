@@ -74,8 +74,8 @@ runs:
         r-version: ${{ inputs.r-version }}
         http-user-agent: ${{ inputs.http-user-agent }}
         rtools-version: ${{ inputs.rtools-version }}
-        use-public-rspm: ${{ inputs.use-public-rspm}}
-        extra-repositories: ${{ inputs.extra-repositories}}
+        use-public-rspm: ${{ inputs.use-public-rspm }}
+        extra-repositories: ${{ inputs.extra-repositories }}
 
     - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
       with:
