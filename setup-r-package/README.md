@@ -12,7 +12,7 @@ This action installs `pandoc`, `R`, `macOS` and `Linux` system dependencies, pac
 
 ```yaml
 steps:
-- uses: actions/checkout@v3
+- uses: actions/checkout@v4
 - uses: rstudio/shiny-workflows/setup-r-package@v1
   with:
     extra-packages: any::rcmdcheck
