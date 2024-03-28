@@ -141,8 +141,9 @@ jobs:
           config <- c(
             list(
               if (is_valid_os(mac, rver$release))                             job(mac, rver$release),
-              if (has_src && is_valid_os(windows, "devel"))                   job(windows, "devel", "rtools-version" = "43"),
-              if (is_valid_os(windows, rver$release))                         job(windows, rver$release, "rtools-version" = "42"),
+              if (has_src && is_valid_os(windows, "devel"))                   job(windows, "devel", "rtools-version" = "44"),
+              if (is_valid_os(windows, rver$release))                         job(windows, rver$release, "rtools-version" = "43"),
+              if (has_src && is_valid_os(windows, "4.2"))                     job(windows, "4.2", "rtools-version" = "42"),
               if (has_src && test_on_rtools40 && is_valid_os(windows, "4.1")) job(windows, "4.1"),
               if (has_src && test_on_rtools35 && is_valid_os(windows, "3.6")) job(windows, "3.6"),
               if (is_valid_os(ubuntu, rver$devel))                            job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
