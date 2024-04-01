@@ -59,7 +59,7 @@ runs:
         pandoc_version <- "${{ inputs.pandoc-version }}"
         pandoc_version <- switch(pandoc_version,
           "default" =,
-          "3.x" = "3.1.2",
+          "3.x" = "3.1.11",
           "2.x" = "2.19.2",
           pandoc_version
         )
