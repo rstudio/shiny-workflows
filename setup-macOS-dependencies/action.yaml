@@ -21,11 +21,12 @@ runs:
           cat("::group::Install macOS system dependencies\n")
 
           # TODO-future; Find a way to not use `pak`? Hopefully RSPM will handle this in the future
-          if (!require("pak", quietly = TRUE)) {
+          if (!require("pak", quietly = TRUE, character.only = TRUE)) {
             options(pak.no_extra_messages = TRUE)
             install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
           }
           message("pak installed")
+          print(packageDescription("pak"))
           if (any(
             grepl("url::", "${{ inputs.extra-packages }}", fixed = TRUE),
             file.exists("DESCRIPTION") &&
@@ -40,9 +41,9 @@ runs:
           pkg_deps <- NULL
           if (file.exists("DESCRIPTION")) {
             # Get packages like `{grDevices}` which will not be returned by `{pak}`
-            message("looking in desc0")
+            message("looking in desc-0")
             desc <- as.list(read.dcf("DESCRIPTION")[1,,drop=TRUE])
-            message("looking in desc1")
+            message("looking in desc-1")
             desc_pkgs <- desc[c("Imports", "Depends", "Suggests", "Enhances", "LinkingTo")]
             str(desc_pkgs)
             pkg_names <- lapply(desc_pkgs[!vapply(desc_pkgs, is.null, logical(1))], function(txt) {
@@ -56,8 +57,12 @@ runs:
             # Local deps
             message("pkg_names")
             str(pkg_names)
-            pkg_deps <- c(pkg_deps, pkg_names, pak::local_dev_deps(dependencies = TRUE)[["package"]])
+            local_dev_deps <- pak::local_dev_deps(dependencies = TRUE)[["package"]]
+            message("local_dev_deps")
+            str(local_dev_deps)
+            pkg_deps <- c(pkg_deps, pkg_names, local_dev_deps)
           }
+          message("here-get_pkg_deps()")
           get_pkg_deps <- function(txt) {
             message("getting pkg deps: ", txt)
             pkgs <- strsplit(txt, "[[:space:],]+")[[1]]
