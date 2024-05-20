@@ -66,7 +66,16 @@ runs:
           get_pkg_deps <- function(txt) {
             message("getting pkg deps: ", txt)
             pkgs <- strsplit(txt, "[[:space:],]+")[[1]]
-            unlist(lapply(pkgs, function(x) pak::pkg_deps(x, dependencies = TRUE)[["package"]]))
+            unlist(lapply(pkgs, function(x) {
+              message("here-get_pkg_deps() - ", x)
+              # Use try catch to avoid dep finding errors;
+              tryCatch({
+                pak::pkg_deps(x, dependencies = TRUE)[["package"]]
+              }, error = function(e) {
+                message("Error in get_pkg_deps('", x, "'): ", conditionMessage(e))
+                NULL
+              }
+            }))
           }
           message("here-needs")
           # Needs deps; Must find all dependencies of of the needs pkgs
