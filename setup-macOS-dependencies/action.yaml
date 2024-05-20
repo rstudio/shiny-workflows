@@ -74,7 +74,7 @@ runs:
               }, error = function(e) {
                 message("Error in get_pkg_deps('", x, "'): ", conditionMessage(e))
                 NULL
-              }
+              })
             }))
           }
           message("here-needs")
