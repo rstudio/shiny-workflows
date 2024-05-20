@@ -57,7 +57,7 @@ runs:
             # Local deps
             message("pkg_names")
             str(pkg_names)
-            local_dev_deps <- pak::local_dev_deps(dependencies = TRUE)[["package"]]
+            local_dev_deps <- pak::local_dev_deps()[["package"]]
             message("local_dev_deps")
             str(local_dev_deps)
             pkg_deps <- c(pkg_deps, pkg_names, local_dev_deps)
@@ -70,7 +70,7 @@ runs:
               message("here-get_pkg_deps() - ", x)
               # Use try catch to avoid dep finding errors;
               tryCatch({
-                pak::pkg_deps(x, dependencies = TRUE)[["package"]]
+                pak::pkg_deps(x)[["package"]]
               }, error = function(e) {
                 message("Error in get_pkg_deps('", x, "'): ", conditionMessage(e))
                 NULL
