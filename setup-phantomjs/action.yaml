@@ -54,14 +54,14 @@ runs:
         }
     - name: Cache PhantomJS
       if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
-      id: phantomjs-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ steps.phantomjs.outputs.path }}
         key: ${{ runner.os }}-phantomjs-${{ inputs.cache-version }}
         # Restore from `save` cache if regular cache is not found
         restore-keys: |
           ${{ runner.os }}-phantomjs-save-${{ inputs.cache-version }}
+        save-always: true
 
     - name: Install PhantomJS
       if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
@@ -84,11 +84,7 @@ runs:
             }
           }
         }
-    # Save the currently found phantom to speed up install later
-    - name: Cache PhantomJS
-      if: ${{ steps.phantomjs.outputs.should-install == 'true' && steps.phantomjs-cache.outputs.cache-hit != 'true' }}
-      uses: actions/cache/save@v3
-      with:
-        path: ${{ steps.phantomjs.outputs.path }}
-        # Can not clash with _regular_ key above
-        key: ${{ runner.os }}-phantomjs-save-${{ inputs.cache-version }}
+    - name: End Install PhantomJS group
+      shell: Rscript {0}
+      run: |
+        cat("::endgroup::\n")
