@@ -4,7 +4,7 @@ on:
       # Used by rstudio/shinyloadtest
       runs-on:
         type: string
-        default: "ubuntu-20.04"
+        default: ubuntu-latest
         required: false
       extra-packages:
         type: string
