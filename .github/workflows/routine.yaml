@@ -15,7 +15,7 @@ on:
         required: false
       node-version:
         type: string
-        default: "16.x"
+        default: "22.x"
         required: false
       staticimports:
         type: boolean
