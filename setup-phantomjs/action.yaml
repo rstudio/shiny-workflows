@@ -52,16 +52,15 @@ runs:
           cat("path=/tmp/phantomjs-not-found\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
           cat("should-install=false", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
         }
-    - name: Cache PhantomJS
+    - name: Restore PhantomJS cache
       if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
-      uses: actions/cache@v4
+      uses: actions/cache/restore@v4
       with:
         path: ${{ steps.phantomjs.outputs.path }}
         key: ${{ runner.os }}-phantomjs-${{ inputs.cache-version }}
         # Restore from `save` cache if regular cache is not found
         restore-keys: |
           ${{ runner.os }}-phantomjs-save-${{ inputs.cache-version }}
-        save-always: true
 
     - name: Install PhantomJS
       if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
@@ -84,6 +83,14 @@ runs:
             }
           }
         }
+
+    - name: Save PhantomJS cache
+      if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.phantomjs.outputs.path }}
+        key: ${{ runner.os }}-phantomjs-${{ inputs.cache-version }}
+
     - name: End Install PhantomJS group
       shell: Rscript {0}
       run: |
