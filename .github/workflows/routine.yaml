@@ -130,13 +130,15 @@ jobs:
               cat("test=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
             }
           }
+      
       - name: Install node.js
         if: steps.package-json.outputs.exists
         uses: actions/setup-node@v4
         with:
           node-version: "${{ inputs.node-version }}"
-      - name: "`yarn build`"
-        if: steps.package-json.outputs.build
+
+      - name: "`yarn install`"
+        if: steps.package-json.outputs.build || steps.package-json.outputs.test
         shell: bash
         run: |
           [ -d "srcts/types" ] && rm -r srcts/types
@@ -145,6 +147,11 @@ jobs:
             echo '::error::Error calling `yarn install --immutable`'
             exit 1
           fi
+
+      - name: "`yarn build`"
+        if: steps.package-json.outputs.build
+        shell: bash
+        run: |
           yarn build
           if [ $? != 0 ]; then
             echo '::error::Error calling `yarn build`'
