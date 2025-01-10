@@ -21,6 +21,12 @@ on:
         type: boolean
         default: true
         required: false
+      optimize-pngs:
+        type: string
+        default: |
+          man/figures/**.png
+          vignettes/**.png
+        required: false
     # secrets:
     #   token:
     #     required: true
@@ -97,6 +103,21 @@ jobs:
           git add -A NAMESPACE || echo "No changes found in NAMESPACE"
           git add -A man/ || echo "No changes found in man/"
           git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
+
+      - name: Find figures
+        if: inputs.optimize-pngs != "false"
+        uses: tj-actions/glob@v16
+        id: figures
+        with:
+          files: ${{ inputs.optimize-pngs }}
+      - name: Minimize `man/figures` images
+        if: inputs.optimize-pngs != "false" && steps.figures.outputs.paths != ''
+        run: |
+          sudo apt-get install oxipng
+          echo "Minimizing figures: ${{ steps.figures.outputs.paths }}"
+          oxipng -o 4 --strip safe ${{ steps.figures.outputs.paths }}
+          git add -A ${{ steps.figures.outputs.paths }} || echo 'No figures were minimized'
+          git commit -m "Shrink images in man/figures (Github Actions)" || echo "No minimized figures to commit"
 
       - name: Find `README.Rmd`
         id: readme
