@@ -4,7 +4,7 @@ author: 'Garrick Aden-Buie'
 
 inputs:
   version:
-    description: Version of air
+    description: Version of air, e.g. `0.1.2`.
     default: latest
     required: false
   check:
