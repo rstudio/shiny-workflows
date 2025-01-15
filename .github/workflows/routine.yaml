@@ -21,6 +21,10 @@ on:
         type: boolean
         default: true
         required: false
+      format-r-code:
+        type: boolean
+        default: false
+        required: false
     # secrets:
     #   token:
     #     required: true
@@ -63,6 +67,10 @@ jobs:
             any::lintr
             any::jsonlite
             ${{ inputs.extra-packages }}
+
+      - name: Format R code
+        if: inputs.format-r-code
+        uses: rstudio/shiny-workflows/.github/internal/air-format-r-code@5cf1df4c4dfd4e2dfc2e2c8fd416b2f0a06d3013
 
       - name: "`urlchecker::url_update()`; Update urls found in package; Only rc-v** branches"
         # Only perform if in an RC branch (`rc-vX.Y.Z`)

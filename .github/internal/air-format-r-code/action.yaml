@@ -1,0 +1,74 @@
+name: 'Format R code with air'
+description: 'Automatically format R code with air.'
+author: 'Garrick Aden-Buie'
+
+inputs:
+  version:
+    description: Version of air
+    default: latest
+    required: false
+  check:
+    description: If `'true'`, only check that R code is formatted.
+    default: ""
+    required: false
+  path:
+    description: Path(s) to check as a space-separate single string
+    default: "."
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Install air (latest, Windows)
+      if: inputs.version == 'latest' && runner.os == 'Windows'
+      shell: powershell
+      run: |
+        irm https://github.com/posit-dev/air/releases/latest/download/air-installer.ps1 | iex
+    
+    - name: Install air (version, Windows)
+      if: inputs.version != 'latest' && runner.os == 'Windows'
+      shell: powershell
+      run: |
+        irm https://github.com/posit-dev/air/releases/download/${{ inputs.version }}/air-installer.ps1 | iex
+
+    - name: Install air (latest, Mac/Linux)
+      if: inputs.version == 'latest' && runner.os != 'Windows'
+      shell: bash
+      run: |
+        curl -LsSf https://github.com/posit-dev/air/releases/latest/download/air-installer.sh | sh
+
+    - name: Install air (version, Mac/Linux)
+      if: inputs.version != 'latest' && runner.os != 'Windows'
+      shell: bash
+      run: |
+        curl -LsSf https://github.com/posit-dev/air/releases/download/${{ inputs.version }}/air-installer.sh | sh
+
+    - name: air version
+      shell: bash
+      run: |
+        echo ""
+        echo "Formatting R code with $(air --version)"
+        echo ""
+          
+    - name: Check R code formatting
+      if: inputs.check == 'true'
+      shell: bash
+      run: air format --check ${{ inputs.path }}
+    
+    - name: Format R code
+      if: inputs.check != 'true'
+      shell: bash
+      run: air format ${{ inputs.path }}
+    
+    - name: Commit changes
+      if: inputs.check != 'true'
+      shell: bash
+      run: |
+        if find . -type f \( -name '*.r' -o -name '*.R' \) -exec git add -u {} +; then
+          echo "Staged modified R files"
+        else
+          echo "No changes found in any R files"
+        fi
+
+        git commit -m '`air format` (GitHub Actions)' || echo "No format changes to commit"
