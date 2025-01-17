@@ -9,7 +9,7 @@ inputs:
     required: false
   check:
     description: If `'true'`, only check that R code is formatted.
-    default: ""
+    default: "false"
     required: false
   path:
     description: Path(s) to check as a space-separate single string

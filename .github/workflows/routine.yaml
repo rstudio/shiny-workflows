@@ -70,7 +70,7 @@ jobs:
 
       - name: Format R code
         if: inputs.format-r-code
-        uses: rstudio/shiny-workflows/.github/internal/air-format-r-code@feat/format-r-code
+        uses: rstudio/shiny-workflows/format-r-code@feat/format-r-code
 
       - name: "`urlchecker::url_update()`; Update urls found in package; Only rc-v** branches"
         # Only perform if in an RC branch (`rc-vX.Y.Z`)
