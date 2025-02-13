@@ -47,6 +47,10 @@ on:
         type: boolean
         default: true
         required: false
+      upload-snapshots: 
+        type: boolean
+        default: false
+        required: false
 
 name: R-CMD-check
 
@@ -214,6 +218,7 @@ jobs:
         with:
           check-dir: '"check"' # matches directory below
           args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
+          upload-snapshots: ${{ input.upload-snapshots }}
 
       - name: "Show `testthat` output"
         if: always()
