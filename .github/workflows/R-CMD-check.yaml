@@ -49,7 +49,7 @@ on:
         required: false
       upload-snapshots: 
         type: boolean
-        default: false
+        default: true
         required: false
 
 name: R-CMD-check
