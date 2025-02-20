@@ -218,7 +218,7 @@ jobs:
         with:
           check-dir: '"check"' # matches directory below
           args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
-          upload-snapshots: ${{ input.upload-snapshots }}
+          upload-snapshots: ${{ inputs.upload-snapshots }}
 
       - name: "Show `testthat` output"
         if: always()
