@@ -39,10 +39,6 @@ on:
         type: boolean
         required: false
         default: false
-      rtools-35:
-        type: boolean
-        default: true
-        required: false
       rtools-40:
         type: boolean
         default: true
@@ -117,7 +113,6 @@ jobs:
           ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
           has_src <- dir.exists("src")
           min_r_ver <- "${{ inputs.minimum-r-version }}"
-          test_on_rtools35 <- identical("${{ inputs.rtools-35 }}", "true")
           test_on_rtools40 <- identical("${{ inputs.rtools-40 }}", "true")
           force_windows_src <- identical("${{ inputs.force-windows-src }}", "true")
           if (force_windows_src) has_src <- TRUE
@@ -148,10 +143,10 @@ jobs:
               if (is_valid_os(mac, rver$release))                             job(mac, rver$release),
               if (has_src && is_valid_os(windows, "devel"))                   job(windows, "devel"),
               if (is_valid_os(windows, rver$release))                         job(windows, rver$release),
+              if (has_src && is_valid_os(windows, "4.4"))                     job(windows, "4.4", "rtools-version" = "44"),
               if (has_src && is_valid_os(windows, "4.3"))                     job(windows, "4.3", "rtools-version" = "43"),
               if (has_src && is_valid_os(windows, "4.2"))                     job(windows, "4.2", "rtools-version" = "42"),
               if (has_src && test_on_rtools40 && is_valid_os(windows, "4.1")) job(windows, "4.1", "rtools-version" = "40"),
-              if (has_src && test_on_rtools35 && is_valid_os(windows, "3.6")) job(windows, "3.6"),
               if (is_valid_os(ubuntu, rver$devel))                            job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
             ),
             if (is_valid_os(ubuntu))
