@@ -35,8 +35,23 @@ inputs:
     description: 'Exact version of Rtools to use. Default uses latest suitable rtools for the given version of R. Set it to "42" for Rtools42.'
     required: false
   use-public-rspm:
-    default: true
+    default: "true"
     description: 'Use the public version of Posit package manager available at https://packagemanager.posit.co/ to serve binaries for Linux and Windows.'
+    required: false
+  pak-version:
+    description: |
+      Which pak version to use. Possible values are "stable", "rc",
+      "devel", "none", "repo". The first three install pak from our
+      repository at GitHub Pages.
+      "none" will skip pak installation. Use this if you want to install
+      pak yourself. Set the `R_LIB_FOR_PAK` environment variable to point
+      to the library where pak is installed.
+      `repo` means that the action will install pak from the configured
+      repositories, using `install.packages()`. `repo` is appropriate on
+      systems that do not have access to our pak repository on GitHub.
+
+      Defaults to `"stable"`.
+    default: ""
     required: false
   extra-repositories:
     default: ""
@@ -91,6 +106,7 @@ runs:
         packages: ${{ inputs.packages }}
         cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
         needs: ${{ inputs.needs }}
+        pak-version: ${{ inputs.pak-version }}
         extra-packages:
           any::sessioninfo
           ${{ inputs.extra-packages }}
