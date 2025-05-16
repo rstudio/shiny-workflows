@@ -10,6 +10,12 @@ inputs:
     default: ""
     description: String of extra packages
     required: false
+  pak-version:
+    description: |
+      Which pak version to use. Possible values are "stable", "rc",
+      "devel".
+    default: "stable"
+    required: false
 runs:
   using: "composite"
   steps:
@@ -23,7 +29,7 @@ runs:
           # TODO-future; Find a way to not use `pak`? Hopefully RSPM will handle this in the future
           if (!require("pak", quietly = TRUE, character.only = TRUE)) {
             options(pak.no_extra_messages = TRUE)
-            install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
+            install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/${{ inputs.pak-version }}/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
           }
           message("pak installed")
           print(packageDescription("pak"))
