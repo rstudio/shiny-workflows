@@ -17,7 +17,6 @@ on:
   push:
     branches: [main, rc-**]
   pull_request:
-    branches: [main]
   schedule:
     - cron: '0 8 * * 1' # every monday
 
@@ -28,6 +27,8 @@ jobs:
     uses: rstudio/shiny-workflows/.github/workflows/website.yaml@v1
   routine:
     uses: rstudio/shiny-workflows/.github/workflows/routine.yaml@v1
+    with:
+      format-r-code: true
   R-CMD-check:
     uses: rstudio/shiny-workflows/.github/workflows/R-CMD-check.yaml@v1
 ```
