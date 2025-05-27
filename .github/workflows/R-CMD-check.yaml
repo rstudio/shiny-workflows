@@ -73,8 +73,7 @@ jobs:
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: release
-          # Install R so that the `config` step below can execute (rstudio/shiny-workflows#41)
-          install-r: true
+          install-r: false
 
       - name: oldrel-1
         id: oldrel-1
@@ -112,67 +111,92 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         # Run in pre-installed python to avoid 40s installing R
         id: config
-        shell: Rscript {0}
+        shell: python
         run: |
-          mac <- "${{ inputs.macOS }}"
-          windows <- "${{ inputs.windows }}"
-          ubuntu <- strsplit("${{ inputs.ubuntu }}", "[[:space:],]+")[[1]]
-          has_src <- dir.exists("src")
-          min_r_ver <- "${{ inputs.minimum-r-version }}"
-          test_on_rtools40 <- identical("${{ inputs.rtools-40 }}", "true")
-          force_windows_src <- identical("${{ inputs.force-windows-src }}", "true")
-          if (force_windows_src) has_src <- TRUE
+          import os
+          import re
+          import json
 
-          rver <- list(
-            # devel   = "${{ steps.devel.outputs.installed-r-version }}",
-            # When R 4.3 was released, R version 4.4.0 was not recognized.
-            # However, `"devel"` is recognized within `r-lib/actions/setup-r`.
-            devel   = "devel",
-            release = "${{ steps.release.outputs.installed-r-version }}",
-            oldrel1 = "${{ steps.oldrel-1.outputs.installed-r-version }}",
-            oldrel2 = "${{ steps.oldrel-2.outputs.installed-r-version }}",
-            oldrel3 = "${{ steps.oldrel-3.outputs.installed-r-version }}",
-            oldrel4 = "${{ steps.oldrel-4.outputs.installed-r-version }}"
-          )
-          job <- function(os, r, ...) {
-            list(os = os, r = r, ...)
-          }
-          is_valid_os <- function(os, r_ver = "") {
-            if (identical(os, "false")) return(FALSE)
-            if (identical(os, "")) return(FALSE)
-            if (any(nchar(c(r_ver, min_r_ver)) == 0)) return(TRUE)
-            if (identical(r_ver, "devel")) return(TRUE)
-            r_ver >= min_r_ver
-          }
-          config <- c(
-            list(
-              if (is_valid_os(mac, rver$release))                             job(mac, rver$release),
-              if (has_src && is_valid_os(windows, "devel"))                   job(windows, "devel"),
-              if (is_valid_os(windows, rver$release))                         job(windows, rver$release),
-              if (has_src && is_valid_os(windows, "4.4"))                     job(windows, "4.4", "rtools-version" = "44"),
-              if (has_src && is_valid_os(windows, "4.3"))                     job(windows, "4.3", "rtools-version" = "43"),
-              if (has_src && is_valid_os(windows, "4.2"))                     job(windows, "4.2", "rtools-version" = "42"),
-              if (has_src && test_on_rtools40 && is_valid_os(windows, "4.1")) job(windows, "4.1", "rtools-version" = "40"),
-              if (is_valid_os(ubuntu, rver$devel))                            job(ubuntu[[1]], rver$devel, "http-user-agent" = "release")
-            ),
-            if (is_valid_os(ubuntu))
-              unlist(recursive = FALSE, lapply(ubuntu, function(ubuntu_) {
-                list(
-                  if (is_valid_os(ubuntu_, rver$release)) job(ubuntu_, rver$release),
-                  if (is_valid_os(ubuntu_, rver$oldrel1)) job(ubuntu_, rver$oldrel1),
-                  if (is_valid_os(ubuntu_, rver$oldrel2)) job(ubuntu_, rver$oldrel2),
-                  if (is_valid_os(ubuntu_, rver$oldrel3)) job(ubuntu_, rver$oldrel3),
-                  if (is_valid_os(ubuntu_, rver$oldrel4)) job(ubuntu_, rver$oldrel4)
-                )
-              }))
-          )
-          ## Drop NULLs
-          config <- config[!vapply(config, is.null, logical(1))]
-          ## Convert to JSON manually to save 10s installing `jsonlite`
-          join_and_wrap <- function(x, start, end, sep = ",") {
-            paste0(start, paste0(x, collapse = sep), end)
+          mac = "${{ inputs.macOS }}"
+          windows = "${{ inputs.windows }}"
+          ubuntu_arr = re.split(r'[,\s]+', "${{ inputs.ubuntu }}")
+          has_src = os.path.isdir("src")
+          min_r_ver = "${{ inputs.minimum-r-version }}"
+          test_on_rtools40 = "${{ inputs.rtools-40 }}" == "true"
+          force_windows_src = "${{ inputs.force-windows-src }}" == "true"
+          if force_windows_src:
+              has_src = True
+
+          rver = {
+              # When R 4.3 was released, R version 4.4.0 was not recognized.
+              # However, `"devel"` is recognized within `r-lib/actions/setup-r`.
+              "devel": "devel",
+              "release": "${{ steps.release.outputs.installed-r-version }}",
+              "oldrel1": "${{ steps.oldrel-1.outputs.installed-r-version }}",
+              "oldrel2": "${{ steps.oldrel-2.outputs.installed-r-version }}",
+              "oldrel3": "${{ steps.oldrel-3.outputs.installed-r-version }}",
+              "oldrel4": "${{ steps.oldrel-4.outputs.installed-r-version }}"
           }
 
+          def job(os, r, **kwargs):
+              result = {"os": os, "r": r}
+              result.update(kwargs)
+              return result
+
+          def is_valid_os(os, r_ver=""):
+              if os == "false":
+                  return False
+              if os == "":
+                  return False
+              if len(r_ver) == 0 or len(min_r_ver) == 0:
+                  return True
+              if r_ver == "devel":
+                  return True
+              return r_ver >= min_r_ver
+
+          config = []
+
+          ## macOS
+          if is_valid_os(mac, rver["release"]):
+              config.append(job(mac, rver["release"]))
+
+          ## Windows
+          if has_src and is_valid_os(windows, "devel"):
+              config.append(job(windows, "devel"))
+          if is_valid_os(windows, rver["release"]):
+              config.append(job(windows, rver["release"]))
+          if has_src and is_valid_os(windows, "4.4"):
+              config.append(job(windows, "4.4", **{"rtools-version": "44"}))
+          if has_src and is_valid_os(windows, "4.3"):
+              config.append(job(windows, "4.3", **{"rtools-version": "43"}))
+          if has_src and is_valid_os(windows, "4.2"):
+              config.append(job(windows, "4.2", **{"rtools-version": "42"}))
+          if has_src and test_on_rtools40 and is_valid_os(windows, "4.1"):
+              config.append(job(windows, "4.1", **{"rtools-version": "40"}))
+
+          # Ubuntu
+          if is_valid_os(ubuntu_arr[0], rver["devel"]):
+              config.append(job(ubuntu_arr[0], rver["devel"], **{"http-user-agent": "release"}))
+          if is_valid_os(ubuntu_arr[0]):
+              for ubuntu_ in ubuntu_arr:
+                  if is_valid_os(ubuntu_, rver["release"]):
+                      config.append(job(ubuntu_, rver["release"]))
+                  if is_valid_os(ubuntu_, rver["oldrel1"]):
+                      config.append(job(ubuntu_, rver["oldrel1"]))
+                  if is_valid_os(ubuntu_, rver["oldrel2"]):
+                      config.append(job(ubuntu_, rver["oldrel2"]))
+                  if is_valid_os(ubuntu_, rver["oldrel3"]):
+                      config.append(job(ubuntu_, rver["oldrel3"]))
+                  if is_valid_os(ubuntu_, rver["oldrel4"]):
+                      config.append(job(ubuntu_, rver["oldrel4"]))
+
+          # Convert to JSON
+          config_json = json.dumps(config)
+          print(f"Config:\n{config_json}")
+
+          # Write to GitHub output
+          with open(os.environ.get("GITHUB_OUTPUT", ""), "a") as env_file:
+              env_file.write(f"config={config_json}\n")
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
 
