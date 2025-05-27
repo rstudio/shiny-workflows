@@ -6,10 +6,15 @@ inputs:
     description: If `false` is provided, it sets silences the warning about Vignette titles not matching their entry title.
     default: ""
     required: false
+  working-directory:
+    description: 'Working directory for the action. Defaults to the root of the repository.'
+    default: "."
+    required: false
 runs:
   using: "composite"
   steps:
       - name: Verify reference
+        working-directory: ${{ inputs.working-directory }}
         if: github.event_name != 'push'
         shell: Rscript {0}
         run: |

@@ -6,6 +6,10 @@ inputs:
     default: "1"
     description: Value to be inserted into the cache key
     required: false
+  working-directory:
+    default: "."
+    description: 'Working directory for the action. Defaults to the root of the repository.'
+    required: false
 runs:
   using: "composite"
   steps:
@@ -16,6 +20,7 @@ runs:
     - name: Find PhantomJS path
       id: phantomjs
       shell: Rscript {0}
+      working-directory: ${{ inputs.working-directory }}
       # `if` statements are not allowed in composite actions. So use a dummy location if shinytest (or webdriver) can not be directly found in the `DESCRIPTION` file
       run: |
         phantom_path <- NULL
@@ -63,6 +68,7 @@ runs:
           ${{ runner.os }}-phantomjs-save-${{ inputs.cache-version }}
 
     - name: Install PhantomJS
+      working-directory: ${{ inputs.working-directory }}
       if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
       shell: Rscript {0}
       run: |

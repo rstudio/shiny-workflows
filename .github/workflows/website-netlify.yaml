@@ -17,6 +17,11 @@ on:
         type: boolean
         default: true
         required: false
+
+      working-directory:
+        type: string
+        default: "."
+        required: false
     secrets:
       NETLIFY_AUTH_TOKEN:
         required: true
@@ -36,6 +41,7 @@ jobs:
 
       - uses: rstudio/shiny-workflows/setup-r-package@v1
         with:
+          working-directory: ${{ inputs.working-directory }}
           pandoc-version: ${{ inputs.pandoc-version }}
           cache-version: ${{ inputs.cache-version }}
           needs: website
@@ -54,8 +60,10 @@ jobs:
         uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
         with:
           check-title: ${{ inputs.check-title }}
+          working-directory: ${{ inputs.working-directory }}
 
       - name: Build pkgdown site (push)
+        working-directory: ${{ inputs.working-directory }}
         if: github.event_name == 'push'
         shell: Rscript {0}
         run: |
@@ -65,9 +73,9 @@ jobs:
       - name: Deploy to Netlify (push)
         if: github.event_name == 'push'
         id: netlify-deploy
-        uses: nwtgck/actions-netlify@v1.1
+        uses: nwtgck/actions-netlify@v3
         with:
-          publish-dir: "reference"
+          publish-dir: "${{ inputs.working-directory }}/reference"
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Deploy from GHA: ${{ github.event.head_commit.message }} (${{ github.sha }})"

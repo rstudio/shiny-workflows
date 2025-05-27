@@ -16,11 +16,16 @@ inputs:
       "devel".
     default: "stable"
     required: false
+  working-directory:
+    default: "."
+    description: 'Working directory for the action. Defaults to the root of the repository.'
+    required: false
 runs:
   using: "composite"
   steps:
     - name: Brew dependencies
       shell: Rscript {0}
+      working-directory: ${{ inputs.working-directory }}
       run: |
         # Install macOS system dependencies
         if (identical(Sys.getenv("RUNNER_OS", "NOT MAC"), "macOS")) {
