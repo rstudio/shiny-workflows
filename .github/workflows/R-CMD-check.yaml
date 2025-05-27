@@ -47,6 +47,10 @@ on:
         type: boolean
         default: true
         required: false
+      working-directory:
+        type: string
+        default: "."
+        required: false
 
 name: R-CMD-check
 
@@ -105,6 +109,8 @@ jobs:
 
       # R is a pre-installed software
       - name: Config
+        working-directory: ${{ inputs.working-directory }}
+        # Run in pre-installed python to avoid 40s installing R
         id: config
         shell: Rscript {0}
         run: |
@@ -166,15 +172,6 @@ jobs:
           join_and_wrap <- function(x, start, end, sep = ",") {
             paste0(start, paste0(x, collapse = sep), end)
           }
-          entries_json <- vapply(config, character(1), FUN = function(entry) {
-            join_and_wrap(
-              paste0("\"", names(entry), "\":\"", unname(entry), "\""),
-              "{", "}"
-            )
-          })
-          config_json <- join_and_wrap(entries_json, "[", "]")
-          cat("Config:\n", config_json, "\n", sep = "")
-          cat("config=", config_json, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
 
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
@@ -197,6 +194,7 @@ jobs:
       - name: Install R, system dependencies, and package dependencies
         uses: rstudio/shiny-workflows/setup-r-package@v1
         with:
+          working-directory: ${{ inputs.working-directory }}
           rtools-version: ${{ matrix.config.rtools-version }}
           pandoc-version: ${{ inputs.pandoc-version }}
           r-version: ${{ matrix.config.r }}
@@ -211,15 +209,18 @@ jobs:
         uses: r-lib/actions/check-r-package@v2
         timeout-minutes: 30
         with:
+          working-directory: ${{ inputs.working-directory }}
           check-dir: '"check"' # matches directory below
           args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
           upload-snapshots: ${{ inputs.upload-snapshots }}
 
       - name: "Show `testthat` output"
+        working-directory: ${{ inputs.working-directory }}
         if: always()
         run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
       - name: "Show install logs"
+        working-directory: ${{ inputs.working-directory }}
         if: always()
         run: find check -name '00install.out' -exec cat '{}' \; || true
         shell: bash
@@ -228,7 +229,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.config.os }}-r${{ matrix.config.r }}-results
-          path: "check"
+          path: "${{ inputs.working-directory }}/check"
 
       # > If the workflow run is a re-run, with debugging enabled, then it opens a tmate shell that you can ssh into for interactive debugging.
       # > It uses https://github.com/mxschmitt/action-tmate internally.

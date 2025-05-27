@@ -27,6 +27,11 @@ on:
         default: "TRUE"
         required: false
 
+      working-directory:
+        type: string
+        default: "."
+        required: false
+
 name: "`pkgdown` - `gh-pages`"
 
 jobs:
@@ -42,6 +47,7 @@ jobs:
       - name: Install R, system dependencies, and package dependencies
         uses: rstudio/shiny-workflows/setup-r-package@v1
         with:
+          working-directory: ${{ inputs.working-directory }}
           pandoc-version: ${{ inputs.pandoc-version }}
           cache-version: ${{ inputs.cache-version }}
           needs: website
@@ -60,11 +66,13 @@ jobs:
         uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
         with:
           check-title: ${{ inputs.check-title }}
+          working-directory: ${{ inputs.working-directory }}
 
       - name: Setup git (push)
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
 
       - name: Build and deploy pkgdown site (push)
+        working-directory: ${{ inputs.working-directory }}
         if: github.event_name == 'push'
         shell: Rscript {0}
         run: |

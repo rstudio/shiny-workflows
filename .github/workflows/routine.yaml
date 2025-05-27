@@ -25,6 +25,10 @@ on:
         type: boolean
         default: false
         required: false
+      working-directory:
+        description: "Using the working-directory keyword, you can specify the working directory of where all checks are executed."
+        type: string
+        default: "."
     # secrets:
     #   token:
     #     required: true
@@ -55,6 +59,7 @@ jobs:
       - name: Install R, system dependencies, and package dependencies
         uses: rstudio/shiny-workflows/setup-r-package@v1
         with:
+          working-directory: ${{ inputs.working-directory }}
           pandoc-version: ${{ inputs.pandoc-version }}
           r-version: "release"
           cache-version: ${{ inputs.cache-version }}
@@ -71,8 +76,11 @@ jobs:
       - name: Format R code
         if: inputs.format-r-code
         uses: rstudio/shiny-workflows/format-r-code@v1
+        with:
+          working-directory: ${{ inputs.working-directory }}
 
       - name: "`urlchecker::url_update()`; Update urls found in package; Only rc-v** branches"
+        working-directory: ${{ inputs.working-directory }}
         # Only perform if in an RC branch (`rc-vX.Y.Z`)
         if: startsWith(github.ref_name, 'rc-v')
         run: |
@@ -80,6 +88,7 @@ jobs:
           git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
 
       - name: "`usethis::use_version()`; Match package version to rc-vX.Y.Z branch version; Only rc-v** branches"
+        working-directory: ${{ inputs.working-directory }}
         # Only perform if in an RC branch (`rc-vX.Y.Z`)
         if: startsWith(github.ref_name, 'rc-v')
         run: |
@@ -99,6 +108,7 @@ jobs:
           git add -u && git commit -m '`usethis::use_version()` (GitHub Actions)' || echo "No version changes to commit"
 
       - name: "`devtools::document()`; Document package"
+        working-directory: ${{ inputs.working-directory }}
         run: |
           Rscript -e 'devtools::document()'
           git add -A DESCRIPTION || echo "No changes found in DESCRIPTION"
@@ -107,12 +117,14 @@ jobs:
           git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
 
       - name: Find `README.Rmd`
+        working-directory: ${{ inputs.working-directory }}
         id: readme
         shell: Rscript {0}
         run: |
           if (file.exists("README.Rmd"))
             cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
       - name: "`devtools::build_readme()`; Build README.md from README.Rmd"
+        working-directory: ${{ inputs.working-directory }}
         if: steps.readme.outputs.exists
         run: |
           # {devtools} does not know how to handle `any::PKGNAME`. Using {rmarkdown} equivalent directly
@@ -123,6 +135,7 @@ jobs:
           git commit -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
 
       - name: Find `package.json`
+        working-directory: ${{ inputs.working-directory }}
         id: package-json
         shell: Rscript {0}
         run: |
@@ -146,6 +159,7 @@ jobs:
           node-version: "${{ inputs.node-version }}"
 
       - name: "`yarn install`"
+        working-directory: ${{ inputs.working-directory }}
         if: steps.package-json.outputs.build || steps.package-json.outputs.test
         shell: bash
         run: |
@@ -157,6 +171,7 @@ jobs:
           fi
 
       - name: "`yarn build`"
+        working-directory: ${{ inputs.working-directory }}
         if: steps.package-json.outputs.build
         shell: bash
         run: |
@@ -204,12 +219,14 @@ jobs:
       # no updated files will be commited back to GitHub
 
       - name: Find `codecov.yml`
+        working-directory: ${{ inputs.working-directory }}
         id: covr
         shell: Rscript {0}
         run: |
           if (file.exists("codecov.yml"))
             cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
       - name: "`covr::codecov()`; Run tests and find code coverage"
+        working-directory: ${{ inputs.working-directory }}
         if: steps.covr.outputs.exists
         shell: Rscript {0}
         run: |
@@ -218,12 +235,14 @@ jobs:
           covr::codecov(quiet = FALSE)
 
       - name: Find `.lintr`
+        working-directory: ${{ inputs.working-directory }}
         id: lintr
         shell: Rscript {0}
         run: |
           if (file.exists(".lintr"))
             cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
       - name: "`devtools::lint()`; Lint package"
+        working-directory: ${{ inputs.working-directory }}
         if: steps.lintr.outputs.exists
         shell: Rscript {0}
         run: |
@@ -234,11 +253,13 @@ jobs:
           testthat::expect_length(package_lints, 0)
 
       - name: "`yarn test`"
+        working-directory: ${{ inputs.working-directory }}
         if: steps.package-json.outputs.test
         run: |
           yarn test
 
       - name: "Find `staticimports`"
+        working-directory: ${{ inputs.working-directory }}
         if: inputs.staticimports
         id: static-imports
         shell: Rscript {0}
@@ -248,6 +269,7 @@ jobs:
             cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
           }
       - name: Check for staticimports updates
+        working-directory: ${{ inputs.working-directory }}
         if: steps.static-imports.outputs.exists
         shell: Rscript {0}
         run: |
@@ -272,6 +294,7 @@ jobs:
       # Helpful for covr output
       # https://github.com/r-lib/actions/blob/1c40e8ed442ad559d5656c01e94bf64d4c20091d/check-r-package/action.yaml
       - name: Show testthat output
+        working-directory: ${{ inputs.working-directory }}
         if: always()
         run: |
           ## --------------------------------------------------------------------
@@ -279,7 +302,6 @@ jobs:
           find check -name 'testthat.Rout*' -exec cat '{}' \; || true
           echo ::endgroup::
         shell: bash
-        working-directory: ${{ inputs.working-directory }}
 
       # > If the workflow run is a re-run, with debugging enabled, then it opens a tmate shell that you can ssh into for interactive debugging.
       # > It uses https://github.com/mxschmitt/action-tmate internally.

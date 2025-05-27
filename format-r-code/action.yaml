@@ -15,6 +15,10 @@ inputs:
     description: Path(s) to check as a space-separate single string
     default: "."
     required: false
+  working-directory:
+    default: "."
+    description: 'Working directory for the action. Defaults to the root of the repository.'
+    required: false
 
 runs:
   using: "composite"
@@ -25,7 +29,7 @@ runs:
       shell: powershell
       run: |
         irm https://github.com/posit-dev/air/releases/latest/download/air-installer.ps1 | iex
-    
+
     - name: Install air (version, Windows)
       if: inputs.version != 'latest' && runner.os == 'Windows'
       shell: powershell
@@ -50,18 +54,21 @@ runs:
         echo ""
         echo "Formatting R code with $(air --version)"
         echo ""
-          
+
     - name: Check R code formatting
+      working-directory: ${{ inputs.working-directory }}
       if: inputs.check == 'true'
       shell: bash
       run: air format --check ${{ inputs.path }}
-    
+
     - name: Format R code
+      working-directory: ${{ inputs.working-directory }}
       if: inputs.check != 'true'
       shell: bash
       run: air format ${{ inputs.path }}
-    
+
     - name: Commit changes
+      working-directory: ${{ inputs.working-directory }}
       if: inputs.check != 'true'
       shell: bash
       run: |

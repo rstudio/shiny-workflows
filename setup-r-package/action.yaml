@@ -55,6 +55,10 @@ inputs:
     default: ""
     description: 'One or more extra CRAN-like repositories to include in the repos global option'
     required: false
+  working-directory:
+    default: "."
+    description: 'Working directory for the action. Defaults to the root of the repository.'
+    required: false
 # outputs:
 #   NAME:
 #     description: 'desc here'
@@ -87,12 +91,14 @@ runs:
         rtools-version: ${{ inputs.rtools-version }}
         use-public-rspm: ${{ inputs.use-public-rspm }}
         extra-repositories: ${{ inputs.extra-repositories }}
+        working-directory: ${{ inputs.working-directory }}
 
     - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
       with:
         needs: ${{ inputs.needs }}
         extra-packages: ${{ inputs.extra-packages }}
         pak-version: ${{ inputs.pak-version }}
+        working-directory: ${{ inputs.working-directory }}
 
     - name: Run 'package-install' script
       uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
@@ -101,6 +107,7 @@ runs:
 
     - uses: r-lib/actions/setup-r-dependencies@v2
       with:
+        working-directory: ${{ inputs.working-directory }}
         cache: "always"
         packages: ${{ inputs.packages }}
         cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
@@ -114,5 +121,8 @@ runs:
       uses: rstudio/shiny-workflows/setup-phantomjs@v1
       with:
         cache-version: ${{ inputs.cache-version }}
+        working-directory: ${{ inputs.working-directory }}
     - name: Install tinytex
       uses: rstudio/shiny-workflows/setup-tinytex@v1
+      with:
+        working-directory: ${{ inputs.working-directory }}
