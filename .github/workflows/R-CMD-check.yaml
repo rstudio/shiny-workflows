@@ -241,6 +241,9 @@ jobs:
           check-dir: '"check"' # matches directory below
           args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
           upload-snapshots: ${{ inputs.upload-snapshots }}
+          # Use the cache-version to separate the results from other checks with the same setup.
+          artifact-name: ${{ format('{0}-{1}-r{2}-{3}-{4}-results', runner.os, runner.arch, matrix.config.r, inputs.cache-version, matrix.config.id || strategy.job-index ) }}
+          snapshot-artifact-name: ${{ format('{0}-{1}-r{2}-{3}-{4}-testthat-snapshots', runner.os, runner.arch, matrix.config.r, inputs.cache-version, matrix.config.id || strategy.job-index ) }}
 
       - name: "Show `testthat` output"
         working-directory: ${{ inputs.working-directory }}
