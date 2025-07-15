@@ -22,8 +22,14 @@ on:
         default: true
         required: false
       format-r-code:
+        description: "If true, will format R code with air."
         type: boolean
         default: false
+        required: false
+      format-description:
+        description: "If true, will run `usethis::use_tidy_description()` to format the DESCRIPTION file."
+        type: boolean
+        default: true
         required: false
       working-directory:
         description: "Using the working-directory keyword, you can specify the working directory of where all checks are executed."
@@ -75,6 +81,7 @@ jobs:
             any::rmarkdown
             any::lintr
             any::jsonlite
+            any::usethis
             ${{ inputs.extra-packages }}
 
       - name: Format R code
@@ -101,7 +108,6 @@ jobs:
             -e 'stopifnot(grepl("^rc-v", git_branch))' \
             -e 'rc_version <- gsub("^rc-v", "", git_branch)' \
             -e '## Taken from guts of `usethis::use_version()`' \
-            -e 'pak::pkg_install("usethis")' \
             -e '# Set DESCRIPTION version' \
             -e 'usethis:::proj_desc_field_update("Version", rc_version, overwrite = TRUE)' \
             -e '# Set NEWS version' \
@@ -110,6 +116,14 @@ jobs:
             -e 'usethis:::use_c_version(rc_version)'
 
           git add -u && git commit -m '`usethis::use_version()` (GitHub Actions)' || echo "No version changes to commit"
+
+      - name: "`usethis::use_tidy_description()`; Reformat DESCRIPTION using tidyverse style"
+        working-directory: ${{ inputs.working-directory }}
+        if: inputs.format-description
+        run: |
+          Rscript -e 'usethis::use_tidy_description()'
+          git add -A DESCRIPTION || echo "No changes found in DESCRIPTION"
+          git commit -m '`usethis::use_tidy_description()` (GitHub Actions)' || echo "No tidy DESCRIPTION changes to commit"
 
       - name: "`devtools::document()`; Document package"
         working-directory: ${{ inputs.working-directory }}
