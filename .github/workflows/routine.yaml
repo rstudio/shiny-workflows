@@ -39,6 +39,11 @@ on:
         type: boolean
         default: true
         required: false
+      check-js:
+        description: "If true, will check for a `package.json` file and run `yarn install` and `yarn build` if it exists."
+        type: boolean
+        default: true
+        required: false
     # secrets:
     #   token:
     #     required: true
@@ -117,9 +122,18 @@ jobs:
 
           git add -u && git commit -m '`usethis::use_version()` (GitHub Actions)' || echo "No version changes to commit"
 
+      - name: Find `DESCRIPTION`
+        working-directory: ${{ inputs.working-directory }}
+        id: description
+        if: inputs.format-description
+        shell: Rscript {0}
+        run: |
+          if (file.exists("DESCRIPTION"))
+            cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+
       - name: "`usethis::use_tidy_description()`; Reformat DESCRIPTION using tidyverse style"
         working-directory: ${{ inputs.working-directory }}
-        if: inputs.format-description
+        if: steps.description.outputs.exists
         run: |
           Rscript -e 'usethis::use_tidy_description()'
           git add -A DESCRIPTION || echo "No changes found in DESCRIPTION"
@@ -135,7 +149,7 @@ jobs:
           git commit -m '`devtools::document()` (GitHub Actions)' || echo "No documentation changes to commit"
 
       - name: Find `README.Rmd`
-        if: ${{ inputs.build-readme }}
+        if: inputs.build-readme
         working-directory: ${{ inputs.working-directory }}
         id: readme
         shell: Rscript {0}
@@ -155,6 +169,7 @@ jobs:
 
       - name: Find `package.json`
         working-directory: ${{ inputs.working-directory }}
+        if: inputs.check-js
         id: package-json
         shell: Rscript {0}
         run: |
