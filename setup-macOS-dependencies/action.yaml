@@ -24,6 +24,7 @@ runs:
   using: "composite"
   steps:
     - name: Brew dependencies
+      id: brew-deps
       shell: Rscript {0}
       working-directory: ${{ inputs.working-directory }}
       run: |
@@ -103,6 +104,13 @@ runs:
           }
           pkg_deps <- unique(pkg_deps)
           cat("Packages found:\n"); print(pkg_deps)
+
+          if ("otelsdk" %in% pkg_deps) {
+            cat("needs-rhub-r-sysreqs=true\n", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+            message("Installing otelsdk")
+            install.packages("otelsdk", repos = "https://cloud.r-project.org")
+          }
+
           brew_list <- list(
             Cairo = c("libxt", "--cask xquartz", "cairo"),
             FreeType = "freetype",
@@ -130,3 +138,7 @@ runs:
             })
           }
         }
+
+    - name: Install rhub-r-sysreqs
+      if: ${{ steps.brew-deps.outputs.needs-rhub-r-sysreqs == 'true' }}
+      uses: r-hub/actions/setup-r-sysreqs@v1
