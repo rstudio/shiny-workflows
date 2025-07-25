@@ -21,7 +21,7 @@ on:
       extra-check-build-args:
         type: string
         # default: '"--no-manual"'
-        default: "NULL"
+        default: '"--compact-vignettes=gs+qpdf"'
         required: false
       macOS:
         type: string
