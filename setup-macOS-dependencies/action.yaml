@@ -29,7 +29,7 @@ runs:
       shell: Rscript {0}
       run: |
         if (!identical(Sys.getenv("RUNNER_OS", "NOT MAC"), "macOS")) {
-          return()
+          quit("no", status = 0, runLast = FALSE)
         }
 
         cat("::group::Install macOS system dependencies\n")
