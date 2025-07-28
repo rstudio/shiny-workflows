@@ -42,8 +42,6 @@ runs:
         message("pak installed")
         print(packageDescription("pak"))
 
-            message("Installing otelsdk")
-            install.packages("otelsdk", repos = "https://cloud.r-project.org")
         if (any(
           grepl("url::", "${{ inputs.extra-packages }}", fixed = TRUE),
           file.exists("DESCRIPTION") &&
