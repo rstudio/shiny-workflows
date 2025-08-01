@@ -202,19 +202,18 @@ jobs:
         shell: bash
         run: |
           [ -d "srcts/types" ] && rm -r srcts/types
-           if [ -f "yarn.lock" ]; then
-            echo "Using yarn"
-            yarn install --immutable
-            if [ $? != 0 ]; then
-              echo '::error::Error calling `yarn install --immutable`'
-              exit 1
-            fi
-          fi
           if [ -f "package-lock.json" ]; then
             echo "Using npm"
             npm ci
             if [ $? != 0 ]; then
               echo '::error::Error calling `npm ci`'
+              exit 1
+            fi
+          elif [ -f "yarn.lock" ]; then
+            echo "Using yarn"
+            yarn install --immutable
+            if [ $? != 0 ]; then
+              echo '::error::Error calling `yarn install --immutable`'
               exit 1
             fi
           fi
@@ -224,12 +223,12 @@ jobs:
         if: steps.package-json.outputs.build
         shell: bash
         run: |
-          if [ -f "yarn.lock" ]; then
+          if [ -f "package-lock.json" ]; then
+            echo "Using npm"
+            JS_CMD="npm"
+          elif [ -f "yarn.lock" ]; then
             echo "Using yarn"
             JS_CMD="yarn"
-          else
-            echo "Using npm"
-            JS_CMD="npm run"
           fi
 
           # Run the build command
@@ -243,11 +242,10 @@ jobs:
           do
             [ -d $FOLDER ] && git add -A $FOLDER || echo "No updated $FOLDER changes to commit"
           done
-          if [ -f "yarn.lock" ]; then
-            git add -A yarn.lock || echo "No changes found in yarn.lock"
-          fi
           if [ -f "package-lock.json" ]; then
             git add -A package-lock.json || echo "No changes found in package-lock.json"
+          elif [ -f "yarn.lock" ]; then
+            git add -A yarn.lock || echo "No changes found in yarn.lock"
           fi
           git commit -m "\`$JS_CMD build\` (GitHub Actions)" || echo "No \`$JS_CMD build\` changes to commit"
 
@@ -321,18 +319,18 @@ jobs:
         if: steps.package-json.outputs.test
         shell: bash
         run: |
-          if [ -f "yarn.lock" ]; then
-            echo "Using yarn"
-            yarn test
-            if [ $? != 0 ]; then
-              echo '::error::Error calling `yarn test`'
-              exit 1
-            fi
-          else
+          if [ -f "package-lock.json" ]; then
             echo "Using npm"
             npm test
             if [ $? != 0 ]; then
               echo '::error::Error calling `npm test`'
+              exit 1
+            fi
+          elif [ -f "yarn.lock" ]; then
+            echo "Using yarn"
+            yarn test
+            if [ $? != 0 ]; then
+              echo '::error::Error calling `yarn test`'
               exit 1
             fi
           fi
