@@ -40,10 +40,14 @@ on:
         default: true
         required: false
       check-js:
-        description: "If true, will check for a `package.json` file and run `yarn install` and `yarn build` if it exists."
+        description: "If true, will check for a `package.json` file and run `npm install` / `yarn install` and `npm build` /`yarn build` if it exists."
         type: boolean
         default: true
         required: false
+      js-working-directory:
+        description: "Folder that contains the `package.json` file. Defaults to the working directory input."
+        type: string
+        default: ""
     # secrets:
     #   token:
     #     required: true
@@ -168,7 +172,7 @@ jobs:
           git commit -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
 
       - name: Find `package.json`
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.js-working-directory || inputs.working-directory }}
         if: inputs.check-js
         id: package-json
         shell: Rscript {0}
@@ -177,11 +181,11 @@ jobs:
             cat("exists=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
             pkg_scripts <- jsonlite::read_json("package.json")$scripts
             if ("build" %in% names(pkg_scripts)) {
-              message("Can call `yarn build`")
+              message("Found `build` script in package.json")
               cat("build=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
             }
             if ("test" %in% names(pkg_scripts)) {
-              message("Can call `yarn test`")
+              message("Found `test` script in package.json")
               cat("test=true\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
             }
           }
@@ -192,34 +196,60 @@ jobs:
         with:
           node-version: "${{ inputs.node-version }}"
 
-      - name: "`yarn install`"
-        working-directory: ${{ inputs.working-directory }}
+      - name: "JS install"
+        working-directory: ${{ inputs.js-working-directory || inputs.working-directory }}
         if: steps.package-json.outputs.build || steps.package-json.outputs.test
         shell: bash
         run: |
           [ -d "srcts/types" ] && rm -r srcts/types
-          yarn install --immutable
-          if [ $? != 0 ]; then
-            echo '::error::Error calling `yarn install --immutable`'
-            exit 1
+           if [ -f "yarn.lock" ]; then
+            echo "Using yarn"
+            yarn install --immutable
+            if [ $? != 0 ]; then
+              echo '::error::Error calling `yarn install --immutable`'
+              exit 1
+            fi
+          fi
+          if [ -f "package-lock.json" ]; then
+            echo "Using npm"
+            npm ci
+            if [ $? != 0 ]; then
+              echo '::error::Error calling `npm ci`'
+              exit 1
+            fi
           fi
 
-      - name: "`yarn build`"
-        working-directory: ${{ inputs.working-directory }}
+      - name: "JS build"
+        working-directory: ${{ inputs.js-working-directory || inputs.working-directory }}
         if: steps.package-json.outputs.build
         shell: bash
         run: |
-          yarn build
+          if [ -f "yarn.lock" ]; then
+            echo "Using yarn"
+            JS_CMD="yarn"
+          else
+            echo "Using npm"
+            JS_CMD="npm run"
+          fi
+
+          # Run the build command
+          $JS_CMD build
+
           if [ $? != 0 ]; then
-            echo '::error::Error calling `yarn build`'
+            echo "::error::Error calling \`$JS_CMD build\`"
             exit 1
           fi
-          for FOLDER in ./inst ./javascript ./srcjs ./srcts
+          for FOLDER in ./inst ./javascript ./srcjs ./srcts ./js
           do
             [ -d $FOLDER ] && git add -A $FOLDER || echo "No updated $FOLDER changes to commit"
           done
-          git add -A yarn.lock || echo "No changes found in yarn.lock"
-          git commit -m '`yarn build` (GitHub Actions)' || echo "No yarn build changes to commit"
+          if [ -f "yarn.lock" ]; then
+            git add -A yarn.lock || echo "No changes found in yarn.lock"
+          fi
+          if [ -f "package-lock.json" ]; then
+            git add -A package-lock.json || echo "No changes found in package-lock.json"
+          fi
+          git commit -m "\`$JS_CMD build` (GitHub Actions)" || echo "No \`$JS_CMD build\` changes to commit"
 
       - name: Run 'routine' script
         uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
@@ -286,12 +316,26 @@ jobs:
           if (length(package_lints) > 0) str(package_lints, list.len = Inf)
           testthat::expect_length(package_lints, 0)
 
-      - name: "`yarn test`"
-        working-directory: ${{ inputs.working-directory }}
+      - name: "JS test"
+        working-directory: ${{ inputs.js-working-directory || inputs.working-directory }}
         if: steps.package-json.outputs.test
+        shell: bash
         run: |
-          yarn test
-
+          if [ -f "yarn.lock" ]; then
+            echo "Using yarn"
+            yarn test
+            if [ $? != 0 ]; then
+              echo '::error::Error calling `yarn test`'
+              exit 1
+            fi
+          else
+            echo "Using npm"
+            npm test
+            if [ $? != 0 ]; then
+              echo '::error::Error calling `npm test`'
+              exit 1
+            fi
+          fi
       - name: "Find `staticimports`"
         working-directory: ${{ inputs.working-directory }}
         if: inputs.staticimports

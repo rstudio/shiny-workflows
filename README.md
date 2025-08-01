@@ -57,8 +57,8 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `devtools::build_readme()` (if `README.Rmd` exists)
     * Checks code coverage with `covr` if `codecov.yml` exists
     * Checks for broken lints if `.lintr` exists
-    * Calls `yarn build` and commits any changes in `inst`, `srcts`, and `srcjs`.
-    * Calls `yarn test`
+    * Calls `npm build` / `yarn build` and commits any changes in `inst`, `srcts`, and `srcjs`.
+    * Calls `npm test` / `yarn test`
     * Checks for outdated `staticimports`
   * Packages included in the `DESCRIPTION` field `Config/Needs/routine` will also be installed
   * Parameters:
