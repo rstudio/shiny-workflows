@@ -225,29 +225,34 @@ jobs:
         run: |
           if [ -f "package-lock.json" ]; then
             echo "Using npm"
-            JS_CMD="npm"
+            npm run build
+            if [ $? != 0 ]; then
+              echo '::error::Error calling `npm run build`'
+              exit 1
+            fi
           elif [ -f "yarn.lock" ]; then
             echo "Using yarn"
-            JS_CMD="yarn"
-          fi
-
-          # Run the build command
-          $JS_CMD build
-
-          if [ $? != 0 ]; then
-            echo "::error::Error calling \`$JS_CMD build\`"
+            yarn build
+            if [ $? != 0 ]; then
+              echo '::error::Error calling `yarn build`'
+              exit 1
+            fi
+          else
+            echo '::error::No package manager lock file found'
             exit 1
           fi
+          # If the build command created new files, add them to git
           for FOLDER in ./inst ./javascript ./srcjs ./srcts ./js
           do
             [ -d $FOLDER ] && git add -A $FOLDER || echo "No updated $FOLDER changes to commit"
           done
           if [ -f "package-lock.json" ]; then
             git add -A package-lock.json || echo "No changes found in package-lock.json"
+            git commit -m "\`npm run build\` (GitHub Actions)" || echo "No \`npm run build\` changes to commit"
           elif [ -f "yarn.lock" ]; then
             git add -A yarn.lock || echo "No changes found in yarn.lock"
+            git commit -m "\`yarn build\` (GitHub Actions)" || echo "No \`yarn build\` changes to commit"
           fi
-          git commit -m "\`$JS_CMD build\` (GitHub Actions)" || echo "No \`$JS_CMD build\` changes to commit"
 
       - name: Run 'routine' script
         uses: rstudio/shiny-workflows/.github/internal/run-local-script@v1
