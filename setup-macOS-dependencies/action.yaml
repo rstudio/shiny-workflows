@@ -85,6 +85,10 @@ runs:
           unlist(lapply(pkgs, function(x) {
             message("here-get_pkg_deps() - ", x)
             # Use try catch to avoid dep finding errors;
+            if (grepl("?ignore", x, fixed = TRUE)) {
+              message("ignoring dep finding for ", x)
+              return(NULL)
+            }
             tryCatch({
               pak::pkg_deps(x)[["package"]]
             }, error = function(e) {
