@@ -65,6 +65,11 @@ on:
         default: 30
         required: false
 
+      check-depends-only:
+        type: boolean
+        default: true
+        required: false
+
 name: R-CMD-check
 
 jobs:
@@ -139,6 +144,7 @@ jobs:
           force_windows_src = "${{ inputs.force-windows-src }}" == "true"
           if force_windows_src:
               has_src = True
+          check_depends_only = "${{ inputs.check-depends-only }}" == "true"
 
           rver = {
               # When R 4.3 was released, R version 4.4.0 was not recognized.
@@ -203,6 +209,12 @@ jobs:
                   if is_valid_os(ubuntu_, rver["oldrel4"]):
                       config.append(job(ubuntu_, rver["oldrel4"]))
 
+          # Extra "depends only" job on ubuntu-latest
+          # that sets _R_CHECK_DEPENDS_ONLY_=true when checking
+          # Extra installed packages will be ignored in this mode.
+          if check_depends_only and is_valid_os(ubuntu_arr[0], rver["release"]):
+              config.append(job(ubuntu_arr[0], rver["release"], **{"job-name": "check-depends-only", "env_check_depends_only": "true", "id": "depends-only"}))
+
           # Convert to JSON
           config_json = json.dumps(config)
           print(f"Config:\n{config_json}")
@@ -213,7 +225,7 @@ jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.job-name || format('{0} ({1})', matrix.config.os, matrix.config.r)  }}
 
     needs: [setup]
     strategy:
@@ -250,6 +262,8 @@ jobs:
       - name: Check package
         uses: r-lib/actions/check-r-package@v2
         timeout-minutes: ${{ inputs.check-timeout-minutes }}
+        env:
+          _R_CHECK_DEPENDS_ONLY_: ${{ matrix.config.env_check_depends_only || '' }}
         with:
           working-directory: ${{ inputs.working-directory }}
           check-dir: '"check"' # matches directory below
