@@ -13,6 +13,7 @@ This action installs the `air` formatter and uses it to format R code in your re
 | version  | Version of air to use (e.g., `0.1.2`)            | `latest`  | No       |
 | check    | If `'true'`, only check that R code is formatted | `'false'` | No       |
 | path     | Path(s) to check (space-separated string)        | `'.'`     | No       |
+| working-directory | Working directory for the action         | `'.'`     | No       |
 
 ## Usage
 

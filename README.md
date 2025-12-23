@@ -44,10 +44,13 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * This is a wrapper for building a `{pkgdown}` website and deploying it to the `gh-pages` branch of the repo.
   * Packages included in the `DESCRIPTION` field `Config/Needs/website` will also be installed
   * Parameters:
+    * `runs-on`: The runner to use for the job. Defaults to `ubuntu-latest`.
     * `extra-packages`: Installs extra packages not listed in the `DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
-    * `cache-version`: The cache key to be used. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
+    * `cache-version`: The cache key to be used. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies. Defaults to `"2"`.
     * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/HEAD/setup-pandoc . Defaults to `3.x` which installs a recent 3.x version of pandoc. (Similar behavior for `2.x`.)
-    * `check-title`: If set, will disable `rmarkdown`'s check for having the vignette title and the document title match
+    * `check-title`: If `true`, will check that vignette titles and document titles match. Defaults to `true`.
+    * `clean`: Whether to clean the site before building. Defaults to `"TRUE"`.
+    * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
 * `routine.yaml`
   * Performs many common tasks for packages in the shiny-verse and commits them back to the repo
     * Check for url redirects in `rc-v**` branches
@@ -63,16 +66,30 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * Packages included in the `DESCRIPTION` field `Config/Needs/routine` will also be installed
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
-    * `node-version`: Version of `node.js` to install
+    * `node-version`: Version of `node.js` to install. Defaults to `"current"`.
+    * `staticimports`: If `true`, checks for outdated staticimports. Defaults to `true`.
+    * `format-r-code`: If `true`, will format R code with `air`. Defaults to `false`.
+    * `format-description`: If `true`, will run `usethis::use_tidy_description()` to format the DESCRIPTION file. Defaults to `true`.
+    * `build-readme`: If `true`, will build README.md from README.Rmd. Defaults to `true`.
+    * `check-js`: If `true`, will check for a `package.json` file and run `npm install` / `yarn install` and `npm build` / `yarn build` if it exists. Defaults to `true`.
+    * `js-working-directory`: Folder that contains the `package.json` file. Defaults to the working directory input.
+    * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
 * `R-CMD-check.yaml`
   * Performs `R CMD check .` on your package
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
     * `extra-check-args`, `extra-check-build-args`: Arguments passed in addition to the default check `args`/`build-args` of https://github.com/r-lib/actions/blob/v2/check-r-package/
-    * `macOS`: `macOS` runtime to use. Set to `false` to disable testing on macOS.
-    * `windows`: `windows` runtime to use. Set to `false` to disable testing on Windows.
-    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu.
-    * minimum-r-version: If provided, only R versions >= to `minimum-r-version` will be created in the matrix. Great for dependencies that will not install on earlier R versions.
+    * `macOS`: `macOS` runtime to use. Set to `false` to disable testing on macOS. Defaults to `"macOS-latest"`.
+    * `windows`: `windows` runtime to use. Set to `false` to disable testing on Windows. Defaults to `"windows-latest"`.
+    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu-20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu. Defaults to `"ubuntu-latest"`.
+    * `minimum-r-version`: If provided, only R versions >= to `minimum-r-version` will be created in the matrix. Great for dependencies that will not install on earlier R versions.
+    * `force-windows-src`: If `true`, forces the check to assume the package has compiled code even if it doesn't. Defaults to `false`.
+    * `rtools-40`: If `true`, tests on Windows R 4.1 with Rtools40. Defaults to `true`.
+    * `upload-snapshots`: If `true`, uploads testthat snapshots as artifacts. Defaults to `true`.
+    * `upload-check-results`: If `true`, uploads check results on failure. Defaults to `false`.
+    * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
+    * `check-timeout-minutes`: Timeout in minutes for the check step. Defaults to `30`.
+    * `check-depends-only`: If `true`, adds an extra job that checks the package with only dependencies installed (sets `_R_CHECK_DEPENDS_ONLY_=true`). Defaults to `true`.
 
 ## Customization
 
