@@ -81,7 +81,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `extra-check-args`, `extra-check-build-args`: Arguments passed in addition to the default check `args`/`build-args` of https://github.com/r-lib/actions/blob/v2/check-r-package/
     * `macOS`: `macOS` runtime to use. Set to `false` to disable testing on macOS. Defaults to `"macOS-latest"`.
     * `windows`: `windows` runtime to use. Set to `false` to disable testing on Windows. Defaults to `"windows-latest"`.
-    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 18 and 20, use `"ubuntu-18.04 ubuntu-20.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu. Defaults to `"ubuntu-latest"`.
+    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 22.04 and 24.04, use `"ubuntu-22.04 ubuntu-24.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu. Defaults to `"ubuntu-latest"`.
     * `minimum-r-version`: If provided, only R versions >= to `minimum-r-version` will be created in the matrix. Great for dependencies that will not install on earlier R versions.
     * `force-windows-src`: If `true`, forces the check to assume the package has compiled code even if it doesn't. Defaults to `false`.
     * `rtools-40`: If `true`, tests on Windows R 4.1 with Rtools40. Defaults to `true`.
