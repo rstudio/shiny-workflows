@@ -74,8 +74,8 @@ runs:
       run: |
         pandoc_version="${{ inputs.pandoc-version }}"
         case $pandoc_version in
-          "default") pandoc_version="3.1.11" ;;
-          "3.x") pandoc_version="3.1.11" ;;
+          "default") pandoc_version="3.8.3" ;;
+          "3.x") pandoc_version="3.8.3" ;;
           "2.x") pandoc_version="2.19.2" ;;
         esac
         echo "version=$pandoc_version" >> $GITHUB_OUTPUT
