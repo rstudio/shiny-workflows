@@ -263,7 +263,7 @@ jobs:
         uses: r-lib/actions/check-r-package@v2
         timeout-minutes: ${{ inputs.check-timeout-minutes }}
         env:
-          _R_CHECK_DEPENDS_ONLY_: ${{ matrix.config.env_check_depends_only || '' }}
+          _R_CHECK_DEPENDS_ONLY_: ${{ matrix.config.env_check_depends_only || 'FALSE' }}
         with:
           working-directory: ${{ inputs.working-directory }}
           check-dir: '"check"' # matches directory below
