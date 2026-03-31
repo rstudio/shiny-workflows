@@ -59,7 +59,7 @@ runs:
         }
     - name: Restore PhantomJS cache
       if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ steps.phantomjs.outputs.path }}
         key: ${{ runner.os }}-phantomjs-${{ inputs.cache-version }}
@@ -92,7 +92,7 @@ runs:
 
     - name: Save PhantomJS cache
       if: ${{ steps.phantomjs.outputs.should-install == 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ steps.phantomjs.outputs.path }}
         key: ${{ runner.os }}-phantomjs-${{ inputs.cache-version }}
