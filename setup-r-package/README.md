@@ -36,7 +36,7 @@ The `pak-version` input controls which version of pak to use:
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
+- uses: actions/checkout@v5
 - uses: rstudio/shiny-workflows/setup-r-package@v1
   with:
     extra-packages: any::rcmdcheck

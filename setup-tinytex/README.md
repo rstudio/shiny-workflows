@@ -10,7 +10,7 @@ This action installs `tinytex` if-and-only-if `tinytex` is a direct R package de
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
+- uses: actions/checkout@v5
 # `setup-r-package` calls `setup-tinytex`
 - uses: rstudio/shiny-workflows/setup-r-package@v1
   with:

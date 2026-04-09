@@ -12,7 +12,7 @@ If `shinytest` is installed, the local package will also be installed for backgr
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
+- uses: actions/checkout@v5
 # `setup-r-package` calls `setup-phantomjs`
 - uses: rstudio/shiny-workflows/setup-r-package@v1
   with:

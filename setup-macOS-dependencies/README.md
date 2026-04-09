@@ -29,7 +29,7 @@ Known dependencies:
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
+- uses: actions/checkout@v5
 - uses: r-lib/actions/setup-r@v2
 - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
   with:
