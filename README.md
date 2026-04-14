@@ -44,6 +44,8 @@ jobs:
     with:
       repository: rstudio/reactlog
       ref: main
+    secrets:
+      token: ${{ secrets.REACTLOG_AUTOMATION_TOKEN }}
 ```
 
 ## Workflows
@@ -103,6 +105,8 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
     * `check-timeout-minutes`: Timeout in minutes for the check step. Defaults to `30`.
     * `check-depends-only`: If `true`, adds an extra job that checks the package with only dependencies installed (sets `_R_CHECK_DEPENDS_ONLY_=true`). Defaults to `true`.
+  * Secrets:
+    * `token`: Optional token used for checkout and GitHub API access. Defaults to the workflow `GITHUB_TOKEN`.
 
 ## Customization
 

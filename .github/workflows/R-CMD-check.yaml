@@ -77,6 +77,9 @@ on:
         type: boolean
         default: true
         required: false
+    secrets:
+      token:
+        required: false
 
 name: R-CMD-check
 
@@ -245,7 +248,7 @@ jobs:
         config: ${{ fromJSON(needs.setup.outputs.config) }}
 
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.token || secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout GitHub repo
@@ -253,6 +256,7 @@ jobs:
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
+          token: ${{ secrets.token }}
 
       - name: Install R, system dependencies, and package dependencies
         uses: rstudio/shiny-workflows/setup-r-package@v1

@@ -10,6 +10,10 @@ inputs:
     description: 'Git ref to checkout. Defaults to the triggering ref for the calling repository, or the default branch for an overridden repository.'
     required: false
     default: ''
+  token:
+    description: 'Token used for checkout and persisted credentials. Defaults to the workflow token.'
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
@@ -38,6 +42,7 @@ runs:
       # Checkout with LFS support
       lfs: ${{ steps.lfs.outputs.exists == 'true' }}
       repository: ${{ inputs.repository || github.repository }}
+      token: ${{ inputs.token || github.token }}
 
   - uses: actions/checkout@v5
     if: ${{ inputs.ref != '' }}
@@ -46,3 +51,4 @@ runs:
       lfs: ${{ steps.lfs.outputs.exists == 'true' }}
       repository: ${{ inputs.repository || github.repository }}
       ref: ${{ inputs.ref }}
+      token: ${{ inputs.token || github.token }}
