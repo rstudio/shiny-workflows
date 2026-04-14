@@ -35,6 +35,17 @@ jobs:
 
 > Note: Adjust the `8` in the schedule to match the number of letters in the package name to insert some time variance. This helps mitigate PAT rate limits when testing many packages on a schedule.
 
+To run checks for another repository from a host repository, pass the target repository and optional ref to the reusable workflow:
+
+```yaml
+jobs:
+  reactlog:
+    uses: rstudio/shiny-workflows/.github/workflows/R-CMD-check.yaml@v1
+    with:
+      repository: rstudio/reactlog
+      ref: main
+```
+
 ## Workflows
 
 
@@ -87,6 +98,8 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `rtools-40`: If `true`, tests on Windows R 4.1 with Rtools40. Defaults to `true`.
     * `upload-snapshots`: If `true`, uploads testthat snapshots as artifacts. Defaults to `true`.
     * `upload-check-results`: If `true`, uploads check results on failure. Defaults to `false`.
+    * `repository`: Repository to check out before running the workflow. Defaults to the caller repository.
+    * `ref`: Git ref to check out from the target repository. Defaults to the caller ref, or the target repository's default branch when `repository` is overridden.
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
     * `check-timeout-minutes`: Timeout in minutes for the check step. Defaults to `30`.
     * `check-depends-only`: If `true`, adds an extra job that checks the package with only dependencies installed (sets `_R_CHECK_DEPENDS_ONLY_=true`). Defaults to `true`.

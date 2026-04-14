@@ -1,6 +1,15 @@
 name: 'Checkout a repo with auto LFS support'
-description: 'If `=lfs` exists with `.gitattributes`, then add LFS support on checkout. If customization is needed, just call `actions/checkout@v5` directly'
+description: 'If `=lfs` exists with `.gitattributes`, then add LFS support on checkout. Supports optional repository/ref overrides. If customization is needed, just call `actions/checkout@v5` directly'
 author: 'Barret Schloerke'
+inputs:
+  repository:
+    description: 'Repository to checkout. Defaults to the calling repository.'
+    required: false
+    default: ''
+  ref:
+    description: 'Git ref to checkout. Defaults to the triggering ref for the calling repository, or the default branch for an overridden repository.'
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
@@ -24,6 +33,16 @@ runs:
         fi
       fi
   - uses: actions/checkout@v5
+    if: ${{ inputs.ref == '' }}
     with:
       # Checkout with LFS support
-      lfs: ${{ steps.lfs.output.exists == 'true' }}
+      lfs: ${{ steps.lfs.outputs.exists == 'true' }}
+      repository: ${{ inputs.repository || github.repository }}
+
+  - uses: actions/checkout@v5
+    if: ${{ inputs.ref != '' }}
+    with:
+      # Checkout with LFS support
+      lfs: ${{ steps.lfs.outputs.exists == 'true' }}
+      repository: ${{ inputs.repository || github.repository }}
+      ref: ${{ inputs.ref }}

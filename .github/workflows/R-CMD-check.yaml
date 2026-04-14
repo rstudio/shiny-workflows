@@ -56,6 +56,14 @@ on:
         type: boolean
         default: false
         required: false
+      repository:
+        type: string
+        default: ""
+        required: false
+      ref:
+        type: string
+        default: ""
+        required: false
       working-directory:
         type: string
         default: "."
@@ -123,6 +131,9 @@ jobs:
 
       - name: Checkout GitHub repo
         uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
 
       # R is a pre-installed software
       - name: Config
@@ -239,6 +250,9 @@ jobs:
     steps:
       - name: Checkout GitHub repo
         uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
 
       - name: Install R, system dependencies, and package dependencies
         uses: rstudio/shiny-workflows/setup-r-package@v1
