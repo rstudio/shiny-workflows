@@ -26,10 +26,26 @@ on:
         type: string
         default: "TRUE"
         required: false
+      repository:
+        type: string
+        default: ""
+        required: false
+      ref:
+        type: string
+        default: ""
+        required: false
+      deploy:
+        description: "If true, build and deploy the pkgdown site even when the caller event is not a push. Useful for cross-repo schedule/manual runs."
+        type: boolean
+        default: false
+        required: false
 
       working-directory:
         type: string
         default: "."
+        required: false
+    secrets:
+      token:
         required: false
 
 name: "`pkgdown` - `gh-pages`"
@@ -38,11 +54,15 @@ jobs:
   pkgdown:
     runs-on: ${{ inputs.runs-on }}
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.token || secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout GitHub repo
         uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.token }}
 
       - name: Install R, system dependencies, and package dependencies
         uses: rstudio/shiny-workflows/setup-r-package@v1
@@ -62,18 +82,19 @@ jobs:
           name: website
 
       - name: Verify index reference (PR)
-        if: github.event_name != 'push'
+        if: ${{ !inputs.deploy && github.event_name != 'push' }}
         uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
         with:
           check-title: ${{ inputs.check-title }}
           working-directory: ${{ inputs.working-directory }}
 
       - name: Setup git (push)
+        if: ${{ inputs.deploy || github.event_name == 'push' }}
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
 
       - name: Build and deploy pkgdown site (push)
         working-directory: ${{ inputs.working-directory }}
-        if: github.event_name == 'push'
+        if: ${{ inputs.deploy || github.event_name == 'push' }}
         shell: Rscript {0}
         run: |
           if ("${{inputs.check-title}}" == "false") options(rmarkdown.html_vignette.check_title = FALSE)

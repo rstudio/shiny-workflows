@@ -63,7 +63,12 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/HEAD/setup-pandoc . Defaults to `3.x` which installs a recent 3.x version of pandoc. (Similar behavior for `2.x`.)
     * `check-title`: If `true`, will check that vignette titles and document titles match. Defaults to `true`.
     * `clean`: Whether to clean the site before building. Defaults to `"TRUE"`.
+    * `repository`: Repository to check out before running the workflow. Defaults to the caller repository.
+    * `ref`: Git ref to check out from the target repository. Defaults to the caller ref, or the target repository's default branch when `repository` is overridden.
+    * `deploy`: If `true`, build and deploy the pkgdown site even when the caller event is not a push. Defaults to `false`.
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
+  * Secrets:
+    * `token`: Optional token used for checkout, package installation, and pushing `gh-pages`. Defaults to the workflow `GITHUB_TOKEN`.
 * `routine.yaml`
   * Performs many common tasks for packages in the shiny-verse and commits them back to the repo
     * Check for url redirects in `rc-v**` branches
