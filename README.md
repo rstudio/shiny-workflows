@@ -37,6 +37,8 @@ jobs:
 
 To run checks for another repository from a host repository, pass the target repository and optional ref to the reusable workflow:
 
+> Note: Cross-repository checks use the caller's `GITHUB_TOKEN`, which only has access to public repositories. This feature does not support private target repositories.
+
 ```yaml
 jobs:
   reactlog:
@@ -44,8 +46,6 @@ jobs:
     with:
       repository: rstudio/reactlog
       ref: main
-    secrets:
-      token: ${{ secrets.REACTLOG_AUTOMATION_TOKEN }}
 ```
 
 ## Workflows
