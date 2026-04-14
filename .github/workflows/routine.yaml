@@ -48,9 +48,27 @@ on:
         description: "Folder that contains the `package.json` file. Defaults to the working directory input."
         type: string
         default: ""
-    # secrets:
-    #   token:
-    #     required: true
+      repository:
+        type: string
+        default: ""
+        required: false
+      ref:
+        type: string
+        default: ""
+        required: false
+      push-mode:
+        description: "How to push generated commits. Use `event` to preserve the existing push/PR behavior, or `branch` to push directly to `push-branch` for cross-repo schedule/manual runs."
+        type: string
+        default: "event"
+        required: false
+      push-branch:
+        description: "Target branch used when `push-mode` is `branch`. Defaults to `ref`, then the caller branch name."
+        type: string
+        default: ""
+        required: false
+    secrets:
+      token:
+        required: false
 
 name: routine
 
@@ -59,18 +77,23 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+      TARGET_REF_NAME: ${{ inputs.ref || github.ref_name }}
 
     steps:
       - name: Checkout GitHub repo
         uses: rstudio/shiny-workflows/.github/internal/checkout@v1
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.token }}
 
       # Needs the repo to already be checked out
       - name: Git Pull (PR)
-        if: github.event_name == 'pull_request'
+        if: inputs.push-mode == 'event' && github.event_name == 'pull_request'
         uses: r-lib/actions/pr-fetch@v2
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
 
       - name: Git Config
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
@@ -102,7 +125,7 @@ jobs:
       - name: "`urlchecker::url_update()`; Update urls found in package; Only rc-v** branches"
         working-directory: ${{ inputs.working-directory }}
         # Only perform if in an RC branch (`rc-vX.Y.Z`)
-        if: startsWith(github.ref_name, 'rc-v')
+        if: startsWith(env.TARGET_REF_NAME, 'rc-v')
         run: |
           Rscript -e 'if (!require("urlchecker", quietly = TRUE)) pak::pkg_install("r-lib/urlchecker"); urlchecker::url_update()'
           git add -u && git commit -m '`urlchecker::url_update()` (GitHub Actions)' || echo "No link changes to commit"
@@ -110,7 +133,7 @@ jobs:
       - name: "`usethis::use_version()`; Match package version to rc-vX.Y.Z branch version; Only rc-v** branches"
         working-directory: ${{ inputs.working-directory }}
         # Only perform if in an RC branch (`rc-vX.Y.Z`)
-        if: startsWith(github.ref_name, 'rc-v')
+        if: startsWith(env.TARGET_REF_NAME, 'rc-v')
         run: |
           Rscript \
             -e 'git_branch <- system("git rev-parse --abbrev-ref HEAD", intern = TRUE)' \
@@ -260,16 +283,16 @@ jobs:
           name: routine
 
       - name: Verify no new commits (push)
-        if: github.event_name == 'push'
+        if: inputs.push-mode == 'event' && github.event_name == 'push'
         uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@v1
         with:
-          upstream: "origin/${{ github.ref_name }}"
+          upstream: "origin/${{ env.TARGET_REF_NAME }}"
           statement: "GHA should not auto-push to a branch within a 'push' event."
           action: "Please make a PR to have the changes be collected."
       - name: Verify no new commits (fork,PR)
         # Forked repos only have `read` access given the default token. This makes pushing back to the forked repo not possible.
         # See https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
+        if: inputs.push-mode == 'event' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork
         uses: rstudio/shiny-workflows/.github/internal/verify-no-new-commits@v1
         with:
           upstream: "pr/${{ github.event.pull_request.head.ref }}"
@@ -278,9 +301,25 @@ jobs:
 
       - name: Git Push (PR)
         uses: r-lib/actions/pr-push@v2
-        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+        if: inputs.push-mode == 'event' && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+
+      - name: Git Push (branch)
+        if: inputs.push-mode == 'branch'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          target_branch="${{ inputs.push-branch || inputs.ref || github.ref_name }}"
+          target_branch="${target_branch#refs/heads/}"
+
+          if [[ -z "${target_branch}" ]]; then
+            echo "Target branch cannot be empty when push-mode=branch" >&2
+            exit 1
+          fi
+
+          git push origin "HEAD:${target_branch}"
 
       # Execute these steps after pushing, as
       # no updated files will be commited back to GitHub

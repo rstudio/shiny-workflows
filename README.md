@@ -86,7 +86,13 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `build-readme`: If `true`, will build README.md from README.Rmd. Defaults to `true`.
     * `check-js`: If `true`, will check for a `package.json` file and run `npm install` / `yarn install` and `npm build` / `yarn build` if it exists. Defaults to `true`.
     * `js-working-directory`: Folder that contains the `package.json` file. Defaults to the working directory input.
+    * `repository`: Repository to check out before running the workflow. Defaults to the caller repository.
+    * `ref`: Git ref to check out from the target repository. Defaults to the caller ref, or the target repository's default branch when `repository` is overridden.
+    * `push-mode`: How generated commits are pushed. Use `event` to preserve the existing push/PR behavior, or `branch` to push directly to `push-branch`. Defaults to `event`.
+    * `push-branch`: Target branch used when `push-mode` is `branch`. Defaults to `ref`, then the caller branch name.
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
+  * Secrets:
+    * `token`: Optional token used for checkout, GitHub API access, and pushes. Defaults to the workflow `GITHUB_TOKEN`.
 * `R-CMD-check.yaml`
   * Performs `R CMD check .` on your package
   * Parameters:
