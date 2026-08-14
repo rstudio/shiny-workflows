@@ -180,6 +180,13 @@ jobs:
                   return True
               return r_ver >= min_r_ver
 
+          def rtools_version(r_ver):
+              # "4.4.1" -> "44". R 4.0 and R 4.1 both use Rtools40.
+              major, minor = r_ver.split(".")[0:2]
+              if (major, minor) == ("4", "1"):
+                  return "40"
+              return major + minor
+
           config = []
 
           ## macOS
@@ -191,14 +198,17 @@ jobs:
               config.append(job(windows, "devel"))
           if is_valid_os(windows, rver["release"]):
               config.append(job(windows, rver["release"]))
-          if has_src and is_valid_os(windows, "4.4"):
-              config.append(job(windows, "4.4", **{"rtools-version": "44"}))
-          if has_src and is_valid_os(windows, "4.3"):
-              config.append(job(windows, "4.3", **{"rtools-version": "43"}))
-          if has_src and is_valid_os(windows, "4.2"):
-              config.append(job(windows, "4.2", **{"rtools-version": "42"}))
-          if has_src and test_on_rtools40 and is_valid_os(windows, "4.1"):
-              config.append(job(windows, "4.1", **{"rtools-version": "40"}))
+          # Follow the tidyverse R version support policy of R release plus the
+          # four previous versions:
+          # https://www.tidyverse.org/blog/2019/04/r-version-support/
+          # These are resolved from `oldrel-*` (rather than hardcoded) so that
+          # outdated R versions drop off the matrix as new versions are released.
+          windows_oldrel = ["oldrel1", "oldrel2", "oldrel3"]
+          if test_on_rtools40:
+              windows_oldrel.append("oldrel4")
+          for oldrel in windows_oldrel:
+              if has_src and is_valid_os(windows, rver[oldrel]):
+                  config.append(job(windows, rver[oldrel], **{"rtools-version": rtools_version(rver[oldrel])}))
 
           # Ubuntu
           if is_valid_os(ubuntu_arr[0], rver["devel"]):
