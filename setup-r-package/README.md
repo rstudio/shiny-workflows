@@ -14,7 +14,8 @@ This action installs `pandoc`, `R`, `macOS` and `Linux` system dependencies, pac
 | `http-user-agent` | HTTP user agent to be sent to RSPM | `""` | No |
 | `needs` | Name of config to search in `DESCRIPTION` file. Ex: `website` | `""` | No |
 | `extra-packages` | Extra packages to be installed | `""` | No |
-| `cache-version` | Value to be inserted into the cache key | `"1"` | No |
+| `cache` | Whether package dependencies should be cached across runs. `"always"` saves the cache even if the workflow fails. Set to `"false"` to disable caching and force a fresh install | `"always"` | No |
+| `cache-version` | Value to be inserted into the cache key. Ignored when `cache` is `"false"` | `"1"` | No |
 | `pandoc-version` | Pandoc version to be installed. `"3.x"` installs latest 3.x version, `"2.x"` installs latest 2.x version | `"3.x"` | No |
 | `packages` | Packages to install | `"local::., deps::., any::sessioninfo"` | No |
 | `rtools-version` | Exact version of Rtools to use. Default uses latest suitable rtools for the given version of R. Set it to `"42"` for Rtools42 | `""` | No |

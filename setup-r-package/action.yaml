@@ -18,9 +18,13 @@ inputs:
     default: ""
     description: Extra packages to be installed
     required: false
+  cache:
+    default: "always"
+    description: 'Whether package dependencies should be cached across runs. `"always"` saves the cache even if the workflow fails. Set to `"false"` to disable caching and force a fresh install.'
+    required: false
   cache-version:
     default: "1"
-    description: Value to be inserted into the cache key
+    description: Value to be inserted into the cache key. Ignored when `cache` is `"false"`.
     required: false
   pandoc-version:
     default: "3.x"
@@ -108,7 +112,7 @@ runs:
     - uses: r-lib/actions/setup-r-dependencies@v2
       with:
         working-directory: ${{ inputs.working-directory }}
-        cache: "always"
+        cache: ${{ inputs.cache }}
         packages: ${{ inputs.packages }}
         cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
         needs: ${{ inputs.needs }}
