@@ -85,7 +85,6 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 22.04 and 24.04, use `"ubuntu-22.04 ubuntu-24.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu. Defaults to `"ubuntu-latest"`.
     * `minimum-r-version`: If provided, only R versions >= to `minimum-r-version` will be created in the matrix. Great for dependencies that will not install on earlier R versions.
     * `force-windows-src`: If `true`, forces the check to assume the package has compiled code even if it doesn't. Defaults to `false`.
-    * Windows R versions follow the [tidyverse R version support policy](https://www.tidyverse.org/blog/2019/04/r-version-support/) (R release plus the four previous versions) and are resolved automatically. Packages with compiled code (a `src/` directory) are additionally tested on `devel` and on `oldrel-1` through `oldrel-4`.
     * `upload-snapshots`: If `true`, uploads testthat snapshots as artifacts. Defaults to `true`.
     * `upload-check-results`: If `true`, uploads check results on failure. Defaults to `false`.
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
