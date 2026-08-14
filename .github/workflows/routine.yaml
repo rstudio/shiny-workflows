@@ -225,6 +225,14 @@ jobs:
           # in any Ubuntu release (only `optipng` is). Pinning the version also
           # keeps the optimized output stable across runner image updates, so
           # routine runs do not produce surprise diffs.
+          #
+          # Benchmarked over 51 PNGs from {shinytest2} and {bslib} (3.42 MB).
+          # `oxipng --opt 4` saved 34.1% in 6.4s; the alternatives packaged for
+          # Ubuntu were all worse, slower, or both: `optipng -o2` 27.2%/24s,
+          # `optipng -o7` 27.3%/372s, `advpng -z4` 31.8%/699s, and `zopflipng`
+          # did not finish in 10 minutes. Only ECT beat it (35.8% in 21s), but
+          # it publishes no Linux binary. Within `oxipng`, `--opt max` adds just
+          # 0.2 points for 5x the time and `--zopfli` did not finish either.
           tarball="oxipng-${OXIPNG_VERSION}-$(uname -m)-unknown-linux-musl"
           curl -fsSL "https://github.com/oxipng/oxipng/releases/download/v${OXIPNG_VERSION}/${tarball}.tar.gz" \
             | tar -xz --strip-components=1 -C "$RUNNER_TEMP" "${tarball}/oxipng"
