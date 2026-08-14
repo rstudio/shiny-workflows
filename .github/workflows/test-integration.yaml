@@ -48,7 +48,11 @@ jobs:
         uses: ./setup-r-package
         with:
           working-directory: .github/fixtures/macosdeps
-          extra-packages: ${{ matrix.extra-packages }}
+          # `check-r-package` runs `rcmdcheck`, which is not a dependency of the
+          # fixture, so it has to be installed explicitly.
+          extra-packages: |
+            any::rcmdcheck
+            ${{ matrix.extra-packages }}
           # Always install from scratch: a cache hit would restore packages
           # instead of downloading them, which is the thing being tested.
           cache: "false"
