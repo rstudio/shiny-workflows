@@ -1,0 +1,92 @@
+name: 'Optimize PNGs with oxipng'
+description: 'Losslessly optimize tracked PNG files with oxipng and commit the result.'
+author: 'Barret Schloerke'
+
+inputs:
+  version:
+    description: Version of oxipng, e.g. `10.2.0`. Pinned by default so that the optimized output stays stable across runner image updates.
+    default: "10.2.0"
+    required: false
+  paths:
+    description: Newline-separated git pathspecs of tracked PNG files to optimize.
+    default: |
+      man/figures/*.png
+      vignettes/*.png
+    required: false
+  working-directory:
+    default: "."
+    description: 'Working directory for the action. Defaults to the root of the repository.'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Optimize PNGs
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      env:
+        OPTIMIZE_PNGS: ${{ inputs.paths }}
+        OXIPNG_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+
+        # One git pathspec per line; blank lines are ignored
+        patterns=()
+        while IFS= read -r pattern; do
+          if [[ "$pattern" =~ [^[:space:]] ]]; then
+            patterns+=("$pattern")
+          fi
+        done <<< "$OPTIMIZE_PNGS"
+        # `false` is accepted as a way to disable this action
+        if [ "${#patterns[@]}" -eq 0 ] || [ "${patterns[*]}" = "false" ]; then
+          echo 'No `paths` given'
+          exit 0
+        fi
+
+        # Only tracked files are considered; build artifacts are left alone.
+        # NUL separated so that paths containing spaces are handled correctly.
+        all_pngs="$RUNNER_TEMP/optimize-pngs-all.txt"
+        pngs="$RUNNER_TEMP/optimize-pngs.txt"
+        git ls-files -z -- "${patterns[@]}" > "$all_pngs"
+
+        # `testthat` snapshots are never optimized: `compare_file_binary()`
+        # compares them byte for byte, so rewriting one would keep it from
+        # matching a freshly generated screenshot. (A `:(exclude)` pathspec is
+        # not used for this: `git ls-files` returns *nothing* when an exclude
+        # is combined with a single positive pathspec.)
+        grep -zv '_snaps/' "$all_pngs" > "$pngs" || true
+
+        if [ ! -s "$pngs" ]; then
+          echo "No tracked files matched: ${patterns[*]}"
+          exit 0
+        fi
+
+        # `apt-get install oxipng` is not an option: `oxipng` is not packaged
+        # in any Ubuntu release (only `optipng` is).
+        #
+        # Benchmarked over 51 PNGs from {shinytest2} and {bslib} (3.42 MB).
+        # `oxipng --opt 4` saved 34.1% in 6.4s; the alternatives packaged for
+        # Ubuntu were all worse, slower, or both: `optipng -o2` 27.2%/24s,
+        # `optipng -o7` 27.3%/372s, `advpng -z4` 31.8%/699s, and `zopflipng`
+        # did not finish in 10 minutes. Only ECT beat it (35.8% in 21s), but
+        # it publishes no Linux binary. Within `oxipng`, `--opt max` adds just
+        # 0.2 points for 5x the time and `--zopfli` did not finish either.
+        arch="$(uname -m)"
+        case "$RUNNER_OS" in
+          Linux)  target="${arch}-unknown-linux-musl" ;;
+          # `uname -m` reports `arm64` on macOS; the release is `aarch64`
+          macOS)  target="${arch/arm64/aarch64}-apple-darwin" ;;
+          *)      echo "::error::${RUNNER_OS} is not supported; oxipng is installed from a tarball release" && exit 1 ;;
+        esac
+        tarball="oxipng-${OXIPNG_VERSION}-${target}"
+        curl -fsSL "https://github.com/oxipng/oxipng/releases/download/v${OXIPNG_VERSION}/${tarball}.tar.gz" \
+          | tar -xz --strip-components=1 -C "$RUNNER_TEMP" "${tarball}/oxipng"
+
+        xargs -0 "$RUNNER_TEMP/oxipng" --opt 4 --strip safe < "$pngs"
+
+        # Stage the exact files that were optimized. Unlike `git ls-files`,
+        # `git add` errors on a pathspec that matches nothing, which would
+        # otherwise throw away the work for packages missing (say) `man/figures`.
+        xargs -0 git add -u -- < "$pngs"
+        git commit -m '`oxipng`; Optimize PNGs (GitHub Actions)' || echo "No PNG changes to commit"

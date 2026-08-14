@@ -181,69 +181,11 @@ jobs:
       # Runs after `document()` / `build_readme()` so that figures generated in
       # this same run are optimized before they are committed
       - name: "`oxipng`; Losslessly optimize PNGs"
-        working-directory: ${{ inputs.working-directory }}
         if: inputs.optimize-pngs != '' && inputs.optimize-pngs != 'false'
-        env:
-          OPTIMIZE_PNGS: ${{ inputs.optimize-pngs }}
-          OXIPNG_VERSION: "10.2.0"
-        run: |
-          set -euo pipefail
-
-          # One git pathspec per line; blank lines are ignored
-          patterns=()
-          while IFS= read -r pattern; do
-            if [[ "$pattern" =~ [^[:space:]] ]]; then
-              patterns+=("$pattern")
-            fi
-          done <<< "$OPTIMIZE_PNGS"
-          # `false` is also accepted as a way to disable this step. (The `if:`
-          # above only catches it when given without a trailing newline.)
-          if [ "${#patterns[@]}" -eq 0 ] || [ "${patterns[*]}" = "false" ]; then
-            echo 'No `optimize-pngs` patterns given'
-            exit 0
-          fi
-
-          # Only tracked files are considered; build artifacts are left alone.
-          # NUL separated so that paths containing spaces are handled correctly.
-          all_pngs="$RUNNER_TEMP/optimize-pngs-all.txt"
-          pngs="$RUNNER_TEMP/optimize-pngs.txt"
-          git ls-files -z -- "${patterns[@]}" > "$all_pngs"
-
-          # `testthat` snapshots are never optimized: `compare_file_binary()`
-          # compares them byte for byte, so rewriting one would keep it from
-          # matching a freshly generated screenshot. (A `:(exclude)` pathspec is
-          # not used for this: `git ls-files` returns *nothing* when an exclude
-          # is combined with a single positive pathspec.)
-          grep -zv '_snaps/' "$all_pngs" > "$pngs" || true
-
-          if [ ! -s "$pngs" ]; then
-            echo "No tracked files matched: ${patterns[*]}"
-            exit 0
-          fi
-
-          # `apt-get install oxipng` is not an option: `oxipng` is not packaged
-          # in any Ubuntu release (only `optipng` is). Pinning the version also
-          # keeps the optimized output stable across runner image updates, so
-          # routine runs do not produce surprise diffs.
-          #
-          # Benchmarked over 51 PNGs from {shinytest2} and {bslib} (3.42 MB).
-          # `oxipng --opt 4` saved 34.1% in 6.4s; the alternatives packaged for
-          # Ubuntu were all worse, slower, or both: `optipng -o2` 27.2%/24s,
-          # `optipng -o7` 27.3%/372s, `advpng -z4` 31.8%/699s, and `zopflipng`
-          # did not finish in 10 minutes. Only ECT beat it (35.8% in 21s), but
-          # it publishes no Linux binary. Within `oxipng`, `--opt max` adds just
-          # 0.2 points for 5x the time and `--zopfli` did not finish either.
-          tarball="oxipng-${OXIPNG_VERSION}-$(uname -m)-unknown-linux-musl"
-          curl -fsSL "https://github.com/oxipng/oxipng/releases/download/v${OXIPNG_VERSION}/${tarball}.tar.gz" \
-            | tar -xz --strip-components=1 -C "$RUNNER_TEMP" "${tarball}/oxipng"
-
-          xargs -0 "$RUNNER_TEMP/oxipng" --opt 4 --strip safe < "$pngs"
-
-          # Stage the exact files that were optimized. Unlike `git ls-files`,
-          # `git add` errors on a pathspec that matches nothing, which would
-          # otherwise throw away the work for packages missing (say) `man/figures`.
-          xargs -0 git add -u -- < "$pngs"
-          git commit -m '`oxipng`; Optimize PNGs (GitHub Actions)' || echo "No PNG changes to commit"
+        uses: rstudio/shiny-workflows/optimize-pngs@v1
+        with:
+          paths: ${{ inputs.optimize-pngs }}
+          working-directory: ${{ inputs.working-directory }}
 
       - name: Find `package.json`
         working-directory: ${{ inputs.js-working-directory || inputs.working-directory }}
