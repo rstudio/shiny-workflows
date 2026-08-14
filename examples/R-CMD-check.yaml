@@ -1,0 +1,26 @@
+# Workflow derived from https://github.com/rstudio/shiny-workflows
+#
+# Runs `R CMD check` across the macOS / Windows / Ubuntu matrix as its own
+# workflow, so the check matrix can be re-run on demand without also re-running
+# `routine` or rebuilding the website.
+#
+# NOTE: If you adopt this workflow, remove the `R-CMD-check` job from your
+# `Package checks` workflow. Otherwise the matrix runs twice on every push.
+on:
+  push:
+    branches: [main, rc-**]
+  pull_request:
+  workflow_dispatch:
+  repository_dispatch: { types: [R-CMD-check] }
+
+name: R-CMD-check
+
+concurrency:
+  # Cancel superseded runs on a pull request; let everything else run to
+  # completion so push results are never dropped
+  group: R-CMD-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  R-CMD-check:
+    uses: rstudio/shiny-workflows/.github/workflows/R-CMD-check.yaml@v1
