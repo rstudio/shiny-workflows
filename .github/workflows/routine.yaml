@@ -48,6 +48,13 @@ on:
         description: "Folder that contains the `package.json` file. Defaults to the working directory input."
         type: string
         default: ""
+      optimize-pngs:
+        description: "Newline-separated git pathspecs of tracked PNG files to losslessly optimize with `oxipng`. Set to `false` (or an empty string) to disable."
+        type: string
+        default: |
+          man/figures/*.png
+          vignettes/*.png
+        required: false
     # secrets:
     #   token:
     #     required: true
@@ -170,6 +177,15 @@ jobs:
           git add -A README.md || echo "No changes found in README.md"
           git add -A man/figures || echo "No changes found in man/figures"
           git commit -m '`devtools::build_readme()` (GitHub Actions)' || echo "No readme changes to commit"
+
+      # Runs after `document()` / `build_readme()` so that figures generated in
+      # this same run are optimized before they are committed
+      - name: "`oxipng`; Losslessly optimize PNGs"
+        if: inputs.optimize-pngs != '' && inputs.optimize-pngs != 'false'
+        uses: rstudio/shiny-workflows/optimize-pngs@v1
+        with:
+          paths: ${{ inputs.optimize-pngs }}
+          working-directory: ${{ inputs.working-directory }}
 
       - name: Find `package.json`
         working-directory: ${{ inputs.js-working-directory || inputs.working-directory }}
