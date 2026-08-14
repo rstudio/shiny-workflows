@@ -74,10 +74,26 @@ Bundled code that does not come from npm at all — vendored files checked into
 `inst/`, code taken from R itself — cannot be detected. List it by hand outside
 the markers.
 
-Note that `LICENSE.note` is only half of the job: copyright holders of bundled
-code should also be listed in `DESCRIPTION` with `role = "cph"`. See
+Two things the guidance asks for that this action cannot do for you:
+
+- **State the package's overall license.** `LICENSE.note` should describe "the
+  overall license of the package, *and* the specific licenses of each individual
+  component". The action only writes the component list, so open the file with a
+  sentence like "The example package as a whole is distributed under MIT", as
+  `{diffviewer}` and `{bslib}` do.
+- **Check license compatibility.** You can add restrictions when bundling, but
+  not remove them, so a copyleft component in a permissively licensed package is
+  a problem. The action reports each component's license but deliberately
+  reaches no verdict about whether bundling it is allowed — that is a judgement
+  for a person.
+
+The action *does* warn when a listed package is never mentioned in
+`DESCRIPTION`, since bundled code also needs a copyright holder there with
+`role = "cph"` and a comment saying what they wrote. See
 [`{diffviewer}`](https://github.com/r-lib/diffviewer) for a package that does
-both.
+all of this, and
+[R Packages](https://r-pkgs.org/license.html#sec-code-you-bundle) for the
+reasoning.
 
 ## Inputs
 
@@ -165,7 +181,10 @@ A token without the permission produces a warning, not a failed job. Set
 
 ## Warnings
 
-The action warns, but does not fail, when a dependency cannot be found in
-`node_modules`, does not declare a license in its `package.json`, or does not
-ship a license file. Those cases need a human to sort out what the license
-actually is.
+The action warns, but does not fail, when a bundled package does not declare a
+license in its `package.json`, does not ship a license file, or is never
+mentioned in `DESCRIPTION` (see above). Those cases need a human to sort out
+what the license actually is and who holds the copyright.
+
+It does fail when a listed package is missing from `node_modules`, rather than
+write a list that silently omits real licenses.

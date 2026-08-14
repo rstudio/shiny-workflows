@@ -172,6 +172,31 @@ function collectDependencies(jsDir, root) {
   });
 }
 
+// r-pkgs treats `LICENSE.note` and `DESCRIPTION` as two halves of one job:
+// bundled code needs a `cph` entry "with a comment describing what they're the
+// author of". Nothing here can tell which person holds copyright over which
+// library, but it can notice that a bundled package is never mentioned at all,
+// which is the shape the omission usually takes.
+function warnMissingCopyrightHolders(deps, descriptionPath) {
+  if (!fs.existsSync(descriptionPath)) return;
+  const description = fs.readFileSync(descriptionPath, "utf8");
+  if (!/^Authors@R:/m.test(description)) return;
+
+  const unmentioned = deps
+    .map((dep) => dep.name.replace(/^@[^/]+\//, ""))
+    .filter((name) => !new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(description));
+
+  if (unmentioned.length > 0) {
+    const verb = unmentioned.length === 1 ? "appears" : "appear";
+    warn(
+      `${unmentioned.join(", ")} ${verb} in the license note but not in DESCRIPTION. ` +
+        `Bundled code should also have a copyright holder there, e.g. ` +
+        `person("Example", role = "cph", comment = "Author of included ${unmentioned[0]} library"). ` +
+        `See https://r-pkgs.org/license.html#sec-code-you-bundle`
+    );
+  }
+}
+
 function renderBlock(deps) {
   const lines = [BEGIN_LINE, ""];
   if (deps.length === 0) {
@@ -231,6 +256,8 @@ function main() {
       `Could not find ${missing.join(", ")} in '${jsDir}/node_modules'. Install the JavaScript dependencies before running this action.`
     );
   }
+
+  warnMissingCopyrightHolders(deps, path.join(path.dirname(args.notePath), "DESCRIPTION"));
 
   const updated = replaceBlock(contents, renderBlock(deps));
   if (updated === contents) {
