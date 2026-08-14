@@ -49,7 +49,7 @@ on:
         type: string
         default: ""
       optimize-pngs:
-        description: "Newline-separated git pathspecs of tracked PNG files to losslessly optimize with `oxipng`. Set to an empty string to disable."
+        description: "Newline-separated git pathspecs of tracked PNG files to losslessly optimize with `oxipng`. Set to `false` (or an empty string) to disable."
         type: string
         default: |
           man/figures/*.png
@@ -182,7 +182,7 @@ jobs:
       # this same run are optimized before they are committed
       - name: "`oxipng`; Losslessly optimize PNGs"
         working-directory: ${{ inputs.working-directory }}
-        if: inputs.optimize-pngs != ''
+        if: inputs.optimize-pngs != '' && inputs.optimize-pngs != 'false'
         env:
           OPTIMIZE_PNGS: ${{ inputs.optimize-pngs }}
           OXIPNG_VERSION: "10.2.0"
@@ -196,26 +196,45 @@ jobs:
               patterns+=("$pattern")
             fi
           done <<< "$OPTIMIZE_PNGS"
-          if [ "${#patterns[@]}" -eq 0 ]; then
+          # `false` is also accepted as a way to disable this step. (The `if:`
+          # above only catches it when given without a trailing newline.)
+          if [ "${#patterns[@]}" -eq 0 ] || [ "${patterns[*]}" = "false" ]; then
             echo 'No `optimize-pngs` patterns given'
             exit 0
           fi
 
-          # Only tracked files are considered; build artifacts are left alone
-          if [ -z "$(git ls-files -- "${patterns[@]}")" ]; then
+          # Only tracked files are considered; build artifacts are left alone.
+          # NUL separated so that paths containing spaces are handled correctly.
+          all_pngs="$RUNNER_TEMP/optimize-pngs-all.txt"
+          pngs="$RUNNER_TEMP/optimize-pngs.txt"
+          git ls-files -z -- "${patterns[@]}" > "$all_pngs"
+
+          # `testthat` snapshots are never optimized: `compare_file_binary()`
+          # compares them byte for byte, so rewriting one would keep it from
+          # matching a freshly generated screenshot. (A `:(exclude)` pathspec is
+          # not used for this: `git ls-files` returns *nothing* when an exclude
+          # is combined with a single positive pathspec.)
+          grep -zv '_snaps/' "$all_pngs" > "$pngs" || true
+
+          if [ ! -s "$pngs" ]; then
             echo "No tracked files matched: ${patterns[*]}"
             exit 0
           fi
 
+          # `apt-get install oxipng` is not an option: `oxipng` is not packaged
+          # in any Ubuntu release (only `optipng` is). Pinning the version also
+          # keeps the optimized output stable across runner image updates, so
+          # routine runs do not produce surprise diffs.
           tarball="oxipng-${OXIPNG_VERSION}-$(uname -m)-unknown-linux-musl"
           curl -fsSL "https://github.com/oxipng/oxipng/releases/download/v${OXIPNG_VERSION}/${tarball}.tar.gz" \
             | tar -xz --strip-components=1 -C "$RUNNER_TEMP" "${tarball}/oxipng"
 
-          # `-0` / `-z` so that paths containing spaces are handled correctly
-          git ls-files -z -- "${patterns[@]}" \
-            | xargs -0 "$RUNNER_TEMP/oxipng" --opt 4 --strip safe
+          xargs -0 "$RUNNER_TEMP/oxipng" --opt 4 --strip safe < "$pngs"
 
-          git add -u -- "${patterns[@]}" || echo "No changes found in optimized PNGs"
+          # Stage the exact files that were optimized. Unlike `git ls-files`,
+          # `git add` errors on a pathspec that matches nothing, which would
+          # otherwise throw away the work for packages missing (say) `man/figures`.
+          xargs -0 git add -u -- < "$pngs"
           git commit -m '`oxipng`; Optimize PNGs (GitHub Actions)' || echo "No PNG changes to commit"
 
       - name: Find `package.json`
