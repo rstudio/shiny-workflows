@@ -16,8 +16,10 @@ on:
 name: Website
 
 concurrency:
-  # Serialize runs per branch so that two deploys never race on `gh-pages`
-  group: website-${{ github.ref }}
+  # Cancel superseded runs on a pull request, but let pushes queue up so that
+  # two deploys never race on `gh-pages`
+  group: website-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   website:
