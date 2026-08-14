@@ -4,7 +4,7 @@
 
 This action should be your "go-to" action to install a package and all necessary dependencies.
 
-This action installs `pandoc`, `R`, `macOS` and `Linux` system dependencies, package dependencies and extra packages, and `phantomJS`.
+This action installs `pandoc`, `R`, `Linux` system dependencies, package dependencies and extra packages, and `phantomJS`.
 
 ## Inputs
 
@@ -19,7 +19,7 @@ This action installs `pandoc`, `R`, `macOS` and `Linux` system dependencies, pac
 | `pandoc-version` | Pandoc version to be installed. `"3.x"` installs latest 3.x version, `"2.x"` installs latest 2.x version | `"3.x"` | No |
 | `packages` | Packages to install | `"local::., deps::., any::sessioninfo"` | No |
 | `rtools-version` | Exact version of Rtools to use. Default uses latest suitable rtools for the given version of R. Set it to `"42"` for Rtools42 | `""` | No |
-| `use-public-rspm` | Use the public version of Posit package manager available at https://packagemanager.posit.co/ to serve binaries for Linux and Windows | `"true"` | No |
+| `use-public-rspm` | Use the public version of Posit package manager available at https://packagemanager.posit.co/ to serve binaries for Linux, Windows, and macOS. On macOS, `r-lib/actions/setup-r` only honors `"true"` for Posit-owned organizations; use `"always"` to force it elsewhere | `"true"` | No |
 | `pak-version` | Which pak version to use. Possible values are `"stable"`, `"rc"`, `"devel"`, `"none"`, `"repo"`. See description below for details | `"stable"` | No |
 | `extra-repositories` | One or more extra CRAN-like repositories to include in the repos global option | `""` | No |
 | `working-directory` | Working directory for the action | `"."` | No |

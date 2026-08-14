@@ -40,7 +40,7 @@ inputs:
     required: false
   use-public-rspm:
     default: "true"
-    description: 'Use the public version of Posit package manager available at https://packagemanager.posit.co/ to serve binaries for Linux and Windows.'
+    description: 'Use the public version of Posit package manager available at https://packagemanager.posit.co/ to serve binaries for Linux, Windows, and macOS. On macOS, `r-lib/actions/setup-r` only honors `"true"` for Posit-owned organizations; use `"always"` to force it elsewhere.'
     required: false
   pak-version:
     description: |
@@ -95,13 +95,6 @@ runs:
         rtools-version: ${{ inputs.rtools-version }}
         use-public-rspm: ${{ inputs.use-public-rspm }}
         extra-repositories: ${{ inputs.extra-repositories }}
-        working-directory: ${{ inputs.working-directory }}
-
-    - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
-      with:
-        needs: ${{ inputs.needs }}
-        extra-packages: ${{ inputs.extra-packages }}
-        pak-version: ${{ inputs.pak-version }}
         working-directory: ${{ inputs.working-directory }}
 
     - name: Run 'package-install' script

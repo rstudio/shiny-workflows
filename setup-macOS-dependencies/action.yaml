@@ -1,5 +1,5 @@
-name: 'Install macOS brew dependencies'
-description: 'Install all brew dependencies given the family tree. This is a poor mans version of package manager until it gets mac support'
+name: 'Install macOS brew dependencies (deprecated)'
+description: 'Deprecated. Install all brew dependencies given the family tree. macOS binaries are now served by Posit Public Package Manager, so this is usually unnecessary.'
 author: 'Barret Schloerke'
 inputs:
   needs:
@@ -23,6 +23,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Deprecation warning
+      shell: bash
+      run: |
+        echo "::warning title=Deprecated action::rstudio/shiny-workflows/setup-macOS-dependencies is deprecated and will be removed in a future release. macOS binaries are served by Posit Public Package Manager, so brew dependencies are usually no longer needed. rstudio/shiny-workflows/setup-r-package no longer calls this action. If you still need it, install what you need directly (e.g. from a 'package-install.sh' local script) and remove this step. If you would like this helper action kept, please open an issue at https://github.com/rstudio/shiny-workflows/issues/new so we know it is still in use."
+
     - name: Brew dependencies
       id: brew-deps
       working-directory: ${{ inputs.working-directory }}
