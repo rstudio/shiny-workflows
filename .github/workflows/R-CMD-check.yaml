@@ -23,6 +23,13 @@ on:
         # default: '"--no-manual"'
         default: '"--compact-vignettes=gs+qpdf"'
         required: false
+      error-on:
+        type: string
+        # Note: `'"note"'` can be flaky in CI even for a locally clean package, due to
+        # environment NOTEs such as "checking CRAN incoming feasibility" and
+        # "checking for future file timestamps".
+        default: '"warning"'
+        required: false
       macOS:
         type: string
         default: "macOS-latest"
@@ -269,6 +276,7 @@ jobs:
           check-dir: '"check"' # matches directory below
           args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
           build_args: 'c(${{ inputs.extra-check-build-args }}, "--no-manual")'
+          error-on: ${{ inputs.error-on }}
           upload-snapshots: ${{ inputs.upload-snapshots }}
           # Use the cache-version to separate the results from other checks with the same setup.
           artifact-name: ${{ format('{0}-{1}-r{2}-{3}-{4}-results', runner.os, runner.arch, matrix.config.r, inputs.cache-version, matrix.config.id || strategy.job-index ) }}
