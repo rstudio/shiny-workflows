@@ -24,7 +24,7 @@ restores `capabilities("X11")`.
 
 These entries used to be in the list and have been removed:
 
-| Package | Why it was dropped |
+| Package | Reason |
 | --- | --- |
 | `FreeType` | Not on CRAN at all — no source, no archive |
 | `RMySQL` | CRAN ships a macOS binary; loads without `mariadb-connector-c` |
