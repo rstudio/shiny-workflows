@@ -36,6 +36,19 @@ jobs:
 
 > Note: Adjust the `8` in the schedule to match the number of letters in the package name to insert some time variance. This helps mitigate PAT rate limits when testing many packages on a schedule.
 
+This file is also available as [`examples/package-checks.yaml`](./examples/package-checks.yaml), so it can be installed directly:
+
+```r
+usethis::use_github_action(
+  url = file.path(
+    "https://raw.githubusercontent.com/rstudio/shiny-workflows",
+    "main/examples/package-checks.yaml"
+  )
+)
+```
+
+To run any of the three workflows on its own triggers or schedule, adopt the matching file from [`examples/`](./examples/README.md) instead and drop that job from `Package checks`.
+
 ## Workflows
 
 
@@ -67,6 +80,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * Calls `npm test` / `yarn test`
     * Checks for outdated `staticimports`
   * Packages included in the `DESCRIPTION` field `Config/Needs/routine` will also be installed
+  * To run the tasks as their own workflow, so that they can be re-run on demand without the rest of `Package checks`, copy [`examples/routine.yaml`](./examples/routine.yaml) into your repo and drop the `routine` job from `Package checks`. See [the examples README](./examples/README.md#routine).
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
     * `node-version`: Version of `node.js` to install. Defaults to `"current"`.
@@ -79,6 +93,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
 * `R-CMD-check.yaml`
   * Performs `R CMD check .` on your package
+  * To run the check matrix as its own workflow, so that it can be re-run on demand without the rest of `Package checks`, copy [`examples/R-CMD-check.yaml`](./examples/R-CMD-check.yaml) into your repo and drop the `R-CMD-check` job from `Package checks`. See [the examples README](./examples/README.md#r-cmd-check).
   * Parameters:
     * `extra-packages`, `cache-version`, `pandoc-version`: Same as in `website.yaml`
     * `extra-check-args`, `extra-check-build-args`: Arguments passed in addition to the default check `args`/`build-args` of https://github.com/r-lib/actions/blob/v2/check-r-package/
