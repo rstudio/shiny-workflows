@@ -5,8 +5,8 @@
 # be re-run on demand without also running the full `R CMD check` matrix.
 #
 # Routine only commits its results back on `pull_request` events from a
-# non-forked branch. On `push` and `schedule` events it verifies that nothing
-# needed to change and fails if something did.
+# non-forked branch. On `push` events it verifies that nothing needed to change
+# and fails if something did.
 #
 # NOTE: If you adopt this workflow, remove the `routine` job from your
 # `Package checks` workflow. Otherwise the tasks run twice on every push.
@@ -14,11 +14,6 @@ on:
   push:
     branches: [main, rc-**]
   pull_request:
-  schedule:
-    # Adjust the `8` to match the number of letters in the package name. The
-    # time variance helps mitigate PAT rate limits when many packages are
-    # tested on the same schedule.
-    - cron: '0 8 * * 1' # every monday
   workflow_dispatch:
   repository_dispatch: { types: [routine] }
 

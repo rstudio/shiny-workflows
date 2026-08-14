@@ -10,11 +10,6 @@ on:
   push:
     branches: [main, rc-**]
   pull_request:
-  schedule:
-    # Adjust the `8` to match the number of letters in the package name. The
-    # time variance helps mitigate PAT rate limits when many packages are
-    # tested on the same schedule.
-    - cron: '0 8 * * 1' # every monday
   workflow_dispatch:
   repository_dispatch: { types: [R-CMD-check] }
 
@@ -22,7 +17,7 @@ name: R-CMD-check
 
 concurrency:
   # Cancel superseded runs on a pull request; let everything else run to
-  # completion so scheduled and push results are never dropped
+  # completion so push results are never dropped
   group: R-CMD-check-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 

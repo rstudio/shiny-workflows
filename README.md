@@ -17,8 +17,6 @@ on:
   push:
     branches: [main, rc-**]
   pull_request:
-  schedule:
-    - cron: '0 8 * * 1' # every monday
   workflow_dispatch:
 
 name: Package checks
@@ -34,20 +32,18 @@ jobs:
     uses: rstudio/shiny-workflows/.github/workflows/R-CMD-check.yaml@v1
 ```
 
-> Note: Adjust the `8` in the schedule to match the number of letters in the package name to insert some time variance. This helps mitigate PAT rate limits when testing many packages on a schedule.
-
-This file is also available as [`examples/package-checks.yaml`](./examples/package-checks.yaml), so it can be installed directly:
+This file is also available as [`examples/pkg-r.yaml`](./examples/pkg-r.yaml), so it can be installed directly:
 
 ```r
 usethis::use_github_action(
   url = file.path(
     "https://raw.githubusercontent.com/rstudio/shiny-workflows",
-    "main/examples/package-checks.yaml"
+    "main/examples/pkg-r.yaml"
   )
 )
 ```
 
-To run any of the three workflows on its own triggers or schedule, adopt the matching file from [`examples/`](./examples/README.md) instead and drop that job from `Package checks`.
+To run any of the three workflows on its own triggers, adopt the matching file from [`examples/`](./examples/README.md) instead and drop that job from `Package checks`.
 
 ## Workflows
 

@@ -43,13 +43,14 @@ When testing changes from a consumer repo, reference the branch instead (`@<bran
 
 ## Example workflows (`examples/`)
 
-`examples/` holds the copy-into-your-repo caller workflows for consumer repos: `package-checks.yaml` (all three workflows in one, the default) plus per-workflow files (`R-CMD-check.yaml`, `routine.yaml`, `website.yaml`) and `lock-threads.yaml`. Every reusable workflow in `.github/workflows/` should have a corresponding example file here.
+`examples/` holds the copy-into-your-repo caller workflows for consumer repos: `pkg-r.yaml` (all three workflows in one, the default) plus per-workflow files (`R-CMD-check.yaml`, `routine.yaml`, `website.yaml`) and `lock-threads.yaml`. Every reusable workflow in `.github/workflows/` should have a corresponding example file here.
 
 When adding or editing an example:
 
 - **Every example gets `workflow_dispatch:`.** Consumers need to trigger these by hand from the Actions tab. In particular, never add `repository_dispatch` without also adding `workflow_dispatch` — a workflow that can be triggered by another repo but not by a human in this one is a debugging dead end.
 - Give `repository_dispatch` an explicit `types:` list (e.g. `repository_dispatch: { types: [website] }`) so that unrelated dispatches don't fire it.
 - Reference the reusable workflow at `@v1`, matching the rest of the repo.
-- Open with the `# Workflow derived from https://github.com/rstudio/shiny-workflows` header comment, and — for any file that splits a job out of `Package checks` — a `NOTE:` telling the consumer to remove that job from their `package-checks.yaml`.
+- Open with the `# Workflow derived from https://github.com/rstudio/shiny-workflows` header comment, and — for any file that splits a job out of `Package checks` — a `NOTE:` telling the consumer to remove that job from their `pkg-r.yaml`.
+- Do not add a `schedule:` trigger. Consumer repos decide their own cadence; the only example that is schedule-driven is `lock-threads.yaml`, where the schedule *is* the feature.
 - Set a `concurrency:` group. Cancel superseded pull request runs, but do not cancel `routine` (it pushes commits back and a run cancelled mid-push is worse than a redundant run) and do not cancel `website` pushes (two deploys must not race on `gh-pages`).
 - Document the new file in `examples/README.md` with a `usethis::use_github_action(url = ...)` snippet, and link it from the matching workflow bullet in the top-level `README.md`.
