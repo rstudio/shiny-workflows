@@ -2,7 +2,7 @@
 
 ## website
 
-Rebuilds and deploys the `{pkgdown}` site on demand. The `website` job in the standard `Package checks` workflow only runs on push/PR/schedule, so this workflow gives you a way to trigger a site rebuild by hand (for example, while debugging a rendering problem) without pushing a commit or re-running the full check matrix.
+Builds and deploys the `{pkgdown}` site as its own workflow, rather than as the `website` job inside `Package checks`. The site is still built on every push and pull request, and it can additionally be rebuilt on demand (for example, while debugging a rendering problem) without pushing a commit or re-running the full check matrix.
 
 ### Usage
 
@@ -21,7 +21,9 @@ Then trigger it from the **Actions** tab (*Website* → *Run workflow*), or via 
 gh workflow run website.yaml
 ```
 
-The workflow is trigger-only (`workflow_dispatch` / `repository_dispatch`), so it does not duplicate the site build that already happens on push. It accepts the same parameters as `website.yaml`; add a `with:` block to the `website` job to set them.
+**Remove the `website` job from your `Package checks` workflow when you adopt this file**, otherwise the site is built twice on every push.
+
+The workflow accepts the same parameters as `website.yaml`; add a `with:` block to the `website` job to set them.
 
 ## lock-threads
 

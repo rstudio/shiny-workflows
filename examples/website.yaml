@@ -1,18 +1,23 @@
 # Workflow derived from https://github.com/rstudio/shiny-workflows
 #
-# Rebuilds and deploys the `{pkgdown}` site on demand, without having to run
-# (or wait on) the rest of the `Package checks` workflow.
+# Builds the `{pkgdown}` site on push and pull request, and lets the site be
+# rebuilt on demand without running (or waiting on) the rest of the
+# `Package checks` workflow.
 #
-# This workflow only runs when triggered manually, so it does not duplicate the
-# `website` job that already runs on push in `Package checks`.
+# NOTE: If you adopt this workflow, remove the `website` job from your
+# `Package checks` workflow. Otherwise the site is built twice on every push.
 on:
+  push:
+    branches: [main, rc-**]
+  pull_request:
   workflow_dispatch:
   repository_dispatch: { types: [website] }
 
 name: Website
 
 concurrency:
-  group: website
+  # Serialize runs per branch so that two deploys never race on `gh-pages`
+  group: website-${{ github.ref }}
 
 jobs:
   website:
