@@ -1,9 +1,9 @@
 ---
-name: releasing-v1-tag
-description: Use when merged changes in shiny-workflows need to reach consumer repos, when moving or force-pushing the v1 tag, when rolling v1 back, or when a consumer pinned to @v1 is not picking up a merged fix.
+name: update-v1-tag
+description: Use when merged changes in shiny-workflows need to reach consumer repos, when a PR has just been merged to main, when moving or force-pushing the v1 tag, when rolling v1 back, or when a consumer pinned to @v1 is not picking up a merged fix.
 ---
 
-# Releasing the v1 tag
+# Updating the v1 tag
 
 ## Overview
 

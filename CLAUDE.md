@@ -28,14 +28,11 @@ Two layers, plus internal helpers:
 
 ## Releasing changes
 
-Workflows are consumed via the `v1` tag. After merging changes, force-move the tag:
+Workflows are consumed via the `v1` tag. Until the tag moves, consumers on `@v1` do not see merged changes — merging a PR ships nothing on its own.
 
-```bash
-git tag -f v1
-git push origin --tags -f
-```
+**After a PR is merged to `main`, use the `update-v1-tag` skill** (`.claude/skills/update-v1-tag/SKILL.md`) to move the tag. Do not run the tag commands from memory: the skill carries the pre-flight checks, tags `origin/main` explicitly (bare `git tag -f v1` tags `HEAD`, which is wrong whenever you are not sitting on the merge commit), stops for explicit user confirmation before the force-push, and records a rollback point.
 
-Until the tag moves, consumers on `@v1` do not see merged changes. When testing changes from a consumer repo, reference the branch instead (`@<branch-name>`).
+When testing changes from a consumer repo, reference the branch instead (`@<branch-name>`).
 
 ## Conventions
 
