@@ -61,8 +61,10 @@ jobs:
         with:
           name: website
 
+      # Deploy on `push`, and on a manual/API trigger so that a site can be
+      # rebuilt on demand. Otherwise (`pull_request`, `schedule`), only verify.
       - name: Verify index reference (PR)
-        if: github.event_name != 'push'
+        if: github.event_name != 'push' && github.event_name != 'workflow_dispatch' && github.event_name != 'repository_dispatch'
         uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
         with:
           check-title: ${{ inputs.check-title }}
@@ -73,7 +75,7 @@ jobs:
 
       - name: Build and deploy pkgdown site (push)
         working-directory: ${{ inputs.working-directory }}
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch'
         shell: Rscript {0}
         run: |
           if ("${{inputs.check-title}}" == "false") options(rmarkdown.html_vignette.check_title = FALSE)

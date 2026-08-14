@@ -1,5 +1,28 @@
 # Examples
 
+## website
+
+Rebuilds and deploys the `{pkgdown}` site on demand. The `website` job in the standard `Package checks` workflow only runs on push/PR/schedule, so this workflow gives you a way to trigger a site rebuild by hand (for example, while debugging a rendering problem) without pushing a commit or re-running the full check matrix.
+
+### Usage
+
+```r
+usethis::use_github_action(
+  url = file.path(
+    "https://raw.githubusercontent.com/rstudio/shiny-workflows",
+    "main/examples/website.yaml"
+  )
+)
+```
+
+Then trigger it from the **Actions** tab (*Website* → *Run workflow*), or via the API:
+
+```bash
+gh workflow run website.yaml
+```
+
+The workflow is trigger-only (`workflow_dispatch` / `repository_dispatch`), so it does not duplicate the site build that already happens on push. It accepts the same parameters as `website.yaml`; add a `with:` block to the `website` job to set them.
+
 ## lock-threads
 
 This action uses the [lock-threads](https://github.com/marketplace/actions/lock-threads) action to lock issues and pull requests that have been inactive for a specified period of time.

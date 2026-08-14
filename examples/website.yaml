@@ -1,0 +1,19 @@
+# Workflow derived from https://github.com/rstudio/shiny-workflows
+#
+# Rebuilds and deploys the `{pkgdown}` site on demand, without having to run
+# (or wait on) the rest of the `Package checks` workflow.
+#
+# This workflow only runs when triggered manually, so it does not duplicate the
+# `website` job that already runs on push in `Package checks`.
+on:
+  workflow_dispatch:
+  repository_dispatch: { types: [website] }
+
+name: Website
+
+concurrency:
+  group: website
+
+jobs:
+  website:
+    uses: rstudio/shiny-workflows/.github/workflows/website.yaml@v1
