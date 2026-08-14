@@ -41,6 +41,14 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      # Deploy on `push`, and on a manual/API trigger so that a site can be
+      # rebuilt on demand. Otherwise (`pull_request`, `schedule`), only verify.
+      - name: Should the site be deployed?
+        id: deploy
+        shell: bash
+        run: |
+          echo "value=${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch' }}" >> "$GITHUB_OUTPUT"
+
       - name: Checkout GitHub repo
         uses: rstudio/shiny-workflows/.github/internal/checkout@v1
 
@@ -61,8 +69,8 @@ jobs:
         with:
           name: website
 
-      - name: Verify index reference (PR)
-        if: github.event_name != 'push'
+      - name: Verify index reference (no deploy)
+        if: steps.deploy.outputs.value != 'true'
         uses: rstudio/shiny-workflows/.github/internal/verify-pkgdown@v1
         with:
           check-title: ${{ inputs.check-title }}
@@ -71,9 +79,9 @@ jobs:
       - name: Setup git (push)
         uses: rstudio/shiny-workflows/.github/internal/setup-git@v1
 
-      - name: Build and deploy pkgdown site (push)
+      - name: Build and deploy pkgdown site (deploy)
         working-directory: ${{ inputs.working-directory }}
-        if: github.event_name == 'push'
+        if: steps.deploy.outputs.value == 'true'
         shell: Rscript {0}
         run: |
           if ("${{inputs.check-title}}" == "false") options(rmarkdown.html_vignette.check_title = FALSE)

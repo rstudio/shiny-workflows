@@ -19,6 +19,7 @@ on:
   pull_request:
   schedule:
     - cron: '0 8 * * 1' # every monday
+  workflow_dispatch:
 
 name: Package checks
 
@@ -43,6 +44,8 @@ There are three main reusable workflows to be used by packages in the shiny-vers
 * `website.yaml`
   * This is a wrapper for building a `{pkgdown}` website and deploying it to the `gh-pages` branch of the repo.
   * Packages included in the `DESCRIPTION` field `Config/Needs/website` will also be installed
+  * The site is deployed on `push`, `workflow_dispatch`, and `repository_dispatch` events. On other events (such as `pull_request`), the site is only built and verified.
+  * To run the site as its own workflow, so that it can also be rebuilt on demand without running the rest of `Package checks`, copy [`examples/website.yaml`](./examples/website.yaml) into your repo and drop the `website` job from `Package checks`. See [the examples README](./examples/README.md#website).
   * Parameters:
     * `runs-on`: The runner to use for the job. Defaults to `ubuntu-latest`.
     * `extra-packages`: Installs extra packages not listed in the `DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
