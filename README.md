@@ -171,7 +171,7 @@ If your build fails and you are unsure of why, please visit https://github.com/r
 ## Common questions
 
 1. *Why are my builds failing on macOS?*\
-  macOS packages are installed as binaries from [Posit Public Package Manager](https://packagemanager.posit.co/), so system dependencies are usually not needed. If a package must be built from source and is missing a system dependency, install it from your `package-install.sh` [local script](#customization). Please also make an issue so that other repos may utilize this knowledge: https://github.com/rstudio/shiny-workflows/issues/new
+  macOS packages are installed as binaries from [Posit Public Package Manager](https://packagemanager.posit.co/), so system dependencies are rarely needed; [`setup-macOS-dependencies`](./setup-macOS-dependencies) only installs XQuartz, and only for `Cairo`. If a package must be built from source, or its binary is linked against a library the runner image lacks, install it from your `package-install.sh` [local script](#customization). Please also make an issue so that other repos may utilize this knowledge: https://github.com/rstudio/shiny-workflows/issues/new
 2. *What if my website is custom?*\
   It is ok to comment the `website` job in your workflow file. When the time comes that you can use the standardised `{pkgdown}` workflow, feel free to uncomment the `website` job.
 

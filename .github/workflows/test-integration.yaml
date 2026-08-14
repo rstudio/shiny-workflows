@@ -5,8 +5,13 @@
 # and GitHub Actions does not allow expressions in `uses:`, so a local call would
 # still pull the released `v1` action rather than the code on this branch -- it
 # would pass without testing anything. Instead these jobs check out this repo at
-# the workspace root and invoke `./setup-r-package` directly, so the action under
-# test is the one in this commit.
+# the workspace root and invoke `./setup-r-package` directly.
+#
+# `setup-r-package` has the same problem one level down: it refers to its sibling
+# actions as `rstudio/shiny-workflows/<name>@v1`. A "Point internal action refs at
+# this commit" step rewrites those to the SHA under test, so a change to (say)
+# `setup-macOS-dependencies` is actually exercised here. Without it the jobs would
+# silently test the released `v1` of every sibling action.
 
 name: Integration tests
 
@@ -20,14 +25,16 @@ on:
       - ".github/workflows/test-integration.yaml"
 
 jobs:
-  # Proves `setup-r-package` no longer needs `brew install` on macOS: every
-  # package that used to be in `setup-macOS-dependencies`' `brew_list` must
-  # install and load from Posit Public Package Manager binaries.
+  # Guards the reduced `brew_list` in `setup-macOS-dependencies`. Every package
+  # that used to be in that list must install AND load -- the packages that were
+  # dropped must work from Posit Public Package Manager / CRAN binaries alone,
+  # and `Cairo`, which is still in the list, must get XQuartz.
   macos-deps:
     name: macOS deps (${{ matrix.label }})
     runs-on: macOS-latest
-    # The RMySQL leg is informational: it has no macOS binary on PPM, so it may
-    # build from source. Failing it must not red the branch.
+    # The RMySQL leg is informational. It has no macOS binary on PPM and is only
+    # reachable via CRAN's, so a CRAN-side change could break it without
+    # anything here being wrong. Failing it must not red the branch.
     continue-on-error: ${{ matrix.optional }}
     strategy:
       fail-fast: false
@@ -43,6 +50,15 @@ jobs:
     steps:
       - name: Checkout shiny-workflows (branch under test)
         uses: actions/checkout@v5
+
+      - name: Point internal action refs at this commit
+        shell: bash
+        env:
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sed -i.bak "s|rstudio/shiny-workflows/\(.*\)@v1|rstudio/shiny-workflows/\1@${REF}|g" setup-r-package/action.yaml
+          rm -f setup-r-package/action.yaml.bak
+          grep -n "rstudio/shiny-workflows" setup-r-package/action.yaml
 
       - name: Install R and dependencies via local setup-r-package
         uses: ./setup-r-package
@@ -115,6 +131,15 @@ jobs:
         with:
           repository: rstudio/httpuv
           path: pkg
+
+      - name: Point internal action refs at this commit
+        shell: bash
+        env:
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sed -i.bak "s|rstudio/shiny-workflows/\(.*\)@v1|rstudio/shiny-workflows/\1@${REF}|g" setup-r-package/action.yaml
+          rm -f setup-r-package/action.yaml.bak
+          grep -n "rstudio/shiny-workflows" setup-r-package/action.yaml
 
       - name: Install R and dependencies via local setup-r-package
         uses: ./setup-r-package
