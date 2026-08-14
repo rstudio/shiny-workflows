@@ -165,7 +165,6 @@ function collectDependencies(jsDir, root) {
     }
     return {
       name,
-      version: pkg.version,
       license: license || "UNKNOWN",
       url: repositoryUrl(pkg),
     };
@@ -197,6 +196,10 @@ function warnMissingCopyrightHolders(deps, descriptionPath) {
   }
 }
 
+// Deliberately no version: this file is about licenses, and pinning versions
+// here would churn the block (and fire a PR comment) on every lockfile bump
+// without anything about the licensing having changed. The model files in
+// r-pkgs -- {diffviewer}, {bslib} -- list no versions either.
 function renderBlock(deps) {
   const lines = [BEGIN_LINE, ""];
   if (deps.length === 0) {
@@ -204,10 +207,41 @@ function renderBlock(deps) {
   }
   for (const dep of deps) {
     const suffix = dep.url ? ` (${dep.url})` : "";
-    lines.push(`* ${dep.name}@${dep.version}: ${dep.license}${suffix}`);
+    lines.push(`* ${dep.name}: ${dep.license}${suffix}`);
   }
   lines.push("", END_LINE);
   return lines.join("\n");
+}
+
+// Some notes (`{shiny}`'s) inline a full copy of every license under a heading
+// underlined by a rule; others (`{bslib}`, `{diffviewer}`) just point at a
+// directory. Only the first style can go stale silently, so only check when the
+// file is written that way -- otherwise every package would look "missing".
+function warnMissingLicenseText(deps, contents) {
+  const lines = contents.split("\n");
+  const beginIndex = lines.findIndex((line) => line.startsWith(BEGIN_MARKER));
+  const endIndex = lines.findIndex((line) => line.startsWith(END_MARKER));
+
+  const headings = lines.filter((line, index) => {
+    if (index >= beginIndex && index <= endIndex) return false;
+    return line.trim() !== "" && /^-{4,}\s*$/.test(lines[index + 1] || "");
+  });
+  if (headings.length === 0) return;
+
+  const undocumented = deps
+    .map((dep) => dep.name.replace(/^@[^/]+\//, ""))
+    .filter((name) => {
+      const pattern = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+      return !headings.some((heading) => pattern.test(heading));
+    });
+
+  if (undocumented.length > 0) {
+    const verb = undocumented.length === 1 ? "has" : "have";
+    warn(
+      `${undocumented.join(", ")} ${verb} no license text in the note, which says full copies are included. ` +
+        `Add a section for each, matching the headings already in the file.`
+    );
+  }
 }
 
 function replaceBlock(contents, block) {
@@ -258,6 +292,7 @@ function main() {
   }
 
   warnMissingCopyrightHolders(deps, path.join(path.dirname(args.notePath), "DESCRIPTION"));
+  warnMissingLicenseText(deps, contents);
 
   const updated = replaceBlock(contents, renderBlock(deps));
   if (updated === contents) {
