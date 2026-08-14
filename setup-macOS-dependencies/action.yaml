@@ -1,5 +1,5 @@
 name: 'Install macOS brew dependencies'
-description: 'Install all brew dependencies given the family tree. This is a poor mans version of package manager until it gets mac support'
+description: 'Install the few brew dependencies that macOS binaries still need. Most packages install as binaries from Posit Public Package Manager and need nothing here.'
 author: 'Barret Schloerke'
 inputs:
   needs:
@@ -117,16 +117,35 @@ runs:
           cat("needs-rhub-r-sysreqs=true\n", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
         }
 
+        # Only packages whose macOS binary links against a library that is
+        # missing from the GitHub runner image need `brew`. Posit Public
+        # Package Manager and CRAN now ship macOS binaries for the rest, so
+        # installing their system libraries is wasted time -- the full list
+        # cost ~4.5 minutes per job, almost all of it `gdal` and friends.
+        #
+        # `Cairo` is the one that still needs help. Its binary is linked
+        # against XQuartz (`/opt/X11/lib/libXrender.1.dylib`), which the
+        # runner image does not provide, so it installs cleanly and then
+        # fails to `dlopen`. XQuartz also restores `capabilities("X11")`.
+        #
+        # Dropped, and why:
+        #   FreeType    not on CRAN at all -- no source, no archive
+        #   RMySQL      CRAN ships a macOS binary; loads without
+        #               mariadb-connector-c
+        #   rgdal       archived from CRAN
+        #   rgeos       archived from CRAN
+        #   terra       PPM ships a macOS binary
+        #   textshaping PPM ships a macOS binary
+        #   units       PPM ships a macOS binary
+        #
+        # `cairo`, `harfbuzz` and `fribidi` are already on the runner image.
+        # All of the above is verified on every run of
+        # `.github/workflows/test-integration.yaml`, which installs and then
+        # *loads* each package -- a binary missing a system library installs
+        # fine and only fails at load time.
         brew_list <- list(
-          Cairo = c("libxt", "--cask xquartz", "cairo"),
-          FreeType = "freetype",
-          RMySQL = c("mariadb-connector-c"),
-          grDevices = c("libxt", "--cask xquartz", "cairo"),
-          rgdal = c("pkg-config", "proj", "gdal"),
-          rgeos = "geos",
-          terra = c("pkg-config", "proj", "geos", "gdal", "sqlite"),
-          textshaping = c("harfbuzz", "fribidi"),
-          units = "udunits"
+          Cairo = c("--cask xquartz"),
+          grDevices = c("--cask xquartz")
         )
         cmds <- unique(unname(unlist(
           brew_list[names(brew_list) %in% pkg_deps]

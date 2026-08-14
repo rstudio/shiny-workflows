@@ -1,0 +1,169 @@
+# Integration tests for `shiny-workflows` itself.
+#
+# These deliberately do NOT call the reusable `./.github/workflows/R-CMD-check.yaml`.
+# That workflow references `rstudio/shiny-workflows/setup-r-package@v1` internally,
+# and GitHub Actions does not allow expressions in `uses:`, so a local call would
+# still pull the released `v1` action rather than the code on this branch -- it
+# would pass without testing anything. Instead these jobs check out this repo at
+# the workspace root and invoke `./setup-r-package` directly.
+#
+# `setup-r-package` has the same problem one level down: it refers to its sibling
+# actions as `rstudio/shiny-workflows/<name>@v1`. A "Point internal action refs at
+# this commit" step rewrites those to the SHA under test, so a change to (say)
+# `setup-macOS-dependencies` is actually exercised here. Without it the jobs would
+# silently test the released `v1` of every sibling action.
+
+name: Integration tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "setup-r-package/**"
+      - "setup-macOS-dependencies/**"
+      - ".github/fixtures/**"
+      - ".github/workflows/test-integration.yaml"
+
+jobs:
+  # Guards the reduced `brew_list` in `setup-macOS-dependencies`. Every package
+  # that used to be in that list must install AND load -- the packages that were
+  # dropped must work from Posit Public Package Manager / CRAN binaries alone,
+  # and `Cairo`, which is still in the list, must get XQuartz.
+  macos-deps:
+    name: macOS deps (${{ matrix.label }})
+    runs-on: macOS-latest
+    # The RMySQL leg is informational. It has no macOS binary on PPM and is only
+    # reachable via CRAN's, so a CRAN-side change could break it without
+    # anything here being wrong. Failing it must not red the branch.
+    continue-on-error: ${{ matrix.optional }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: core
+            extra-packages: ""
+            optional: false
+          - label: RMySQL
+            extra-packages: "any::RMySQL"
+            optional: true
+
+    steps:
+      - name: Checkout shiny-workflows (branch under test)
+        uses: actions/checkout@v5
+
+      - name: Point internal action refs at this commit
+        shell: bash
+        env:
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sed -i.bak "s|rstudio/shiny-workflows/\(.*\)@v1|rstudio/shiny-workflows/\1@${REF}|g" setup-r-package/action.yaml
+          rm -f setup-r-package/action.yaml.bak
+          grep -n "rstudio/shiny-workflows" setup-r-package/action.yaml
+
+      - name: Install R and dependencies via local setup-r-package
+        uses: ./setup-r-package
+        with:
+          working-directory: .github/fixtures/macosdeps
+          # `check-r-package` runs `rcmdcheck`, which is not a dependency of the
+          # fixture, so it has to be installed explicitly.
+          extra-packages: |
+            any::rcmdcheck
+            ${{ matrix.extra-packages }}
+          # Always install from scratch: a cache hit would restore packages
+          # instead of downloading them, which is the thing being tested.
+          cache: "false"
+
+      - name: Report how each dependency was installed
+        working-directory: .github/fixtures/macosdeps
+        shell: Rscript {0}
+        run: |
+          cat("repos:\n"); print(getOption("repos"))
+          for (pkg in c("Cairo", "terra", "textshaping", "units", "RMySQL")) {
+            if (!nzchar(system.file(package = pkg))) next
+            cat(pkg, " -> ", packageDescription(pkg)[["Built"]], "\n", sep = "")
+          }
+
+      - name: Show Homebrew packages installed on the runner
+        run: brew list --versions || true
+        shell: bash
+
+      - name: Check fixture package
+        uses: r-lib/actions/check-r-package@v2
+        timeout-minutes: 30
+        with:
+          working-directory: .github/fixtures/macosdeps
+          upload-snapshots: false
+          # No `--as-cran`: this fixture is never submitted to CRAN, and the
+          # flag only adds a "New submission" NOTE.
+          args: 'c("--no-manual")'
+          build_args: 'c("--no-manual")'
+
+  # Proves the older Windows toolchains are still found and usable. `httpuv` is
+  # a good subject: it has `src/` (so Rtools actually matters), needs
+  # compilation, and declares `R (>= 2.15.1)`, so no leg is filtered out.
+  #
+  # Mirrors the Windows matrix of `R-CMD-check.yaml`: release plus the four
+  # previous versions, resolved from `oldrel-*` rather than hardcoded, per the
+  # tidyverse R version support policy. No `rtools-version` is set --
+  # `r-lib/actions/setup-r` resolves a suitable Rtools from the R version.
+  windows-httpuv:
+    name: Windows httpuv (R ${{ matrix.r }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        r:
+          - devel
+          - release
+          - oldrel-1
+          - oldrel-2
+          - oldrel-3
+          - oldrel-4
+
+    steps:
+      # Must run first: `actions/checkout` cleans the workspace root, which
+      # would wipe an already-checked-out `pkg/`.
+      - name: Checkout shiny-workflows (branch under test)
+        uses: actions/checkout@v5
+
+      - name: Checkout httpuv
+        uses: actions/checkout@v5
+        with:
+          repository: rstudio/httpuv
+          path: pkg
+
+      - name: Point internal action refs at this commit
+        shell: bash
+        env:
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sed -i.bak "s|rstudio/shiny-workflows/\(.*\)@v1|rstudio/shiny-workflows/\1@${REF}|g" setup-r-package/action.yaml
+          rm -f setup-r-package/action.yaml.bak
+          grep -n "rstudio/shiny-workflows" setup-r-package/action.yaml
+
+      - name: Install R and dependencies via local setup-r-package
+        uses: ./setup-r-package
+        with:
+          working-directory: pkg
+          r-version: ${{ matrix.r }}
+          # Always install from scratch: a cache hit would restore packages
+          # instead of resolving them, which is the thing being tested.
+          cache: "false"
+          extra-packages: any::rcmdcheck
+
+      - name: Report toolchain
+        shell: Rscript {0}
+        run: |
+          cat("R version: ", R.version.string, "\n", sep = "")
+          cat("Platform:  ", R.version$platform, "\n", sep = "")
+          cat("make:      ", Sys.which("make"), "\n", sep = "")
+          cat("gcc:       ", Sys.which("gcc"), "\n", sep = "")
+
+      - name: Check httpuv
+        uses: r-lib/actions/check-r-package@v2
+        timeout-minutes: 30
+        with:
+          working-directory: pkg
+          upload-snapshots: false
+          args: 'c("--no-manual", "--as-cran")'
+          build_args: 'c("--no-manual")'

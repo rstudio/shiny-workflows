@@ -1,0 +1,19 @@
+Package: macosdeps
+Type: Package
+Title: Fixture Package for macOS System Dependency Checks
+Version: 0.0.1
+Authors@R:
+    person(given = "Posit Software, PBC", role = c("aut", "cre"),
+           email = "info@posit.co")
+Description: Test fixture used by the shiny-workflows integration workflow.
+    It declares the packages that used to require Homebrew system libraries
+    on macOS, so that CI can prove they install as binaries now that
+    'setup-r-package' no longer runs 'brew install'. Not intended for
+    distribution.
+License: CC0
+Encoding: UTF-8
+Suggests:
+    Cairo,
+    terra,
+    textshaping,
+    units

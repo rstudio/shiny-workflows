@@ -18,9 +18,13 @@ inputs:
     default: ""
     description: Extra packages to be installed
     required: false
+  cache:
+    default: "always"
+    description: 'Whether package dependencies should be cached across runs. `"always"` saves the cache even if the workflow fails. Set to `"false"` to disable caching and force a fresh install.'
+    required: false
   cache-version:
     default: "1"
-    description: Value to be inserted into the cache key
+    description: Value to be inserted into the cache key. Ignored when `cache` is `"false"`.
     required: false
   pandoc-version:
     default: "3.x"
@@ -36,7 +40,7 @@ inputs:
     required: false
   use-public-rspm:
     default: "true"
-    description: 'Use the public version of Posit package manager available at https://packagemanager.posit.co/ to serve binaries for Linux and Windows.'
+    description: 'Use the public version of Posit package manager available at https://packagemanager.posit.co/ to serve binaries for Linux, Windows, and macOS. `"true"` is upgraded to `"always"` on macOS, since `setup-r` otherwise only enables macOS binaries for an allowlist of Posit-owned organizations and this action depends on them.'
     required: false
   pak-version:
     description: |
@@ -89,7 +93,13 @@ runs:
         r-version: ${{ inputs.r-version }}
         http-user-agent: ${{ inputs.http-user-agent }}
         rtools-version: ${{ inputs.rtools-version }}
-        use-public-rspm: ${{ inputs.use-public-rspm }}
+        # On macOS, `setup-r` only honors `"true"` for an allowlist of
+        # Posit-owned organizations. We rely on those binaries to avoid brew
+        # installs, so ask for them explicitly rather than depending on which
+        # org happens to own the repo. `"always"` is only substituted on macOS:
+        # elsewhere it would also override `setup-r`'s deliberate exclusion of
+        # non-Intel Windows, which has no binaries on the public PPM.
+        use-public-rspm: ${{ (runner.os == 'macOS' && inputs.use-public-rspm == 'true') && 'always' || inputs.use-public-rspm }}
         extra-repositories: ${{ inputs.extra-repositories }}
         working-directory: ${{ inputs.working-directory }}
 
@@ -108,7 +118,7 @@ runs:
     - uses: r-lib/actions/setup-r-dependencies@v2
       with:
         working-directory: ${{ inputs.working-directory }}
-        cache: "always"
+        cache: ${{ inputs.cache }}
         packages: ${{ inputs.packages }}
         cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
         needs: ${{ inputs.needs }}
