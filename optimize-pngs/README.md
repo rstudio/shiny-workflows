@@ -74,7 +74,3 @@ Benchmarked over 51 PNGs from {shinytest2} and {bslib} (3.42 MB):
 ## Supported runners
 
 Linux and macOS. Windows runners are not supported, as `oxipng` publishes a `.zip` rather than the `.tar.gz` this action installs; the action fails with a clear error there.
-
-## License
-
-The scripts and documentation in this project are released under the [MIT License](LICENSE)
