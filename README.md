@@ -177,12 +177,9 @@ Reasons to NOT consider a feature:
 
 ### Updates to workflows or actions
 
-If updates are made to the workflows, the `v1` tag must be (forcefully) moved forward to the latest value within the `rstudio/shiny-workflows`. To do this, run:
+If updates are made to the workflows, the `v1` tag must be (forcefully) moved forward to the latest commit on `main` within `rstudio/shiny-workflows`. Until the tag moves, consumers on `@v1` do not see merged changes.
 
-``` bash
-git tag -f v1
-git push origin --tags -f
-```
+Moving the tag ships every unreleased commit on `main` to every consumer repo at once, so it is a deploy rather than a git chore. The procedure — pre-flight checks, the commit list to review, the force-push, and how to roll back — lives in [`.claude/skills/update-v1-tag/SKILL.md`](./.claude/skills/update-v1-tag/SKILL.md). Follow it there rather than running the commands from memory; if you are working with Claude Code, ask it to update the `v1` tag and it will use that skill.
 
 
 
