@@ -55,6 +55,11 @@ on:
           man/figures/*.png
           vignettes/*.png
         required: false
+      license-note:
+        description: "If true, will update the bundled JavaScript dependency list in `LICENSE.note`. Only takes effect if `LICENSE.note` contains the generated-block markers."
+        type: boolean
+        default: true
+        required: false
     # secrets:
     #   token:
     #     required: true
@@ -233,6 +238,15 @@ jobs:
               exit 1
             fi
           fi
+
+      # Gated on the install step's condition, not just on `package.json`
+      # existing: the licenses are read out of the installed `node_modules`.
+      - name: "Update `LICENSE.note`"
+        if: inputs.license-note && (steps.package-json.outputs.build || steps.package-json.outputs.test)
+        uses: rstudio/shiny-workflows/license-note@v1
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          js-working-directory: ${{ inputs.js-working-directory }}
 
       - name: "JS build"
         working-directory: ${{ inputs.js-working-directory || inputs.working-directory }}
