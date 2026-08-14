@@ -61,6 +61,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `usethis::use_tidy_description()`
     * `devtools::document()`
     * `devtools::build_readme()` (if `README.Rmd` exists)
+    * Losslessly optimizes tracked PNG files with `oxipng`
     * Checks code coverage with `covr` if `codecov.yml` exists
     * Checks for broken lints if `.lintr` exists
     * Calls `npm build` / `yarn build` and commits any changes in `inst`, `srcts`, and `srcjs`.
@@ -76,6 +77,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `build-readme`: If `true`, will build README.md from README.Rmd. Defaults to `true`.
     * `check-js`: If `true`, will check for a `package.json` file and run `npm install` / `yarn install` and `npm build` / `yarn build` if it exists. Defaults to `true`.
     * `js-working-directory`: Folder that contains the `package.json` file. Defaults to the working directory input.
+    * `optimize-pngs`: Newline-separated [git pathspecs](https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec) of tracked PNG files to losslessly optimize with [`oxipng`](https://github.com/oxipng/oxipng). Defaults to `man/figures/*.png` and `vignettes/*.png`. Note that `*` matches `/` in a pathspec, so nested folders are included. Set to an empty string to disable.
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
 * `R-CMD-check.yaml`
   * Performs `R CMD check .` on your package
