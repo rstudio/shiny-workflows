@@ -56,9 +56,9 @@ on:
           vignettes/*.png
         required: false
       license-note:
-        description: "If true, will update the bundled JavaScript dependency list in `LICENSE.note`. Only takes effect if `LICENSE.note` contains the generated-block markers."
+        description: "If true, will update the bundled JavaScript dependency list in `LICENSE.note`. Opt-in: also requires `LICENSE.note` to contain the generated-block markers."
         type: boolean
-        default: true
+        default: false
         required: false
     # secrets:
     #   token:
