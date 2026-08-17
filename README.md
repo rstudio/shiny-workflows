@@ -74,7 +74,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * Checks code coverage with `covr` if `codecov.yml` exists
     * Checks for broken lints if `.lintr` exists
     * Calls `npm build` / `yarn build` and commits any changes in `inst`, `srcts`, and `srcjs`.
-    * Updates the bundled JavaScript dependency list in `LICENSE.note` (if it contains the generated-block markers), and comments on the PR when it changes. See [the `license-note` README](./license-note/README.md).
+    * Updates the bundled JavaScript dependency list in `LICENSE.note` and comments on the PR when it changes, if `license-note: true`. See [the `license-note` README](./license-note/README.md).
     * Calls `npm test` / `yarn test`
     * Checks for outdated `staticimports`
   * Packages included in the `DESCRIPTION` field `Config/Needs/routine` will also be installed
@@ -89,7 +89,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `check-js`: If `true`, will check for a `package.json` file and run `npm install` / `yarn install` and `npm build` / `yarn build` if it exists. Defaults to `true`.
     * `js-working-directory`: Folder that contains the `package.json` file. Defaults to the working directory input.
     * `optimize-pngs`: Newline-separated [git pathspecs](https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec) of tracked PNG files to losslessly optimize with [`oxipng`](https://github.com/oxipng/oxipng). Defaults to `man/figures/*.png` and `vignettes/*.png`. Note that `*` matches `/` in a pathspec, so nested folders are included. Files under a `_snaps/` folder are never optimized, as `testthat::compare_file_binary()` compares snapshots byte for byte and optimizing one would keep it from matching a freshly generated screenshot. Set to `false` (or an empty string) to disable. See the [`optimize-pngs`](optimize-pngs/) action for details.
-    * `license-note`: If `true`, updates the bundled JavaScript dependency list in `LICENSE.note`. Only takes effect if `LICENSE.note` contains the generated-block markers, so this is a no-op until a repo opts in. Defaults to `true`. See [the `license-note` README](./license-note/README.md).
+    * `license-note`: If `true`, updates the bundled JavaScript dependency list in `LICENSE.note`. Defaults to `false` — set it to `true` and add the generated-block markers to `LICENSE.note` to opt in. See [the `license-note` README](./license-note/README.md).
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
 * `R-CMD-check.yaml`
   * Performs `R CMD check .` on your package

@@ -14,9 +14,20 @@ of the installed `node_modules` and rewrites the list of components in
 
 ## Opting in
 
-The action only rewrites the region between two marker lines, so the rest of
-`LICENSE.note` — the summary paragraph, and any components that do not come from
-npm — stays under your control. A repo opts in by adding the markers once:
+Opting in takes two steps. In `routine.yaml`, this is off by default, so turn it
+on in your caller workflow:
+
+```yaml
+jobs:
+  routine:
+    uses: rstudio/shiny-workflows/.github/workflows/routine.yaml@v1
+    with:
+      license-note: true
+```
+
+Then add the markers to `LICENSE.note`. The action only rewrites the region
+between the two marker lines, so the rest of the file — the summary paragraph,
+and any components that do not come from npm — stays under your control:
 
 ```
 The example package as a whole is distributed under MIT. The example package
