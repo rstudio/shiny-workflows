@@ -50,9 +50,6 @@ To run any of the three workflows on its own triggers, adopt the matching file f
 
 There are three main reusable workflows to be used by packages in the shiny-verse
 
-> [!NOTE]
-> Ubuntu runners are pinned to `ubuntu-24.04` rather than `ubuntu-latest`. GitHub migrates the `ubuntu-latest` label to Ubuntu 26.04 between 2026-10-19 and 2026-11-19 ([actions/runner-images#14748](https://github.com/actions/runner-images/issues/14748)), and pinning keeps that rollout from silently changing every consumer repo's CI mid-flight. Once 26.04 has settled, these pins move to `ubuntu-26.04` — tracked in [#72](https://github.com/rstudio/shiny-workflows/issues/72) (grep for `TODO Nov 2026`).
-
 * `website.yaml`
   * This is a wrapper for building a `{pkgdown}` website and deploying it to the `gh-pages` branch of the repo.
   * Packages included in the `DESCRIPTION` field `Config/Needs/website` will also be installed
