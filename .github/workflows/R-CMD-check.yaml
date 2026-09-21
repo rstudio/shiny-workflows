@@ -42,7 +42,8 @@ on:
         type: string
         required: false
         # To test more versions, they must be separated by a space. Ex: `"ubuntu-18.04 ubuntu-20.04`
-        default: ubuntu-latest
+        # TODO Nov 2026: bump to `ubuntu-26.04` (actions/runner-images#14748)
+        default: ubuntu-24.04
       minimum-r-version:
         type: string
         required: false
@@ -78,7 +79,8 @@ name: R-CMD-check
 jobs:
   setup:
     name: setup
-    runs-on: ubuntu-latest
+    # TODO Nov 2026: bump to `ubuntu-26.04` (actions/runner-images#14748)
+    runs-on: ubuntu-24.04
     outputs:
       config: ${{ steps.config.outputs.config }}
     steps:
@@ -213,7 +215,7 @@ jobs:
                   if is_valid_os(ubuntu_, rver["oldrel4"]):
                       config.append(job(ubuntu_, rver["oldrel4"]))
 
-          # Extra "depends only" job on ubuntu-latest
+          # Extra "depends only" job on the first `ubuntu` runner
           # that sets _R_CHECK_DEPENDS_ONLY_=true when checking
           # Extra installed packages will be ignored in this mode.
           if check_depends_only and is_valid_os(ubuntu_arr[0], rver["release"]):

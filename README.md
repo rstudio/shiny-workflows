@@ -56,7 +56,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
   * The site is deployed on `push`, `workflow_dispatch`, and `repository_dispatch` events. On other events (such as `pull_request`), the site is only built and verified.
   * To run the site as its own workflow, so that it can also be rebuilt on demand without running the rest of `Package checks`, copy [`examples/website.yaml`](./examples/website.yaml) into your repo and drop the `website` job from `Package checks`. See [the examples README](./examples/README.md#website).
   * Parameters:
-    * `runs-on`: The runner to use for the job. Defaults to `ubuntu-latest`.
+    * `runs-on`: The runner to use for the job. Defaults to `ubuntu-24.04`.
     * `extra-packages`: Installs extra packages not listed in the `DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
     * `cache-version`: The cache key to be used. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies. Defaults to `"2"`.
     * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/HEAD/setup-pandoc . Defaults to `3.x` which installs a recent 3.x version of pandoc. (Similar behavior for `2.x`.)
@@ -100,7 +100,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `error-on`: Condition that makes `R CMD check` fail, forwarded to `rcmdcheck`'s `error_on`. Must be a quoted R string, e.g. `'"note"'`. Defaults to `'"warning"'`. Note that `'"note"'` can be flaky in CI even for a locally clean package, due to environment NOTEs such as _checking CRAN incoming feasibility_ and _checking for future file timestamps_.
     * `macOS`: `macOS` runtime to use. Set to `false` to disable testing on macOS. Defaults to `"macOS-latest"`.
     * `windows`: `windows` runtime to use. Set to `false` to disable testing on Windows. Defaults to `"windows-latest"`.
-    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 22.04 and 24.04, use `"ubuntu-22.04 ubuntu-24.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu. Defaults to `"ubuntu-latest"`.
+    * `ubuntu`: `ubuntu` runtime to use. To use more than one ubuntu value, send in a value separated by a space. For example, to test on ubuntu 22.04 and 24.04, use `"ubuntu-22.04 ubuntu-24.04"`. The first `ubuntu` value will be tested using the `"devel"` R version. Set to `false` to disable testing on Ubuntu. Defaults to `"ubuntu-24.04"`.
     * `minimum-r-version`: If provided, only R versions >= to `minimum-r-version` will be created in the matrix. Great for dependencies that will not install on earlier R versions.
     * `force-windows-src`: If `true`, forces the check to assume the package has compiled code even if it doesn't. Defaults to `false`.
     * `upload-snapshots`: If `true`, uploads testthat snapshots as artifacts. Defaults to `true`.

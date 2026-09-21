@@ -4,7 +4,8 @@ on:
       # Used by rstudio/shinyloadtest
       runs-on:
         type: string
-        default: ubuntu-latest
+        # TODO Nov 2026: bump to `ubuntu-26.04` (actions/runner-images#14748)
+        default: ubuntu-24.04
         required: false
       extra-packages:
         type: string
