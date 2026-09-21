@@ -32,7 +32,8 @@ name: "`pkgdown` - Netlify"
 
 jobs:
   pkgdown:
-    runs-on: ubuntu-latest
+    # TODO Nov 2026: bump to `ubuntu-26.04` (actions/runner-images#14748)
+    runs-on: ubuntu-24.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
