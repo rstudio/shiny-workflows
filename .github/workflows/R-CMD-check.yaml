@@ -218,8 +218,11 @@ jobs:
           # Extra "depends only" job on the first `ubuntu` runner
           # that sets _R_CHECK_DEPENDS_ONLY_=true when checking
           # Extra installed packages will be ignored in this mode.
+          # Vignettes are skipped since building/checking them typically
+          # requires `Suggests` packages (e.g., rmarkdown), which aren't
+          # available in depends-only mode.
           if check_depends_only and is_valid_os(ubuntu_arr[0], rver["release"]):
-              config.append(job(ubuntu_arr[0], rver["release"], **{"job-name": "check-depends-only", "env_check_depends_only": "true", "id": "depends-only"}))
+              config.append(job(ubuntu_arr[0], rver["release"], **{"job-name": "check-depends-only", "env_check_depends_only": "true", "id": "depends-only", "check-args": ', "--ignore-vignettes"', "check-build-args": ', "--no-build-vignettes"'}))
 
           # Convert to JSON
           config_json = json.dumps(config)
@@ -272,8 +275,8 @@ jobs:
         with:
           working-directory: ${{ inputs.working-directory }}
           check-dir: '"check"' # matches directory below
-          args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran")'
-          build_args: 'c(${{ inputs.extra-check-build-args }}, "--no-manual")'
+          args: 'c(${{ inputs.extra-check-args }}, "--no-manual", "--as-cran"${{ matrix.config.check-args }})'
+          build_args: 'c(${{ inputs.extra-check-build-args }}, "--no-manual"${{ matrix.config.check-build-args }})'
           error-on: ${{ inputs.error-on }}
           upload-snapshots: ${{ inputs.upload-snapshots }}
           # Use the cache-version to separate the results from other checks with the same setup.

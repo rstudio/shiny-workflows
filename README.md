@@ -107,7 +107,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `upload-check-results`: If `true`, uploads check results on failure. Defaults to `false`.
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
     * `check-timeout-minutes`: Timeout in minutes for the check step. Defaults to `30`.
-    * `check-depends-only`: If `true`, adds an extra job that checks the package with only dependencies installed (sets `_R_CHECK_DEPENDS_ONLY_=true`). Defaults to `true`.
+    * `check-depends-only`: If `true`, adds an extra job that checks the package with only dependencies installed (sets `_R_CHECK_DEPENDS_ONLY_=true`). Vignettes are not built or checked in this job, since they typically require `Suggests` packages (e.g., rmarkdown). Defaults to `true`.
 
 ## Customization
 
