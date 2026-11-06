@@ -72,6 +72,24 @@ runs:
   using: "composite"
   steps:
 
+    - name: Prefer Ubuntu archive mirrors
+      if: ${{ runner.os == 'Linux' && runner.environment == 'github-hosted' }}
+      shell: bash
+      run: |
+        source /etc/os-release
+        if [[ "$ID" == "ubuntu" && -f /etc/apt/apt-mirrors.txt ]]; then
+          # Some runners get very slow (~100 kB/s) downloads from the Azure mirror.
+          # apt only moves to the next mirror when a download stalls, not when it is
+          # slow, so put the Ubuntu archive first and keep Azure as the last fallback.
+          # https://github.com/rstudio/shiny-workflows/issues/75
+          sudo sed -i \
+            -e '\|^http://azure\.archive\.ubuntu\.com/ubuntu/[[:space:]]|s/priority:1$/priority:3/' \
+            -e '\|^https://archive\.ubuntu\.com/ubuntu/[[:space:]]|s/priority:2$/priority:1/' \
+            -e '\|^https://security\.ubuntu\.com/ubuntu/[[:space:]]|s/priority:3$/priority:2/' \
+            /etc/apt/apt-mirrors.txt
+          cat /etc/apt/apt-mirrors.txt
+        fi
+
     - name: Pandoc version
       id: pandoc-version
       shell: bash
