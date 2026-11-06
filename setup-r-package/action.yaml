@@ -94,8 +94,10 @@ runs:
       run: |
         source /etc/os-release
         if [[ "$ID" == "ubuntu" && -f /etc/apt/apt-mirrors.txt ]]; then
-          # Temporary workaround for slow Azure downloads. Keep Azure as a fallback.
-          # https://github.com/actions/runner-images/issues/14594
+          # Some runners get very slow (~100 kB/s) downloads from the Azure mirror.
+          # apt only moves to the next mirror when a download stalls, not when it is
+          # slow, so put the Ubuntu archive first and keep Azure as the last fallback.
+          # https://github.com/rstudio/shiny-workflows/issues/75
           sudo sed -i \
             -e '\|^http://azure\.archive\.ubuntu\.com/ubuntu/[[:space:]]|s/priority:1$/priority:3/' \
             -e '\|^https://archive\.ubuntu\.com/ubuntu/[[:space:]]|s/priority:2$/priority:1/' \
