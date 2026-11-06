@@ -98,6 +98,45 @@ jobs:
           args: 'c("--no-manual")'
           build_args: 'c("--no-manual")'
 
+  # Guards the "Prefer Ubuntu archive mirrors" step. `units` needs the small
+  # `libudunits2-dev` system library, which is not on the runner, so setup
+  # installs it with apt -- through the reordered mirror list. Cache is off so
+  # apt really runs.
+  ubuntu-mirrors:
+    name: Ubuntu mirrors
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout shiny-workflows (branch under test)
+        uses: actions/checkout@v5
+
+      - name: Point internal action refs at this commit
+        shell: bash
+        env:
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sed -i "s|rstudio/shiny-workflows/\(.*\)@v1|rstudio/shiny-workflows/\1@${REF}|g" setup-r-package/action.yaml
+          grep -n "rstudio/shiny-workflows" setup-r-package/action.yaml
+
+      - name: Install R and dependencies via local setup-r-package
+        uses: ./setup-r-package
+        with:
+          # Only `units`: the macOS fixture would also pull in terra's large
+          # GDAL stack, which this check does not need.
+          packages: any::units
+          cache: "false"
+
+      - name: Ubuntu archive is the first mirror
+        shell: bash
+        run: |
+          cat /etc/apt/apt-mirrors.txt
+          grep -Eq '^https://archive\.ubuntu\.com/ubuntu/[[:space:]]+priority:1$' /etc/apt/apt-mirrors.txt
+          grep -Eq '^http://azure\.archive\.ubuntu\.com/ubuntu/[[:space:]]+priority:3$' /etc/apt/apt-mirrors.txt
+
+      - name: Load units
+        run: Rscript -e 'loadNamespace("units")'
+        shell: bash
+
   # Proves the older Windows toolchains are still found and usable. `httpuv` is
   # a good subject: it has `src/` (so Rtools actually matters), needs
   # compilation, and declares `R (>= 2.15.1)`, so no leg is filtered out.
