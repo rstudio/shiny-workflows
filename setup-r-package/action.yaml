@@ -72,22 +72,6 @@ runs:
   using: "composite"
   steps:
 
-    - name: Pandoc version
-      id: pandoc-version
-      shell: bash
-      run: |
-        pandoc_version="${{ inputs.pandoc-version }}"
-        case $pandoc_version in
-          "default") pandoc_version="3.8.3" ;;
-          "3.x") pandoc_version="3.8.3" ;;
-          "2.x") pandoc_version="2.19.2" ;;
-        esac
-        echo "version=$pandoc_version" >> $GITHUB_OUTPUT
-
-    - uses: r-lib/actions/setup-pandoc@v2
-      with:
-        pandoc-version: ${{ steps.pandoc-version.outputs.version }}
-
     - name: Prefer Ubuntu archive mirrors
       if: ${{ runner.os == 'Linux' && runner.environment == 'github-hosted' }}
       shell: bash
@@ -105,6 +89,22 @@ runs:
             /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
         fi
+
+    - name: Pandoc version
+      id: pandoc-version
+      shell: bash
+      run: |
+        pandoc_version="${{ inputs.pandoc-version }}"
+        case $pandoc_version in
+          "default") pandoc_version="3.8.3" ;;
+          "3.x") pandoc_version="3.8.3" ;;
+          "2.x") pandoc_version="2.19.2" ;;
+        esac
+        echo "version=$pandoc_version" >> $GITHUB_OUTPUT
+
+    - uses: r-lib/actions/setup-pandoc@v2
+      with:
+        pandoc-version: ${{ steps.pandoc-version.outputs.version }}
 
     - uses: r-lib/actions/setup-r@v2
       with:
