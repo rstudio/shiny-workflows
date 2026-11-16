@@ -20,9 +20,34 @@ inputs:
     default: "."
     description: 'Working directory for the action. Defaults to the root of the repository.'
     required: false
+outputs:
+  cache-suffix:
+    description: Suffix for the R package cache key when the action selects OpenSSL 3.
+    value: ${{ steps.macos-openssl.outputs.cache-suffix }}
 runs:
   using: "composite"
   steps:
+    # Source builds of websocket with recent AsioHeaders need OpenSSL 3.
+    - name: Use OpenSSL 3 for older macOS R versions
+      if: runner.os == 'macOS'
+      id: macos-openssl
+      shell: bash
+      run: |
+        r_version="$(Rscript --vanilla -e 'cat(as.character(getRversion()))')"
+        case "$r_version" in
+          4.2.*|4.3.*|4.4.*) ;;
+          *) exit 0 ;;
+        esac
+        openssl_pkgconfig="$(brew --prefix openssl@3)/lib/pkgconfig"
+        if [[ ! -f "$openssl_pkgconfig/openssl.pc" ]]; then
+          brew install openssl@3
+        fi
+        case "${PKG_CONFIG_PATH:-}" in
+          "$openssl_pkgconfig"|"$openssl_pkgconfig":*) ;;
+          *) echo "PKG_CONFIG_PATH=$openssl_pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}" >> "$GITHUB_ENV" ;;
+        esac
+        echo "cache-suffix=-openssl3" >> "$GITHUB_OUTPUT"
+
     - name: Brew dependencies
       id: brew-deps
       working-directory: ${{ inputs.working-directory }}

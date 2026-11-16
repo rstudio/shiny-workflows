@@ -122,6 +122,7 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
+      id: macos-deps
       with:
         needs: ${{ inputs.needs }}
         extra-packages: ${{ inputs.extra-packages }}
@@ -138,7 +139,7 @@ runs:
         working-directory: ${{ inputs.working-directory }}
         cache: ${{ inputs.cache }}
         packages: ${{ inputs.packages }}
-        cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}
+        cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}${{ steps.macos-deps.outputs.cache-suffix }}
         needs: ${{ inputs.needs }}
         pak-version: ${{ inputs.pak-version }}
         extra-packages:

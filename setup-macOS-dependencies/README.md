@@ -9,6 +9,10 @@ Known dependencies:
 * `Cairo`, `grDevices`:
   * `brew install --cask xquartz`
 
+On macOS with R 4.2 through 4.4, this action puts OpenSSL 3 first for source
+builds. Recent versions of `AsioHeaders` need it when R builds `websocket`.
+The action returns a `cache-suffix` of `-openssl3` for the R package cache.
+
 ## Why the list is so short
 
 [Posit Public Package Manager](https://packagemanager.posit.co/) and CRAN now
