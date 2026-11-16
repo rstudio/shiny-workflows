@@ -31,6 +31,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Point internal action refs at this commit
+        shell: bash
+        env:
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sed -i.bak "s|rstudio/shiny-workflows/\(.*\)@v1|rstudio/shiny-workflows/\1@${REF}|g" setup-r-package/action.yaml
+          rm -f setup-r-package/action.yaml.bak
+
       - uses: ./setup-r-package
         with:
           r-version: "4.4.3"
@@ -40,6 +48,10 @@ jobs:
       - name: Find OpenSSL 3 from R
         shell: Rscript {0}
         run: |
+          prefix <- system2("brew", c("--prefix", "openssl@3"), stdout = TRUE)
+          paths <- strsplit(Sys.getenv("PKG_CONFIG_PATH"), ":", fixed = TRUE)[[1L]]
+          stopifnot(identical(paths[1L], file.path(prefix, "lib", "pkgconfig")))
+
           version <- system2("pkg-config", c("--modversion", "openssl"), stdout = TRUE)
           if (length(version) != 1L || !startsWith(version, "3.")) {
             stop("Expected OpenSSL 3 from pkg-config, got ", paste(version, collapse = ", "))

@@ -107,7 +107,6 @@ runs:
         pandoc-version: ${{ steps.pandoc-version.outputs.version }}
 
     - uses: r-lib/actions/setup-r@v2
-      id: setup-r
       with:
         r-version: ${{ inputs.r-version }}
         http-user-agent: ${{ inputs.http-user-agent }}
@@ -122,24 +121,8 @@ runs:
         extra-repositories: ${{ inputs.extra-repositories }}
         working-directory: ${{ inputs.working-directory }}
 
-    # Source builds of websocket with recent AsioHeaders need OpenSSL 3.
-    - name: Use OpenSSL 3 for older macOS R versions
-      if: >-
-        runner.os == 'macOS' &&
-        (startsWith(steps.setup-r.outputs.installed-r-version, '4.2.') ||
-         startsWith(steps.setup-r.outputs.installed-r-version, '4.3.') ||
-         startsWith(steps.setup-r.outputs.installed-r-version, '4.4.'))
-      id: macos-openssl
-      shell: bash
-      run: |
-        openssl_pkgconfig="$(brew --prefix openssl@3)/lib/pkgconfig"
-        if [[ ! -f "$openssl_pkgconfig/openssl.pc" ]]; then
-          brew install openssl@3
-        fi
-        echo "PKG_CONFIG_PATH=$openssl_pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}" >> "$GITHUB_ENV"
-        echo "cache-suffix=-openssl3" >> "$GITHUB_OUTPUT"
-
     - uses: rstudio/shiny-workflows/setup-macOS-dependencies@v1
+      id: macos-deps
       with:
         needs: ${{ inputs.needs }}
         extra-packages: ${{ inputs.extra-packages }}
@@ -156,7 +139,7 @@ runs:
         working-directory: ${{ inputs.working-directory }}
         cache: ${{ inputs.cache }}
         packages: ${{ inputs.packages }}
-        cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}${{ steps.macos-openssl.outputs.cache-suffix }}
+        cache-version: ${{ inputs.needs }}-${{ inputs.cache-version }}${{ steps.macos-deps.outputs.cache-suffix }}
         needs: ${{ inputs.needs }}
         pak-version: ${{ inputs.pak-version }}
         extra-packages:
