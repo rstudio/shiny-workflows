@@ -6,6 +6,8 @@ This action should be your "go-to" action to install a package and all necessary
 
 This action installs `pandoc`, `R`, `macOS` and `Linux` system dependencies, package dependencies and extra packages, and `phantomJS`.
 
+On macOS with R 4.2 through 4.4, the action puts OpenSSL 3 first when R builds packages from source.
+
 ## Inputs
 
 | Input | Description | Default | Required |

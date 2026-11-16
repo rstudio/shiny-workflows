@@ -25,6 +25,26 @@ on:
       - ".github/workflows/test-integration.yaml"
 
 jobs:
+  macos-openssl:
+    name: macOS OpenSSL (R 4.4)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./setup-r-package
+        with:
+          r-version: "4.4.3"
+          packages: any::sessioninfo
+          cache: "false"
+
+      - name: Find OpenSSL 3 from R
+        shell: Rscript {0}
+        run: |
+          version <- system2("pkg-config", c("--modversion", "openssl"), stdout = TRUE)
+          if (length(version) != 1L || !startsWith(version, "3.")) {
+            stop("Expected OpenSSL 3 from pkg-config, got ", paste(version, collapse = ", "))
+          }
+
   # Guards the reduced `brew_list` in `setup-macOS-dependencies`. Every package
   # that used to be in that list must install AND load -- the packages that were
   # dropped must work from Posit Public Package Manager / CRAN binaries alone,
