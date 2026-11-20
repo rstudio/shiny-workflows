@@ -28,7 +28,7 @@ inputs:
     required: false
   pandoc-version:
     default: "3.x"
-    description: Pandoc version to be installed
+    description: 'Pandoc version to be installed. Set to `"none"` to skip installing pandoc.'
     required: false
   packages:
     default: "local::., deps::., any::sessioninfo"
@@ -92,6 +92,7 @@ runs:
 
     - name: Pandoc version
       id: pandoc-version
+      if: ${{ inputs.pandoc-version != 'none' }}
       shell: bash
       run: |
         pandoc_version="${{ inputs.pandoc-version }}"
@@ -103,6 +104,7 @@ runs:
         echo "version=$pandoc_version" >> $GITHUB_OUTPUT
 
     - uses: r-lib/actions/setup-pandoc@v2
+      if: ${{ inputs.pandoc-version != 'none' }}
       with:
         pandoc-version: ${{ steps.pandoc-version.outputs.version }}
 

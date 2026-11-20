@@ -59,7 +59,7 @@ There are three main reusable workflows to be used by packages in the shiny-vers
     * `runs-on`: The runner to use for the job. Defaults to `ubuntu-24.04`.
     * `extra-packages`: Installs extra packages not listed in the `DESCRIPTION` file to be installed. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
     * `cache-version`: The cache key to be used. Link: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies. Defaults to `"2"`.
-    * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/HEAD/setup-pandoc . Defaults to `3.x` which installs a recent 3.x version of pandoc. (Similar behavior for `2.x`.)
+    * `pandoc-version`: Sets the pandoc version to be installed. Link: https://github.com/r-lib/actions/tree/HEAD/setup-pandoc . Defaults to `3.x` which installs a recent 3.x version of pandoc. (Similar behavior for `2.x`.) Set to `none` to skip installing pandoc.
     * `check-title`: If `true`, will check that vignette titles and document titles match. Defaults to `true`.
     * `clean`: Whether to clean the site before building. Defaults to `"TRUE"`.
     * `working-directory`: The working directory where all checks are executed. Defaults to `"."` (repository root).
